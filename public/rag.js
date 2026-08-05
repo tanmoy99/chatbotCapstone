@@ -1057,6 +1057,20 @@ window.IIM_RAG = (function () {
   /*
    * Common words that contribute little to retrieval.
    */
+    /*
+   * Improved browser-based RAG retrieval system.
+   *
+   * Features:
+   * - synonym expansion
+   * - typo tolerance
+   * - lightweight stemming
+   * - phrase matching
+   * - category detection
+   * - confidence scoring
+   * - verified-source preference
+   * - diversified results
+   */
+
   const stopWords = new Set([
     "a",
     "an",
@@ -1115,11 +1129,17 @@ window.IIM_RAG = (function () {
     "would",
     "you",
     "your",
+    "about",
+    "want",
+    "need",
+    "know",
+    "give",
+    "show",
   ]);
 
   /*
-   * Terms that can appear in many unrelated documents and should
-   * receive less retrieval weight.
+   * These words appear in many IIM documents.
+   * They receive less weight because they are too general.
    */
   const broadTerms = new Set([
     "iim",
@@ -1133,33 +1153,516 @@ window.IIM_RAG = (function () {
     "details",
     "requirements",
     "application",
+    "service",
+    "services",
+    "program",
+    "programme",
   ]);
 
+  /*
+   * Adds related words to a user's question.
+   *
+   * Example:
+   * "How much does membership cost?"
+   *
+   * Expanded query:
+   * "how much does membership cost fee fees price subscription"
+   */
+  const phraseAliases = {
+    join: [
+      "membership",
+      "become a member",
+      "membership application",
+    ],
+
+    "become member": [
+      "membership",
+      "join iim",
+    ],
+
+    price: [
+      "fee",
+      "fees",
+      "cost",
+      "subscription",
+    ],
+
+    cost: [
+      "fee",
+      "fees",
+      "price",
+      "subscription",
+    ],
+
+    pay: [
+      "payment",
+      "fee",
+      "bank payment",
+    ],
+
+    renew: [
+      "renewal",
+      "maintenance",
+      "certificate renewal",
+    ],
+
+    expire: [
+      "expired",
+      "expiry",
+      "validity",
+    ],
+
+    expired: [
+      "expiry",
+      "renewal",
+      "re-examination",
+      "lapsed certificate",
+    ],
+
+    valid: [
+      "validity",
+      "duration",
+      "expiry",
+    ],
+
+    course: [
+      "training",
+      "workshop",
+      "programme",
+    ],
+
+    class: [
+      "training",
+      "course",
+      "programme",
+    ],
+
+    conference: [
+      "event",
+      "seminar",
+      "workshop",
+    ],
+
+    "talk to someone": [
+      "human",
+      "staff",
+      "contact",
+      "representative",
+    ],
+
+    "speak to someone": [
+      "human",
+      "staff",
+      "contact",
+      "representative",
+    ],
+
+    "talk to a person": [
+      "human",
+      "staff",
+      "contact",
+      "representative",
+    ],
+
+    "phone number": [
+      "telephone",
+      "contact",
+      "call iim",
+    ],
+
+    "email address": [
+      "email",
+      "contact",
+      "general enquiries",
+    ],
+
+    "data privacy": [
+      "data protection",
+      "privacy",
+      "cdpo",
+    ],
+
+    dpo: [
+      "cdpo",
+      "data protection officer",
+    ],
+
+    "certified information manager": [
+      "cim",
+    ],
+
+    "certified data protection officer": [
+      "cdpo",
+    ],
+
+    student: [
+      "student membership",
+      "stiim",
+    ],
+
+    graduate: [
+      "graduate membership",
+      "gmiim",
+    ],
+
+    associate: [
+      "associate membership",
+      "amiim",
+    ],
+
+    fellow: [
+      "fellow membership",
+      "fiim",
+    ],
+
+    company: [
+      "corporate",
+      "organisation",
+      "corporate membership",
+    ],
+
+    business: [
+      "corporate",
+      "organisation",
+      "corporate membership",
+    ],
+
+    office: [
+      "location",
+      "address",
+      "contact",
+    ],
+
+    legitimate: [
+      "registered",
+      "recognised",
+      "approved",
+      "licensed",
+    ],
+
+    career: [
+      "professional relevance",
+      "certification",
+      "training",
+    ],
+  };
+
+  /*
+   * Category detection gives extra weight to documents belonging
+   * to the most likely subject area.
+   */
+  const intentRules = [
+    {
+      category: "Certification",
+      terms: [
+        "certification",
+        "certificate",
+        "cdpo",
+        "cim",
+        "exam",
+        "cpd",
+        "renew",
+        "renewal",
+        "expiry",
+        "expired",
+      ],
+    },
+
+    {
+      category: "Membership",
+      terms: [
+        "membership",
+        "member",
+        "join",
+        "subscription",
+        "induction",
+        "stiim",
+        "gmiim",
+        "amiim",
+        "pmiim",
+        "spmiim",
+        "fiim",
+        "cormiim",
+      ],
+    },
+
+    {
+      category: "Contact and Support",
+      terms: [
+        "contact",
+        "email",
+        "phone",
+        "call",
+        "human",
+        "staff",
+        "office",
+        "address",
+        "complaint",
+      ],
+    },
+
+    {
+      category: "About IIM",
+      terms: [
+        "about",
+        "mission",
+        "headquarters",
+        "location",
+        "legitimate",
+        "registered",
+        "recognised",
+        "recognized",
+        "activities",
+      ],
+    },
+
+    {
+      category: "Governance",
+      terms: [
+        "legal",
+        "privacy",
+        "sensitive",
+        "personal data",
+        "compliant",
+        "compliance",
+        "law",
+      ],
+    },
+  ];
+
+  /**
+   * Normalises text for matching.
+   */
   function normalize(text) {
     return String(text || "")
       .toLowerCase()
       .replace(/[®™©]/g, "")
+      .replace(/\bwhat's\b/g, "what is")
+      .replace(/\bwho's\b/g, "who is")
+      .replace(/\bcan't\b/g, "cannot")
+      .replace(/\bdon't\b/g, "do not")
+      .replace(/\bdoesn't\b/g, "does not")
+      .replace(/\bi'm\b/g, "i am")
+      .replace(/\bthey're\b/g, "they are")
       .replace(/[^a-z0-9\s]/g, " ")
       .replace(/\s+/g, " ")
       .trim();
   }
 
+  /**
+   * Performs lightweight stemming.
+   *
+   * Examples:
+   * memberships -> membership
+   * expired -> expir
+   * training -> train
+   */
+  function stem(token) {
+    let value = token;
+
+    if (
+      value.length > 5 &&
+      value.endsWith("ies")
+    ) {
+      value = value.slice(0, -3) + "y";
+    } else if (
+      value.length > 5 &&
+      value.endsWith("ing")
+    ) {
+      value = value.slice(0, -3);
+    } else if (
+      value.length > 4 &&
+      value.endsWith("ed")
+    ) {
+      value = value.slice(0, -2);
+    } else if (
+      value.length > 4 &&
+      value.endsWith("es")
+    ) {
+      value = value.slice(0, -2);
+    } else if (
+      value.length > 3 &&
+      value.endsWith("s")
+    ) {
+      value = value.slice(0, -1);
+    }
+
+    return value;
+  }
+
+  /**
+   * Calculates the edit distance between two words.
+   * This allows matching small spelling mistakes.
+   */
+  function editDistance(firstWord, secondWord) {
+    if (firstWord === secondWord) {
+      return 0;
+    }
+
+    if (!firstWord.length) {
+      return secondWord.length;
+    }
+
+    if (!secondWord.length) {
+      return firstWord.length;
+    }
+
+    const previous = Array.from(
+      {
+        length: secondWord.length + 1,
+      },
+      (_, index) => index
+    );
+
+    const current = new Array(
+      secondWord.length + 1
+    );
+
+    for (
+      let firstIndex = 1;
+      firstIndex <= firstWord.length;
+      firstIndex++
+    ) {
+      current[0] = firstIndex;
+
+      for (
+        let secondIndex = 1;
+        secondIndex <= secondWord.length;
+        secondIndex++
+      ) {
+        const substitutionCost =
+          firstWord[firstIndex - 1] ===
+          secondWord[secondIndex - 1]
+            ? 0
+            : 1;
+
+        current[secondIndex] = Math.min(
+          current[secondIndex - 1] + 1,
+          previous[secondIndex] + 1,
+          previous[secondIndex - 1] +
+            substitutionCost
+        );
+      }
+
+      for (
+        let secondIndex = 0;
+        secondIndex <= secondWord.length;
+        secondIndex++
+      ) {
+        previous[secondIndex] =
+          current[secondIndex];
+      }
+    }
+
+    return previous[secondWord.length];
+  }
+
+  /**
+   * Returns a similarity value between 0 and 1.
+   */
+  function tokenSimilarity(firstToken, secondToken) {
+    if (firstToken === secondToken) {
+      return 1;
+    }
+
+    if (
+      firstToken.length < 4 ||
+      secondToken.length < 4
+    ) {
+      return 0;
+    }
+
+    const distance = editDistance(
+      firstToken,
+      secondToken
+    );
+
+    const longestLength = Math.max(
+      firstToken.length,
+      secondToken.length
+    );
+
+    return 1 - distance / longestLength;
+  }
+
+  /**
+   * Converts text into useful searchable tokens.
+   */
   function getTokens(text) {
     return normalize(text)
       .split(" ")
       .filter(Boolean)
       .filter((token) => token.length > 1)
-      .filter((token) => !stopWords.has(token));
+      .filter((token) => !stopWords.has(token))
+      .map(stem);
   }
 
+  /**
+   * Expands the user's question using related words.
+   */
+  function expandQuery(query) {
+    const normalizedQuery = normalize(query);
+    const additions = [];
+
+    for (
+      const [phrase, aliases]
+      of Object.entries(phraseAliases)
+    ) {
+      if (normalizedQuery.includes(phrase)) {
+        additions.push(...aliases);
+      }
+    }
+
+    return normalize(
+      [
+        normalizedQuery,
+        ...additions,
+      ].join(" ")
+    );
+  }
+
+  /**
+   * Detects the likely question category.
+   */
+  function detectCategoryBoosts(query) {
+    const normalizedQuery = normalize(query);
+    const boosts = new Map();
+
+    for (const rule of intentRules) {
+      const matchingTerms = rule.terms.filter(
+        (term) =>
+          normalizedQuery.includes(
+            normalize(term)
+          )
+      );
+
+      if (matchingTerms.length > 0) {
+        boosts.set(
+          rule.category,
+          7 + matchingTerms.length * 3
+        );
+      }
+    }
+
+    return boosts;
+  }
+
+  /**
+   * Counts how often a word appears in text.
+   */
   function countOccurrences(text, searchTerm) {
-    if (!text || !searchTerm) return 0;
+    if (!text || !searchTerm) {
+      return 0;
+    }
 
     let count = 0;
     let position = 0;
 
     while (true) {
-      position = text.indexOf(searchTerm, position);
+      position = text.indexOf(
+        searchTerm,
+        position
+      );
 
       if (position === -1) {
         break;
@@ -1172,198 +1675,591 @@ window.IIM_RAG = (function () {
     return count;
   }
 
-  function scoreDocument(normalizedQuery, queryTokens, document) {
-    const normalizedTitle = normalize(document.title);
-    const normalizedCategory = normalize(document.category);
-    const normalizedText = normalize(document.text);
-    const normalizedKeywords = (document.keywords || []).map(normalize);
+  /**
+   * Finds the closest token match.
+   */
+  function fuzzyTokenMatch(
+    queryToken,
+    candidateTokens
+  ) {
+    let bestSimilarity = 0;
 
-    const searchableText = [
-      normalizedTitle,
-      normalizedCategory,
-      normalizedText,
-      ...normalizedKeywords,
-    ].join(" ");
+    for (const candidateToken of candidateTokens) {
+      if (queryToken === candidateToken) {
+        return 1;
+      }
 
-    let score = 0;
-    let meaningfulMatches = 0;
+      const similarity = tokenSimilarity(
+        queryToken,
+        candidateToken
+      );
 
-    /*
-     * Strong score for exact keyword and phrase matches.
-     */
-    for (const keyword of normalizedKeywords) {
-      if (!keyword) continue;
-
-      if (normalizedQuery === keyword) {
-        score += keyword.includes(" ") ? 30 : 18;
-        meaningfulMatches += 1;
-      } else if (normalizedQuery.includes(keyword)) {
-        score += keyword.includes(" ") ? 18 : 8;
-        meaningfulMatches += 1;
+      if (similarity > bestSimilarity) {
+        bestSimilarity = similarity;
       }
     }
 
-    /*
-     * Reward title and category relevance.
-     */
-    if (normalizedQuery === normalizedTitle) {
-      score += 30;
-    } else if (
-      normalizedTitle &&
-      normalizedQuery.includes(normalizedTitle)
-    ) {
-      score += 18;
-    }
-
-    if (
-      normalizedCategory &&
-      normalizedQuery.includes(normalizedCategory)
-    ) {
-      score += 8;
-    }
-
-    /*
-     * Score meaningful individual terms.
-     */
-    for (const token of queryTokens) {
-      const broad = broadTerms.has(token);
-
-      if (normalizedTitle.split(" ").includes(token)) {
-        score += broad ? 1 : 6;
-        meaningfulMatches += broad ? 0 : 1;
-      }
-
-      if (
-        normalizedKeywords.some((keyword) =>
-          keyword.split(" ").includes(token)
-        )
-      ) {
-        score += broad ? 1 : 5;
-        meaningfulMatches += broad ? 0 : 1;
-      }
-
-      const textCount = countOccurrences(normalizedText, token);
-
-      if (textCount > 0) {
-        score += broad
-          ? Math.min(textCount, 2)
-          : Math.min(textCount, 4) * 2;
-
-        meaningfulMatches += broad ? 0 : 1;
-      }
-    }
-
-    /*
-     * Reward documents that match multiple important terms.
-     */
-    const uniqueMatchedTokens = [
-      ...new Set(
-        queryTokens.filter(
-          (token) =>
-            !broadTerms.has(token) &&
-            searchableText.includes(token)
-        )
-      ),
-    ];
-
-    if (uniqueMatchedTokens.length >= 2) {
-      score += uniqueMatchedTokens.length * 4;
-    }
-
-    if (uniqueMatchedTokens.length >= 3) {
-      score += 8;
-    }
-
-    /*
-     * Reduce accidental matches based only on generic words.
-     */
-    if (meaningfulMatches === 0) {
-      score = 0;
-    }
-
-    return score;
+    return bestSimilarity;
   }
 
-  function retrieve(query, k) {
-    const limit = Number.isInteger(k) && k > 0 ? k : 3;
-    const normalizedQuery = normalize(query);
+  /**
+   * Scores one document against the user's question.
+   */
+  function scoreDocument(
+    normalizedQuery,
+    queryTokens,
+    document,
+    categoryBoosts
+  ) {
+    const normalizedTitle = normalize(
+      document.title
+    );
 
-    if (!normalizedQuery) {
+    const normalizedCategory = normalize(
+      document.category
+    );
+
+    const normalizedText = normalize(
+      document.text
+    );
+
+    const normalizedKeywords = (
+      document.keywords || []
+    ).map(normalize);
+
+    const titleTokens = getTokens(
+      normalizedTitle
+    );
+
+    const keywordTokens = getTokens(
+      normalizedKeywords.join(" ")
+    );
+
+    const textTokens = getTokens(
+      normalizedText
+    );
+
+    const allDocumentTokens = [
+      ...new Set([
+        ...titleTokens,
+        ...keywordTokens,
+        ...textTokens,
+      ]),
+    ];
+
+    let score = 0;
+    let exactMeaningfulMatches = 0;
+    let fuzzyMatches = 0;
+
+    const matchedTerms = new Set();
+
+    /*
+     * Strong exact keyword and phrase matching.
+     */
+    for (
+      const keyword
+      of normalizedKeywords
+    ) {
+      if (!keyword) {
+        continue;
+      }
+
+      if (normalizedQuery === keyword) {
+        score += keyword.includes(" ")
+          ? 42
+          : 28;
+
+        exactMeaningfulMatches += 1;
+        matchedTerms.add(keyword);
+      } else if (
+        normalizedQuery.includes(keyword)
+      ) {
+        score += keyword.includes(" ")
+          ? 24
+          : 12;
+
+        exactMeaningfulMatches += 1;
+        matchedTerms.add(keyword);
+      } else if (
+        keyword.includes(normalizedQuery) &&
+        normalizedQuery.length >= 4
+      ) {
+        score += 10;
+      }
+    }
+
+    /*
+     * Strong title matching.
+     */
+    if (
+      normalizedQuery === normalizedTitle
+    ) {
+      score += 45;
+    } else if (
+      normalizedQuery.includes(
+        normalizedTitle
+      ) &&
+      normalizedTitle.length > 4
+    ) {
+      score += 24;
+    }
+
+    /*
+     * Add a category-based score.
+     */
+    const categoryBoost =
+      categoryBoosts.get(
+        document.category
+      ) || 0;
+
+    score += categoryBoost;
+
+    /*
+     * Match individual words.
+     */
+    for (const token of queryTokens) {
+      const isBroadTerm =
+        broadTerms.has(token);
+
+      let matched = false;
+
+      if (titleTokens.includes(token)) {
+        score += isBroadTerm ? 2 : 9;
+        matched = true;
+      }
+
+      if (keywordTokens.includes(token)) {
+        score += isBroadTerm ? 2 : 8;
+        matched = true;
+      }
+
+      const textOccurrences =
+        countOccurrences(
+          normalizedText,
+          token
+        );
+
+      if (textOccurrences > 0) {
+        score += isBroadTerm
+          ? Math.min(textOccurrences, 2)
+          : Math.min(
+              textOccurrences,
+              4
+            ) * 2.5;
+
+        matched = true;
+      }
+
+      if (matched) {
+        if (!isBroadTerm) {
+          exactMeaningfulMatches += 1;
+        }
+
+        matchedTerms.add(token);
+      } else if (
+        !isBroadTerm &&
+        token.length >= 4
+      ) {
+        /*
+         * Try a spelling-tolerant match.
+         */
+        const similarity =
+          fuzzyTokenMatch(
+            token,
+            allDocumentTokens
+          );
+
+        if (similarity >= 0.82) {
+          score += similarity >= 0.9
+            ? 5
+            : 3;
+
+          fuzzyMatches += 1;
+          matchedTerms.add(token);
+        }
+      }
+    }
+
+    const uniqueMeaningfulMatches = [
+      ...matchedTerms,
+    ].filter(
+      (term) =>
+        !broadTerms.has(term) &&
+        !stopWords.has(term)
+    ).length;
+
+    /*
+     * Reward documents matching several important terms.
+     */
+    if (uniqueMeaningfulMatches >= 2) {
+      score +=
+        uniqueMeaningfulMatches * 5;
+    }
+
+    if (uniqueMeaningfulMatches >= 3) {
+      score += 10;
+    }
+
+    if (uniqueMeaningfulMatches >= 4) {
+      score += 8;
+    }
+
+    /*
+     * Reject documents matched only by generic words.
+     */
+    if (
+      exactMeaningfulMatches === 0 &&
+      fuzzyMatches === 0
+    ) {
+      return 0;
+    }
+
+    /*
+     * Reduce weak results when a longer question
+     * matches only one useful term.
+     */
+    if (
+      queryTokens.length >= 2 &&
+      uniqueMeaningfulMatches === 1
+    ) {
+      score *= 0.62;
+    }
+
+    /*
+     * Prefer verified knowledge.
+     */
+    if (!document.verified) {
+      score *= 0.82;
+    }
+
+    return Math.round(score * 100) / 100;
+  }
+
+  /**
+   * Produces a confidence value between 0 and 1.
+   */
+  function calculateConfidence(
+    topScore,
+    secondScore,
+    queryTokenCount
+  ) {
+    if (topScore <= 0) {
+      return 0;
+    }
+
+    const absoluteConfidence =
+      Math.min(topScore / 55, 1);
+
+    const scoreMargin =
+      secondScore > 0
+        ? Math.min(
+            (
+              topScore - secondScore
+            ) /
+              Math.max(topScore, 1),
+            1
+          )
+        : 1;
+
+    const queryFactor = Math.min(
+      Math.max(queryTokenCount, 1) / 3,
+      1
+    );
+
+    return Math.max(
+      0,
+      Math.min(
+        1,
+        absoluteConfidence * 0.65 +
+          scoreMargin * 0.25 +
+          queryFactor * 0.1
+      )
+    );
+  }
+
+  /**
+   * Prevents all selected results from being nearly identical.
+   */
+  function diversify(results, limit) {
+    const selectedResults = [];
+    const categoryCounts = new Map();
+
+    for (const result of results) {
+      const currentCount =
+        categoryCounts.get(
+          result.category
+        ) || 0;
+
+      if (currentCount >= 3) {
+        continue;
+      }
+
+      selectedResults.push(result);
+
+      categoryCounts.set(
+        result.category,
+        currentCount + 1
+      );
+
+      if (
+        selectedResults.length >= limit
+      ) {
+        break;
+      }
+    }
+
+    return selectedResults;
+  }
+
+  /**
+   * Main retrieval function.
+   *
+   * This keeps compatibility with:
+   *
+   * window.IIM_RAG.retrieve(userText, 4)
+   */
+  function retrieve(query, k) {
+    const limit =
+      Number.isInteger(k) && k > 0
+        ? k
+        : 4;
+
+    const expandedQuery =
+      expandQuery(query);
+
+    if (!expandedQuery) {
       return [];
     }
 
-    const queryTokens = getTokens(normalizedQuery);
+    const queryTokens = [
+      ...new Set(
+        getTokens(expandedQuery)
+      ),
+    ];
 
     if (!queryTokens.length) {
       return [];
     }
 
-    const results = corpus
+    const categoryBoosts =
+      detectCategoryBoosts(
+        expandedQuery
+      );
+
+    const rankedDocuments = corpus
       .map((document) => ({
         ...document,
+
         score: scoreDocument(
-          normalizedQuery,
+          expandedQuery,
           queryTokens,
-          document
+          document,
+          categoryBoosts
         ),
       }))
-      .filter((document) => document.score > 0)
-      .sort((a, b) => {
-        if (b.score !== a.score) {
-          return b.score - a.score;
+      .filter(
+        (document) =>
+          document.score > 0
+      )
+      .sort((first, second) => {
+        if (
+          second.score !== first.score
+        ) {
+          return (
+            second.score - first.score
+          );
         }
 
-        /*
-         * Prefer verified documents when scores are equal.
-         */
-        return Number(b.verified) - Number(a.verified);
+        if (
+          Number(second.verified) !==
+          Number(first.verified)
+        ) {
+          return (
+            Number(second.verified) -
+            Number(first.verified)
+          );
+        }
+
+        return first.title.localeCompare(
+          second.title
+        );
       });
 
+    if (!rankedDocuments.length) {
+      return [];
+    }
+
+    const topScore =
+      rankedDocuments[0].score;
+
+    const secondScore =
+      rankedDocuments[1]
+        ? rankedDocuments[1].score
+        : 0;
+
+    const confidence =
+      calculateConfidence(
+        topScore,
+        secondScore,
+        queryTokens.length
+      );
+
     /*
-     * Require a basic minimum score to prevent weak,
-     * unrelated retrieval results.
+     * Short queries need stronger evidence.
      */
-    const strongResults = results.filter(
-      (document) => document.score >= 5
+    let minimumScore =
+      queryTokens.length <= 1
+        ? 11
+        : 7;
+
+    if (confidence < 0.28) {
+      minimumScore += 3;
+    }
+
+    const acceptedDocuments =
+      rankedDocuments
+        .filter(
+          (document) =>
+            document.score >=
+            minimumScore
+        )
+        .filter(
+          (document) =>
+            document.score >=
+            topScore * 0.34
+        )
+        .map(
+          (document, index) => ({
+            ...document,
+
+            rank: index + 1,
+
+            confidence:
+              index === 0
+                ? confidence
+                : Math.max(
+                    0,
+                    Math.min(
+                      1,
+                      confidence *
+                        (
+                          document.score /
+                          topScore
+                        )
+                    )
+                  ),
+          })
+        );
+
+    return diversify(
+      acceptedDocuments,
+      limit
     );
-
-    return strongResults.slice(0, limit);
   }
 
+  /**
+   * Returns retrieval results together with diagnostics.
+   * This will be useful when testing your RAG.
+   */
+  function retrieveWithMeta(query, k) {
+    const results = retrieve(query, k);
+
+    return {
+      query: query,
+
+      normalizedQuery:
+        expandQuery(query),
+
+      results: results,
+
+      topScore:
+        results[0]
+          ? results[0].score
+          : 0,
+
+      confidence:
+        results[0]
+          ? results[0].confidence
+          : 0,
+
+      hasReliableMatch: Boolean(
+        results[0] &&
+          results[0].confidence >= 0.34
+      ),
+    };
+  }
+
+  /**
+   * Returns one document by its ID.
+   */
   function getDocumentById(id) {
-    return corpus.find((document) => document.id === id) || null;
+    return (
+      corpus.find(
+        (document) =>
+          document.id === id
+      ) || null
+    );
   }
 
-  function getDocumentsByCategory(category) {
-    const normalizedCategory = normalize(category);
+  /**
+   * Returns documents belonging to one category.
+   */
+  function getDocumentsByCategory(
+    category
+  ) {
+    const normalizedCategory =
+      normalize(category);
 
     return corpus.filter(
       (document) =>
-        normalize(document.category) === normalizedCategory
+        normalize(
+          document.category
+        ) === normalizedCategory
     );
   }
 
+  /**
+   * Returns statistics about the knowledge base.
+   */
   function getCorpusStats() {
     return {
-      totalDocuments: corpus.length,
-      verifiedDocuments: corpus.filter(
-        (document) => document.verified
-      ).length,
-      unverifiedDocuments: corpus.filter(
-        (document) => !document.verified
-      ).length,
+      totalDocuments:
+        corpus.length,
+
+      verifiedDocuments:
+        corpus.filter(
+          (document) =>
+            document.verified
+        ).length,
+
+      unverifiedDocuments:
+        corpus.filter(
+          (document) =>
+            !document.verified
+        ).length,
+
       categories: [
         ...new Set(
-          corpus.map((document) => document.category)
+          corpus.map(
+            (document) =>
+              document.category
+          )
         ),
       ],
     };
   }
 
+  /*
+   * Functions made available to app.js
+   * and the browser console.
+   */
   return {
     corpus,
     normalize,
+    getTokens,
+    expandQuery,
     retrieve,
+    retrieveWithMeta,
     getDocumentById,
     getDocumentsByCategory,
     getCorpusStats,
