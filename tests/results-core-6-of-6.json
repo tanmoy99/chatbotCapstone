@@ -1,0 +1,128 @@
+{
+  "runAt": "2026-08-19T10:43:41.281Z",
+  "passed": 6,
+  "total": 6,
+  "accuracy": 100,
+  "results": [
+    {
+      "id": "professional-membership-fees",
+      "question": "How much does professional membership cost?",
+      "passed": true,
+      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "professional-membership-fees-paraphrase",
+      "question": "What fees do I need to pay for PMIIM?",
+      "passed": true,
+      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "membership-benefits",
+      "question": "What benefits do IIM members receive?",
+      "passed": true,
+      "answer": "IIM membership benefits include: * Participation in regular, general and special meetings for members in good standing\n* Receiving meeting notices and programme information\n* Eligibility for relevant governance/election participation subject to membership rules\n* Special consideration for seminars, conferences and workshops\n* Access to IIM information resources\n* Professional development opportunities\n* Networking opportunities\n* Recognition opportunities",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "expired-cdpo",
+      "question": "What happens if my CDPO certificate expires?",
+      "passed": true,
+      "answer": "If a CDPO certificate expires, it becomes inactive and use of the CDPO designation should stop until reinstatement. The official information is inconsistent, so the outcome is case-specific and may require re-examination depending on the lapse. Contact certification@iim-africa.org for an official decision on your case.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "lagos-office",
+      "question": "Where is the Lagos office?",
+      "passed": true,
+      "answer": "The IIM Lagos office is on Association Avenue, Ilupeju, Lagos, Nigeria. Official IIM pages conflict on the street number: some show 13 Association Avenue, while another shows SAIM House 35. Please confirm the current street number with IIM at info@iim-africa.org before visiting.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "unknown-refund-policy",
+      "question": "What is your refund policy?",
+      "passed": true,
+      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    }
+  ]
+}

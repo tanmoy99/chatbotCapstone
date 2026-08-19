@@ -1,18 +1,327 @@
 [
   {
+    "id": "about-iim-overview",
+    "question": "What is IIM?",
+    "expectedSourceIds": [
+      "about_iim_overview"
+    ],
+    "requiredGroups": [
+      [
+        "international professional",
+        "professional institute",
+        "professional"
+      ],
+      [
+        "data and information management",
+        "information management"
+      ],
+      [
+        "membership",
+        "certification",
+        "training"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "about-iim-mission",
+    "question": "What is IIM's mission?",
+    "expectedSourceIds": [
+      "about_iim_mission_vision"
+    ],
+    "requiredGroups": [
+      [
+        "mission"
+      ],
+      [
+        "information assets",
+        "technology",
+        "compliance"
+      ],
+      [
+        "standards",
+        "certification",
+        "competence"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "about-iim-vision",
+    "question": "What is IIM's vision for the future?",
+    "expectedSourceIds": [
+      "about_iim_mission_vision"
+    ],
+    "requiredGroups": [
+      [
+        "vision"
+      ],
+      [
+        "leading"
+      ],
+      [
+        "Africa"
+      ],
+      [
+        "data and information management",
+        "information management"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "iim-registration",
+    "question": "Is IIM a registered and legitimate organisation?",
+    "expectedSourceIds": [
+      "iim_approvals_registration"
+    ],
+    "requiredGroups": [
+      [
+        "Colorado nonprofit",
+        "Colorado"
+      ],
+      [
+        "RC 1125723",
+        "20181786160",
+        "FME/TED"
+      ],
+      [
+        "official website",
+        "site states",
+        "according to IIM"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "iim-global-presence",
+    "question": "In which countries does IIM operate?",
+    "expectedSourceIds": [
+      "iim_global_presence"
+    ],
+    "requiredGroups": [
+      [
+        "UK",
+        "Canada",
+        "South Africa",
+        "Australia",
+        "Nigeria"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "membership-grades",
+    "question": "Who can join IIM and what membership grades are available?",
+    "expectedSourceIds": [
+      "ng_membership_categories"
+    ],
+    "requiredGroups": [
+      [
+        "Student"
+      ],
+      [
+        "Graduate"
+      ],
+      [
+        "Associate"
+      ],
+      [
+        "Professional"
+      ],
+      [
+        "Fellow"
+      ],
+      [
+        "Corporate"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "student-membership-eligibility",
+    "question": "What are the requirements to become a Student Member?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "full-time",
+        "full time"
+      ],
+      [
+        "student"
+      ],
+      [
+        "proof",
+        "active study"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "graduate-membership-eligibility",
+    "question": "What are the requirements for Graduate Membership?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "recent graduate",
+        "graduate"
+      ],
+      [
+        "pre-induction training",
+        "pre induction training"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "associate-membership-eligibility",
+    "question": "What are the requirements for Associate Membership?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "qualification",
+        "experience",
+        "upgrade"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "professional-membership-eligibility",
+    "question": "What are the requirements for Professional Membership?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "degree",
+        "HND",
+        "OND"
+      ],
+      [
+        "experience"
+      ],
+      [
+        "certification",
+        "Membership Committee",
+        "approved"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "senior-professional-eligibility",
+    "question": "What are the requirements for Senior Professional Membership?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "senior"
+      ],
+      [
+        "supervisory"
+      ],
+      [
+        "post-graduation experience",
+        "experience"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "fellow-membership-eligibility",
+    "question": "How do I become an IIM Fellow?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "15 years",
+        "fifteen years"
+      ],
+      [
+        "committee",
+        "council"
+      ],
+      [
+        "eminence",
+        "authority",
+        "seniority"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "corporate-membership-eligibility",
+    "question": "How can my company obtain Corporate Membership?",
+    "expectedSourceIds": [
+      "ng_membership_grade_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "organisation",
+        "organization",
+        "government establishment"
+      ],
+      [
+        "five employees",
+        "at least five"
+      ],
+      [
+        "supporting corporate details",
+        "corporate details"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
     "id": "professional-membership-fees",
     "question": "How much does professional membership cost?",
     "expectedSourceIds": [
-      "professional_membership"
+      "ng_membership_fees"
     ],
     "requiredGroups": [
-      ["$100", "100 US dollars"],
-      ["$99", "99 US dollars"],
-      ["$180", "180 US dollars"]
+      [
+        "$100",
+        "USD 100",
+        "100 USD",
+        "100 US dollars"
+      ],
+      [
+        "$99",
+        "USD 99",
+        "99 USD",
+        "99 US dollars"
+      ],
+      [
+        "$180",
+        "USD 180",
+        "180 USD",
+        "180 US dollars"
+      ]
     ],
     "forbiddenTerms": [
-      "student membership fee",
-      "cdpo maintenance fee"
+      "CDPO maintenance fee"
     ],
     "expectFallback": false
   },
@@ -20,17 +329,82 @@
     "id": "professional-membership-fees-paraphrase",
     "question": "What fees do I need to pay for PMIIM?",
     "expectedSourceIds": [
-      "professional_membership"
+      "ng_membership_fees"
     ],
     "requiredGroups": [
-      ["$100", "100 US dollars"],
-      ["$99", "99 US dollars"],
-      ["$180", "180 US dollars"]
+      [
+        "$100",
+        "USD 100",
+        "100 USD",
+        "100 US dollars"
+      ],
+      [
+        "$99",
+        "USD 99",
+        "99 USD",
+        "99 US dollars"
+      ],
+      [
+        "$180",
+        "USD 180",
+        "180 USD",
+        "180 US dollars"
+      ]
     ],
     "forbiddenTerms": [
-      "student membership fee",
-      "cdpo maintenance fee"
+      "Professional Management Institute"
     ],
+    "expectFallback": false
+  },
+  {
+    "id": "student-membership-fee",
+    "question": "How much is the Student Membership fee?",
+    "expectedSourceIds": [
+      "ng_membership_fees"
+    ],
+    "requiredGroups": [
+      [
+        "registration exempt",
+        "registration is exempt",
+        "exempt"
+      ],
+      [
+        "USD 50",
+        "50 USD",
+        "$50",
+        "50 US dollars"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "corporate-membership-fees",
+    "question": "What are the Corporate Membership fees?",
+    "expectedSourceIds": [
+      "ng_membership_fees"
+    ],
+    "requiredGroups": [
+      [
+        "USD 100",
+        "100 USD",
+        "$100",
+        "100 US dollars"
+      ],
+      [
+        "USD 237",
+        "237 USD",
+        "$237",
+        "237 US dollars"
+      ],
+      [
+        "USD 245",
+        "245 USD",
+        "$245",
+        "245 US dollars"
+      ]
+    ],
+    "forbiddenTerms": [],
     "expectFallback": false
   },
   {
@@ -40,52 +414,989 @@
       "membership_benefits"
     ],
     "requiredGroups": [
-      ["meetings"],
-      ["voting", "vote"],
-      ["seminars", "conferences", "workshops"]
+      [
+        "meetings"
+      ],
+      [
+        "governance",
+        "election",
+        "voting",
+        "vote"
+      ],
+      [
+        "seminars",
+        "conferences",
+        "workshops"
+      ],
+      [
+        "professional development",
+        "networking",
+        "recognition"
+      ]
     ],
     "forbiddenTerms": [
-      "guaranteed employment",
       "guaranteed salary"
     ],
+    "expectFallback": false
+  },
+  {
+    "id": "membership-upgrade",
+    "question": "How can I upgrade my IIM membership grade?",
+    "expectedSourceIds": [
+      "ng_membership_upgrade"
+    ],
+    "requiredGroups": [
+      [
+        "CPD",
+        "professional activities"
+      ],
+      [
+        "current subscription",
+        "subscription should be paid",
+        "paid subscription"
+      ],
+      [
+        "NGN 30,000",
+        "30,000",
+        "USD 150",
+        "$150"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "membership-payment-method",
+    "question": "How can I pay my IIM membership fee?",
+    "expectedSourceIds": [
+      "ng_membership_fees"
+    ],
+    "requiredGroups": [
+      [
+        "not provided",
+        "not included",
+        "confirm",
+        "official instructions",
+        "contact the Membership department",
+        "payment options",
+        "for assistance"
+      ],
+      [
+        "membership@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [
+      "PayPal",
+      "cryptocurrency",
+      "Bitcoin"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "certification-offerings",
+    "question": "What professional certifications does IIM offer?",
+    "expectedSourceIds": [
+      "certification_framework"
+    ],
+    "requiredGroups": [
+      [
+        "IMP"
+      ],
+      [
+        "CDPO",
+        "CDPP",
+        "CDMP",
+        "CISP"
+      ],
+      [
+        "foundation",
+        "specialist",
+        "master"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "certification-process",
+    "question": "How do I get an IIM certification?",
+    "expectedSourceIds": [
+      "certification_process"
+    ],
+    "requiredGroups": [
+      [
+        "pre-certification training",
+        "training"
+      ],
+      [
+        "application",
+        "credentials"
+      ],
+      [
+        "eligibility",
+        "approved"
+      ],
+      [
+        "examination",
+        "exam"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "certification-application-fee",
+    "question": "Is there an application processing fee for certification?",
+    "expectedSourceIds": [
+      "certification_process"
+    ],
+    "requiredGroups": [
+      [
+        "USD 16",
+        "16 USD",
+        "$16",
+        "16 US dollars"
+      ],
+      [
+        "non-refundable",
+        "non refundable"
+      ],
+      [
+        "dynamic",
+        "current",
+        "confirm",
+        "may change"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-purpose",
+    "question": "What is the IIM CDPO certification for?",
+    "expectedSourceIds": [
+      "cdpo_overview"
+    ],
+    "requiredGroups": [
+      [
+        "data protection"
+      ],
+      [
+        "privacy"
+      ],
+      [
+        "compliance",
+        "governance"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-eligibility",
+    "question": "Who is eligible to take the CDPO certification?",
+    "expectedSourceIds": [
+      "cdpo_eligibility"
+    ],
+    "requiredGroups": [
+      [
+        "two years",
+        "2 years"
+      ],
+      [
+        "data protection",
+        "compliance",
+        "information security"
+      ],
+      [
+        "DPO training",
+        "professional certification",
+        "recognised certification",
+        "recognized certification"
+      ],
+      [
+        "confirm",
+        "eligibility"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-exam-format",
+    "question": "How many questions are in the CDPO exam, how long is it, and what is the pass mark?",
+    "expectedSourceIds": [
+      "cdpo_process_exam"
+    ],
+    "requiredGroups": [
+      [
+        "60 questions"
+      ],
+      [
+        "150 minutes"
+      ],
+      [
+        "70%",
+        "70 percent"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-remote-exam",
+    "question": "Can I take the CDPO examination remotely?",
+    "expectedSourceIds": [
+      "cdpo_process_exam"
+    ],
+    "requiredGroups": [
+      [
+        "remote proctoring",
+        "remotely proctored",
+        "remote"
+      ],
+      [
+        "worldwide",
+        "secure"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-validity",
+    "question": "How long is the IIM CDPO certificate valid?",
+    "expectedSourceIds": [
+      "cdpo_recertification"
+    ],
+    "requiredGroups": [
+      [
+        "one year",
+        "1 year",
+        "12 months"
+      ],
+      [
+        "annual",
+        "annually"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-renewal-timing",
+    "question": "When should I apply to renew my CDPO certificate?",
+    "expectedSourceIds": [
+      "cdpo_recertification"
+    ],
+    "requiredGroups": [
+      [
+        "30 days"
+      ],
+      [
+        "expiry",
+        "expires",
+        "expiration"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-renewal-documents",
+    "question": "What documents are required to renew a CDPO certificate?",
+    "expectedSourceIds": [
+      "cdpo_recertification"
+    ],
+    "requiredGroups": [
+      [
+        "CPD evidence",
+        "CPD log"
+      ],
+      [
+        "identification",
+        "valid ID",
+        "identity document"
+      ],
+      [
+        "conduct declaration",
+        "compliance declaration",
+        "declaration"
+      ],
+      [
+        "proof of the applicable fee",
+        "proof of payment",
+        "fee"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cpd-points-required",
+    "question": "How many CPD points do I need each year?",
+    "expectedSourceIds": [
+      "cpd_overview"
+    ],
+    "requiredGroups": [
+      [
+        "20 CPD",
+        "20 points"
+      ],
+      [
+        "annual",
+        "each year",
+        "per year"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cpd-activities",
+    "question": "What activities count towards IIM CPD points?",
+    "expectedSourceIds": [
+      "cpd_overview"
+    ],
+    "requiredGroups": [
+      [
+        "webinars",
+        "workshops"
+      ],
+      [
+        "conferences",
+        "seminars"
+      ],
+      [
+        "publications",
+        "research"
+      ],
+      [
+        "committees",
+        "projects",
+        "working groups"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-maintenance-fees",
+    "question": "What are the CDPO certificate maintenance fees for members and non-members?",
+    "expectedSourceIds": [
+      "cdpo_recertification"
+    ],
+    "requiredGroups": [
+      [
+        "NGN 50,000",
+        "50,000"
+      ],
+      [
+        "NGN 70,000",
+        "70,000"
+      ],
+      [
+        "Accredited Member",
+        "accredited member"
+      ],
+      [
+        "non-member",
+        "non member",
+        "non-IIM member",
+        "non IIM member"
+      ],
+      [
+        "dynamic",
+        "current",
+        "confirm",
+        "may change",
+        "subject to change"
+      ]
+    ],
+    "forbiddenTerms": [],
     "expectFallback": false
   },
   {
     "id": "expired-cdpo",
     "question": "What happens if my CDPO certificate expires?",
     "expectedSourceIds": [
-      "cdpo_expired_certificate"
+      "cdpo_expired_policy"
     ],
-"requiredGroups": [
-  [
-    "re-examination",
-    "reexamination",
-    "retake the exam",
-    "retake the examination",
-    "take the exam again",
-    "take the examination again",
-    "sit the exam again",
-    "complete the examination again"
-  ],
-  [
-    "certification@iim-africa.org"
-  ]
-],
+    "requiredGroups": [
+      [
+        "inactive",
+        "stop using",
+        "designation should stop"
+      ],
+      [
+        "inconsistent",
+        "conflicting",
+        "depends",
+        "case-specific",
+        "may require"
+      ],
+      [
+        "re-examination",
+        "reexamination",
+        "retake the exam",
+        "retake the examination"
+      ],
+      [
+        "certification@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "cdpo-appeal",
+    "question": "How can I appeal a CDPO re-certification decision?",
+    "expectedSourceIds": [
+      "cdpo_recertification"
+    ],
+    "requiredGroups": [
+      [
+        "writing",
+        "written"
+      ],
+      [
+        "14 days"
+      ],
+      [
+        "certification@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "missed-cpd-requirement",
+    "question": "What happens if I do not get the required CPD points?",
+    "expectedSourceIds": [
+      "cpd_overview"
+    ],
+    "requiredGroups": [
+      [
+        "20 CPD",
+        "20 points"
+      ],
+      [
+        "renewal",
+        "requirement",
+        "recertification",
+        "re-certification"
+      ],
+      [
+        "contact",
+        "certification@iim-africa.org",
+        "official"
+      ]
+    ],
     "forbiddenTerms": [
-      "automatically renewed"
+      "guaranteed renewal"
     ],
+    "expectFallback": false
+  },
+  {
+    "id": "certificate-verification",
+    "question": "How can an employer verify my IIM certificate or digital badge?",
+    "expectedSourceIds": [
+      "cert_verification"
+    ],
+    "requiredGroups": [
+      [
+        "digital badge"
+      ],
+      [
+        "not a substitute",
+        "does not replace"
+      ],
+      [
+        "official IIM",
+        "NDPC",
+        "official verification"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "expired-digital-badge",
+    "question": "Can I keep using my digital badge after my certification expires?",
+    "expectedSourceIds": [
+      "cert_verification"
+    ],
+    "requiredGroups": [
+      [
+        "must not",
+        "should not",
+        "stop using",
+        "cannot continue"
+      ],
+      [
+        "expiry",
+        "expired",
+        "suspension",
+        "withdrawal"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "training-areas",
+    "question": "What training subjects does IIM cover?",
+    "expectedSourceIds": [
+      "training_areas"
+    ],
+    "requiredGroups": [
+      [
+        "archiving",
+        "archives"
+      ],
+      [
+        "database management",
+        "document management"
+      ],
+      [
+        "information security",
+        "knowledge management"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "ato-purpose",
+    "question": "What is an IIM Accredited Training Organisation?",
+    "expectedSourceIds": [
+      "ato_overview"
+    ],
+    "requiredGroups": [
+      [
+        "accredited",
+        "training provider"
+      ],
+      [
+        "trainer competence",
+        "course content"
+      ],
+      [
+        "quality assurance",
+        "data-protection compliance",
+        "data protection compliance"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "current-training-provider",
+    "question": "How do I find a currently accredited IIM training provider?",
+    "expectedSourceIds": [
+      "ato_overview"
+    ],
+    "requiredGroups": [
+      [
+        "live",
+        "current"
+      ],
+      [
+        "Training Department",
+        "Certification Department",
+        "contact IIM",
+        "provider page"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "training-dates-pricing",
+    "question": "When is the next IIM training course and how much does it cost?",
+    "expectedSourceIds": [
+      "dynamic_data_policy"
+    ],
+    "requiredGroups": [
+      [
+        "time-sensitive",
+        "may change",
+        "current",
+        "live",
+        "not provided",
+        "not included"
+      ],
+      [
+        "website",
+        "contact",
+        "IIM team",
+        "official"
+      ]
+    ],
+    "forbiddenTerms": [
+      "guaranteed date",
+      "guaranteed price"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "publications-list",
+    "question": "What journals and publications does IIM produce?",
+    "expectedSourceIds": [
+      "publications"
+    ],
+    "requiredGroups": [
+      [
+        "IIM-JDIM",
+        "Journal for Data and Information Management"
+      ],
+      [
+        "IM World"
+      ],
+      [
+        "RIM Africa"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "latest-publication",
+    "question": "Where can I find the latest IIM journal issue?",
+    "expectedSourceIds": [
+      "publications"
+    ],
+    "requiredGroups": [
+      [
+        "current publications page",
+        "publications page",
+        "latest",
+        "current"
+      ],
+      [
+        "changes",
+        "changes over time",
+        "change over time",
+        "may change",
+        "updated"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "consultancy-services",
+    "question": "What consultancy services does IIM provide to organisations?",
+    "expectedSourceIds": [
+      "consultancy_services"
+    ],
+    "requiredGroups": [
+      [
+        "policy",
+        "procedure"
+      ],
+      [
+        "records management",
+        "retention schedule"
+      ],
+      [
+        "business-process",
+        "business process"
+      ],
+      [
+        "information strategy",
+        "governance"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "privacy-data-collection",
+    "question": "What personal information does IIM collect and does it sell my data?",
+    "expectedSourceIds": [
+      "privacy_summary"
+    ],
+    "requiredGroups": [
+      [
+        "identity",
+        "contact"
+      ],
+      [
+        "membership",
+        "payment"
+      ],
+      [
+        "qualification",
+        "exam"
+      ],
+      [
+        "does not sell",
+        "doesn't sell",
+        "not sell"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "privacy-rights-contact",
+    "question": "What privacy rights do I have and how can I contact IIM's data protection team?",
+    "expectedSourceIds": [
+      "privacy_summary"
+    ],
+    "requiredGroups": [
+      [
+        "access"
+      ],
+      [
+        "rectification",
+        "erasure",
+        "withdrawal of consent",
+        "portability"
+      ],
+      [
+        "dpo@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "department-contacts",
+    "question": "How do I contact IIM's membership and certification departments?",
+    "expectedSourceIds": [
+      "contact_departments"
+    ],
+    "requiredGroups": [
+      [
+        "membership@iim-africa.org"
+      ],
+      [
+        "certification@iim-africa.org"
+      ],
+      [
+        "info@iim-africa.org",
+        "+234 808 377 3640"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "abuja-office",
+    "question": "Where is the IIM Abuja office?",
+    "expectedSourceIds": [
+      "ng_office_abuja"
+    ],
+    "requiredGroups": [
+      [
+        "Upper Grace Plaza"
+      ],
+      [
+        "Plot 217"
+      ],
+      [
+        "Utako"
+      ],
+      [
+        "Abuja"
+      ]
+    ],
+    "forbiddenTerms": [],
     "expectFallback": false
   },
   {
     "id": "lagos-office",
     "question": "Where is the Lagos office?",
     "expectedSourceIds": [
-      "office_locations"
+      "ng_office_lagos"
     ],
     "requiredGroups": [
-      ["13 Association Avenue"],
-      ["Ilupeju"],
-      ["Lagos"]
+      [
+        "Association Avenue"
+      ],
+      [
+        "Ilupeju"
+      ],
+      [
+        "Lagos"
+      ],
+      [
+        "conflict",
+        "conflicting",
+        "13 Association Avenue",
+        "SAIM House 35"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "ibadan-office",
+    "question": "Does IIM have an office in Ibadan?",
+    "expectedSourceIds": [
+      "ng_office_ibadan"
+    ],
+    "requiredGroups": [
+      [
+        "Shop 14"
+      ],
+      [
+        "Dokal Shopping Plaza"
+      ],
+      [
+        "Orita Challenge",
+        "Orita Police Station"
+      ],
+      [
+        "Ibadan"
+      ],
+      [
+        "confirm",
+        "+234 907 0556 463"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "australia-office",
+    "question": "What is the address and phone number for IIM Australia?",
+    "expectedSourceIds": [
+      "au_contact"
+    ],
+    "requiredGroups": [
+      [
+        "122 Johnson Road",
+        "23/122 Johnson Road"
+      ],
+      [
+        "Hillcrest"
+      ],
+      [
+        "QLD 4118",
+        "Queensland 4118"
+      ],
+      [
+        "+61 451 109 163"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "south-africa-office",
+    "question": "How can I contact IIM South Africa?",
+    "expectedSourceIds": [
+      "sa_contact"
+    ],
+    "requiredGroups": [
+      [
+        "52 Monte Carlo Drive"
+      ],
+      [
+        "Centurion",
+        "Pretoria"
+      ],
+      [
+        "+27 61 539 2837",
+        "training@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [
+      "Lorem ipsum"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "office-locations",
+    "question": "Where are IIM's offices?",
+    "expectedSourceIds": [
+      "ng_office_abuja",
+      "ng_office_lagos",
+      "ng_office_ibadan"
+    ],
+    "requiredGroups": [
+      [
+        "Abuja"
+      ],
+      [
+        "Lagos"
+      ],
+      [
+        "Ibadan"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "events-types",
+    "question": "What types of events does IIM organise?",
+    "expectedSourceIds": [
+      "events_dynamic_policy"
+    ],
+    "requiredGroups": [
+      [
+        "conferences",
+        "conventions"
+      ],
+      [
+        "webinars"
+      ],
+      [
+        "workshops"
+      ]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "current-event",
+    "question": "What is the date and venue of the next IIM conference?",
+    "expectedSourceIds": [
+      "events_dynamic_policy"
+    ],
+    "requiredGroups": [
+      [
+        "live",
+        "current",
+        "time-sensitive",
+        "may change"
+      ],
+      [
+        "event page",
+        "IIM team",
+        "official"
+      ]
+    ],
+    "forbiddenTerms": [
+      "guaranteed date",
+      "guaranteed venue"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "current-fees-caution",
+    "question": "Are the membership fees shown by the chatbot guaranteed to be current today?",
+    "expectedSourceIds": [
+      "dynamic_data_policy",
+      "ng_membership_fees"
+    ],
+    "requiredGroups": [
+      [
+        "may change",
+        "time-sensitive",
+        "not guaranteed",
+        "recheck"
+      ],
+      [
+        "current website",
+        "responsible department",
+        "confirm",
+        "membership@iim-africa.org"
+      ]
     ],
     "forbiddenTerms": [],
     "expectFallback": false
@@ -95,11 +1406,69 @@
     "question": "What is your refund policy?",
     "expectedSourceIds": [],
     "requiredGroups": [
-      ["contact", "confirmed", "official"]
+      [
+        "couldn't confirm",
+        "could not confirm",
+        "don't have information",
+        "do not have information",
+        "not included"
+      ],
+      [
+        "contact",
+        "official",
+        "info@iim-africa.org"
+      ]
     ],
     "forbiddenTerms": [
       "30-day refund",
       "full refund within"
+    ],
+    "expectFallback": true
+  },
+  {
+    "id": "unknown-social-media",
+    "question": "What are IIM's official Facebook and LinkedIn accounts?",
+    "expectedSourceIds": [],
+    "requiredGroups": [
+      [
+        "couldn't confirm",
+        "could not confirm",
+        "not included",
+        "verified information"
+      ],
+      [
+        "contact",
+        "official",
+        "info@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [
+      "facebook.com/",
+      "linkedin.com/company/"
+    ],
+    "expectFallback": true
+  },
+  {
+    "id": "irrelevant-weather",
+    "question": "What will the weather be tomorrow?",
+    "expectedSourceIds": [],
+    "requiredGroups": [
+      [
+        "couldn't confirm",
+        "could not confirm",
+        "not included",
+        "verified information"
+      ],
+      [
+        "IIM",
+        "official contact information"
+      ]
+    ],
+    "forbiddenTerms": [
+      "sunny tomorrow",
+      "rain tomorrow",
+      "degrees Celsius",
+      "degrees Fahrenheit"
     ],
     "expectFallback": true
   }

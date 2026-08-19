@@ -1144,6 +1144,7 @@ window.IIM_RAG = (function () {
   ========================================================= */
 
   function scoreDocument(
+    originalQuery,
     normalizedQuery,
     queryTokens,
     document,
@@ -1505,6 +1506,38 @@ window.IIM_RAG = (function () {
       score *= 0.9;
     }
 
+    /*
+     * High-precision lifecycle boost.
+     *
+     * Query expansion can make a broad CDPO overview score
+     * highly for an expiry question. When both the entity and
+     * lifecycle state are explicit in the original question,
+     * prefer the matching policy document while preserving its
+     * verification warning.
+     */
+    const expiryQuestion =
+      originalQuery.includes("cdpo") &&
+      [
+        "expire",
+        "expired",
+        "expires",
+        "expiry",
+        "lapsed",
+      ].some(
+        (term) =>
+          originalQuery.includes(
+            term
+          )
+      );
+
+    if (
+      expiryQuestion &&
+      document.id ===
+        "cdpo_expired_policy"
+    ) {
+      score += 180;
+    }
+
     return (
       Math.round(
         score * 100
@@ -1686,6 +1719,11 @@ window.IIM_RAG = (function () {
         query
       );
 
+    const originalQuery =
+      normalize(
+        query
+      );
+
     if (
       !expandedQuery
     ) {
@@ -1730,6 +1768,7 @@ window.IIM_RAG = (function () {
 
             score:
               scoreDocument(
+                originalQuery,
                 expandedQuery,
                 queryTokens,
                 document,
@@ -1980,7 +2019,9 @@ window.IIM_RAG = (function () {
         Boolean(
           topResult &&
           topResult.confidence >=
-            0.34
+            0.45 &&
+          topResult.score >=
+            18
         ),
 
       /*

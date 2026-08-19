@@ -1,0 +1,120 @@
+[
+  {
+    "id": "professional-membership-fees",
+    "question": "How much does professional membership cost?",
+    "expectedSourceIds": [
+      "ng_membership_fees"
+    ],
+    "requiredGroups": [
+      ["$100", "USD 100", "100 USD", "100 US dollars"],
+      ["$99", "USD 99", "99 USD", "99 US dollars"],
+      ["$180", "USD 180", "180 USD", "180 US dollars"]
+    ],
+    "forbiddenTerms": [
+      "student membership fee",
+      "cdpo maintenance fee"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "professional-membership-fees-paraphrase",
+    "question": "What fees do I need to pay for PMIIM?",
+    "expectedSourceIds": [
+      "ng_membership_fees"
+    ],
+    "requiredGroups": [
+      ["$100", "USD 100", "100 USD", "100 US dollars"],
+      ["$99", "USD 99", "99 USD", "99 US dollars"],
+      ["$180", "USD 180", "180 USD", "180 US dollars"]
+    ],
+    "forbiddenTerms": [
+      "cdpo maintenance fee"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "membership-benefits",
+    "question": "What benefits do IIM members receive?",
+    "expectedSourceIds": [
+      "membership_benefits"
+    ],
+    "requiredGroups": [
+      ["meetings"],
+      ["governance", "election"],
+      ["seminars", "conferences", "workshops"],
+      ["information resources"],
+      ["professional development", "networking", "recognition"]
+    ],
+    "forbiddenTerms": [
+      "guaranteed employment",
+      "guaranteed salary"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "expired-cdpo",
+    "question": "What happens if my CDPO certificate expires?",
+    "expectedSourceIds": [
+      "cdpo_expired_policy"
+    ],
+    "requiredGroups": [
+      [
+        "inactive",
+        "stop using",
+        "designation should stop"
+      ],
+      [
+        "inconsistent",
+        "conflicting",
+        "depends",
+        "case-specific",
+        "may require"
+      ],
+      [
+        "certification@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [
+      "automatically renewed",
+      "must complete a new certification programme",
+      "need to renew it by completing a new certification programme",
+      "always requires re-examination"
+    ],
+    "expectFallback": false
+  },
+  {
+    "id": "lagos-office",
+    "question": "Where is the Lagos office?",
+    "expectedSourceIds": [
+      "ng_office_lagos"
+    ],
+    "requiredGroups": [
+      ["Association Avenue"],
+      ["Ilupeju"],
+      ["Lagos"],
+      ["discrepancy", "conflict", "confirm", "confirmation"]
+    ],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "unknown-refund-policy",
+    "question": "What is your refund policy?",
+    "expectedSourceIds": [],
+    "requiredGroups": [
+      [
+        "couldn't confirm",
+        "could not confirm",
+        "don't have information",
+        "do not have information",
+        "not included"
+      ],
+      ["contact", "official"]
+    ],
+    "forbiddenTerms": [
+      "30-day refund",
+      "full refund within"
+    ],
+    "expectFallback": true
+  }
+]
