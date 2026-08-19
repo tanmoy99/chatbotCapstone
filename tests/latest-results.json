@@ -1,0 +1,154 @@
+{
+  "runAt": "2026-08-05T10:07:25.149Z",
+  "passed": 4,
+  "total": 6,
+  "accuracy": 66.66666666666666,
+  "results": [
+    {
+      "id": "professional-membership-fees",
+      "question": "How much does professional membership cost?",
+      "passed": true,
+      "answer": "According to Professional Membership — PMIIM, the published registration fee for Professional Membership is 100 US dollars, and the one-time induction fee is 99 US dollars. Additionally, the annual subscription fee is 180 US dollars.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "professional-membership-fees-paraphrase",
+      "question": "What fees do I need to pay for PMIIM?",
+      "passed": false,
+      "answer": "For PMIIM, you will need to make a payment as per the official instructions provided by the Institute of Information Management. Please confirm the latest official payment instructions with membership@iim-africa.org before transferring any money. The public source also states that payments are non-refundable.",
+      "requiredCheck": {
+        "passed": false,
+        "failedGroups": [
+          [
+            "$100",
+            "100 US dollars"
+          ],
+          [
+            "$99",
+            "99 US dollars"
+          ],
+          [
+            "$180",
+            "180 US dollars"
+          ]
+        ]
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": false,
+        "missingSources": [
+          "professional_membership"
+        ]
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "membership-benefits",
+      "question": "What benefits do IIM members receive?",
+      "passed": true,
+      "answer": "IIM Members receive the following benefits: * Participation in regular, general, and special meetings\n* Receiving notices of meetings and programme summaries\n* Eligibility for election to the Executive\n* Nomination and voting rights\n* The right to recommend and vote on constitutional amendments\n* Priority consideration for seminars, conferences, and workshops\n* Access to IIM information resources",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "expired-cdpo",
+      "question": "What happens if my CDPO certificate expires?",
+      "passed": false,
+      "answer": "If your CDPO certificate expires, you will need to re-examine according to the verified public FAQ information. Additionally, a lapsed certificate may also be subject to a reinstatement process. You should contact the Certification Department at certification@iim-africa.org for official instructions on how to proceed with renewal or reinstatement.",
+      "requiredCheck": {
+        "passed": false,
+        "failedGroups": [
+          [
+            "re-examination",
+            "reexamination",
+            "retake the exam",
+            "retake the examination",
+            "take the exam again",
+            "take the examination again",
+            "sit the exam again",
+            "complete the examination again"
+          ]
+        ]
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "lagos-office",
+      "question": "Where is the Lagos office?",
+      "passed": true,
+      "answer": "The IIM Lagos office address is: 13 Association Avenue, Ilupeju, Lagos, Nigeria.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "unknown-refund-policy",
+      "question": "What is your refund policy?",
+      "passed": true,
+      "answer": "I couldn’t find verified IIM information that clearly answers that question. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    }
+  ]
+}
