@@ -87,6 +87,46 @@
     }
   });
 
+  const groundedResponses =
+    data.groundedResponses &&
+    typeof data.groundedResponses === "object" &&
+    !Array.isArray(data.groundedResponses)
+      ? data.groundedResponses
+      : {};
+
+  Object.entries(
+    groundedResponses
+  ).forEach(
+    ([responseId, response]) => {
+      if (
+        !response ||
+        typeof response !== "object"
+      ) {
+        throw new Error(
+          `Grounded response ${responseId} must be an object.`
+        );
+      }
+
+      if (
+        typeof response.sourceId !== "string" ||
+        !documentIds.has(response.sourceId)
+      ) {
+        throw new Error(
+          `Grounded response ${responseId} refers to an unknown source ID.`
+        );
+      }
+
+      if (
+        typeof response.answer !== "string" ||
+        response.answer.trim() === ""
+      ) {
+        throw new Error(
+          `Grounded response ${responseId} is missing its approved answer.`
+        );
+      }
+    }
+  );
+
   const categoryLabels = {
     about: "About IIM",
     approvals: "About IIM",
@@ -144,6 +184,7 @@
     journeys: Array.isArray(data.journeys)
       ? data.journeys
       : [],
+    groundedResponses,
     lastReviewed: data.lastReviewed || "",
     version: data.knowledgeBaseVersion || "",
   };

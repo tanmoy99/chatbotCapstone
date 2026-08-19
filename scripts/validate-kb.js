@@ -213,6 +213,63 @@ documents.forEach((document, index) => {
     1;
 });
 
+if (
+  !data.groundedResponses ||
+  typeof data.groundedResponses !== "object" ||
+  Array.isArray(data.groundedResponses)
+) {
+  errors.push(
+    "groundedResponses must be an object."
+  );
+}
+
+const groundedResponses =
+  data.groundedResponses &&
+  typeof data.groundedResponses === "object" &&
+  !Array.isArray(data.groundedResponses)
+    ? data.groundedResponses
+    : {};
+
+Object.entries(
+  groundedResponses
+).forEach(
+  ([responseId, response]) => {
+    if (!isNonEmptyString(responseId)) {
+      errors.push(
+        "Every grounded response requires an ID."
+      );
+      return;
+    }
+
+    if (
+      !response ||
+      typeof response !== "object" ||
+      Array.isArray(response)
+    ) {
+      errors.push(
+        `${responseId}: grounded response must be an object.`
+      );
+      return;
+    }
+
+    if (!isNonEmptyString(response.sourceId)) {
+      errors.push(
+        `${responseId}: sourceId is required.`
+      );
+    } else if (!ids.has(response.sourceId)) {
+      errors.push(
+        `${responseId}: sourceId '${response.sourceId}' does not match a knowledge document.`
+      );
+    }
+
+    if (!isNonEmptyString(response.answer)) {
+      errors.push(
+        `${responseId}: approved answer is required.`
+      );
+    }
+  }
+);
+
 if (errors.length > 0) {
   console.error(
     `Knowledge-base validation failed with ${errors.length} error(s):`
@@ -249,6 +306,9 @@ console.log(
 );
 console.log(
   `Categories: ${Object.keys(categoryCounts).length}`
+);
+console.log(
+  `Grounded responses: ${Object.keys(groundedResponses).length}`
 );
 console.log(
   `Version: ${data.knowledgeBaseVersion}`

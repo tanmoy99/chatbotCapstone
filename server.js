@@ -467,7 +467,45 @@ function buildContext(chunks) {
  * Use deterministic, knowledge-backed wording for
  * a few high-risk facts that a small local model can
  * otherwise rename, omit or contradict.
+ * The approved wording lives in knowledge-base.json so
+ * changing facts are not duplicated in application code.
  */
+function getConfiguredGroundedResponse(
+  responseId,
+  sourceIds
+) {
+  const configuredResponses =
+    KB.groundedResponses || {};
+
+  const configuredResponse =
+    configuredResponses[responseId];
+
+  if (
+    !configuredResponse ||
+    typeof configuredResponse.answer !==
+      "string" ||
+    configuredResponse.answer.trim() ===
+      ""
+  ) {
+    return null;
+  }
+
+  if (
+    configuredResponse.sourceId &&
+    !sourceIds.has(
+      configuredResponse.sourceId
+    )
+  ) {
+    return null;
+  }
+
+  return {
+    id: responseId,
+    answer:
+      configuredResponse.answer,
+  };
+}
+
 function getGroundedTemplateAnswer(
   userText,
   chunks
@@ -516,14 +554,10 @@ function getGroundedTemplateAnswer(
     asksForFees &&
     asksForProfessionalGrade
   ) {
-    return {
-      id: "professional-membership-fees",
-
-      answer:
-        "PMIIM is IIM's Professional Member grade. The current Nigeria fees are: " +
-        "registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. " +
-        "Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
-    };
+    return getConfiguredGroundedResponse(
+      "professional-membership-fees",
+      sourceIds
+    );
   }
 
   const asksAboutExpiredCdpo =
@@ -545,14 +579,10 @@ function getGroundedTemplateAnswer(
     ) &&
     asksAboutExpiredCdpo
   ) {
-    return {
-      id: "expired-cdpo-policy",
-
-      answer:
-        "If a CDPO certificate expires, it becomes inactive and use of the CDPO designation should stop until reinstatement. " +
-        "The official information is inconsistent, so the outcome is case-specific and may require re-examination depending on the lapse. " +
-        "Contact certification@iim-africa.org for an official decision on your case.",
-    };
+    return getConfiguredGroundedResponse(
+      "expired-cdpo-policy",
+      sourceIds
+    );
   }
 
   const asksForLagosOffice =
@@ -569,14 +599,10 @@ function getGroundedTemplateAnswer(
     ) &&
     asksForLagosOffice
   ) {
-    return {
-      id: "lagos-office-address",
-
-      answer:
-        "The IIM Lagos office is on Association Avenue, Ilupeju, Lagos, Nigeria. " +
-        "Official IIM pages conflict on the street number: some show 13 Association Avenue, while another shows SAIM House 35. " +
-        "Please confirm the current street number with IIM at info@iim-africa.org before visiting.",
-    };
+    return getConfiguredGroundedResponse(
+      "lagos-office-address",
+      sourceIds
+    );
   }
 
   return null;
