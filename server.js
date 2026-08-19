@@ -16,6 +16,7 @@
 
 require("dotenv").config();
 
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const helmet = require("helmet");
@@ -50,6 +51,27 @@ const PUBLIC_DIRECTORY = path.join(
   "public"
 );
 
+const KNOWLEDGE_DATA_PATH = path.join(
+  __dirname,
+  "data",
+  "knowledge-base.json"
+);
+
+function loadKnowledgeData() {
+  try {
+    const fileContents = fs.readFileSync(
+      KNOWLEDGE_DATA_PATH,
+      "utf8"
+    );
+
+    return JSON.parse(fileContents);
+  } catch (error) {
+    throw new Error(
+      `Unable to load knowledge data from ${KNOWLEDGE_DATA_PATH}: ${error.message}`
+    );
+  }
+}
+
 /*
  * The existing knowledge.js, rag.js and engine.js
  * were written for a browser and use window.
@@ -58,6 +80,8 @@ const PUBLIC_DIRECTORY = path.join(
  * without rewriting the full files yet.
  */
 global.window = global;
+global.IIM_KB_DATA =
+  loadKnowledgeData();
 
 require(
   path.join(
@@ -746,6 +770,36 @@ async function checkOllama() {
 }
 
 /*
+ * Supply the same approved knowledge data to the browser.
+ * The content is public because the chatbot already displays
+ * these official IIM facts and source URLs in its answers.
+ */
+app.get(
+  "/knowledge-data.js",
+  (
+    request,
+    response
+  ) => {
+    const safeData = JSON.stringify(
+      global.IIM_KB_DATA
+    )
+      .replace(/</g, "\\u003c")
+      .replace(/\u2028/g, "\\u2028")
+      .replace(/\u2029/g, "\\u2029");
+
+    response
+      .type("application/javascript")
+      .set(
+        "Cache-Control",
+        "no-store"
+      )
+      .send(
+        `window.IIM_KB_DATA = ${safeData};`
+      );
+  }
+);
+
+/*
  * Health-check endpoint.
  */
 app.get(
@@ -797,6 +851,12 @@ app.get(
 
       knowledgeBase: {
         loaded: true,
+
+        version:
+          KB.version || null,
+
+        source:
+          "data/knowledge-base.json",
 
         documents:
           corpusStats.totalDocuments,

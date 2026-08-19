@@ -187,8 +187,8 @@ Before responding, verify that:
         addMessage(
           "bot",
           "The chatbot could not start because one of its JavaScript files did not load. " +
-            "Please check the browser console and confirm that knowledge.js, engine.js, " +
-            "rag.js, and app.js are loaded in that order."
+            "Please check the browser console and confirm that knowledge-data.js, " +
+            "knowledge.js, engine.js, rag.js, and app.js are loaded in that order."
         );
       }
 

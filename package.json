@@ -6,7 +6,8 @@
   "scripts": {
   "start": "node server.js",
   "dev": "node --watch server.js",
-  "test:chatbot": "node scripts/run-tests.js"
+  "test:chatbot": "node scripts/run-tests.js",
+  "test:kb": "node scripts/validate-kb.js"
 
 },
 

@@ -5,7 +5,7 @@
 - **Project:** IIM AI Assistant chatbot
 - **Repository:** https://github.com/tanmoy99/chatbotCapstone
 - **Baseline date:** 19 August 2026
-- **Planned Git tag:** `v0.1-baseline`
+- **Git tag:** `v0.1-baseline`
 - **Purpose:** Preserve the current system state before the next RAG and response-quality improvements.
 
 ## 2. Current system overview
@@ -163,4 +163,3 @@ The following evidence should be retained in the repository:
 - `tests/test-cases.json`
 - `tests/results-expanded-baseline-50-of-60.json`
 - `docs/baseline-notes.md`
-
