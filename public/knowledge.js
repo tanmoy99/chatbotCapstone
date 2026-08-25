@@ -178,7 +178,7 @@ const activeDocuments =
     org: data.organization || {},
     contacts: data.contacts || {},
     sources: data.sources || {},
-    vknowledge: activeDocuments,
+    knowledge: activeDocuments,
     ragCorpus,
     personas: Array.isArray(data.personas)
       ? data.personas
