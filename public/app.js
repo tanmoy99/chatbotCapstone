@@ -680,9 +680,14 @@ window.setInterval(() => {
    */
   function markdownToHtml(markdown) {
     const lines =
-      String(markdown || "")
-        .replace(/\r\n/g, "\n")
-        .split("\n");
+  String(markdown || "")
+    .replace(/\r\n/g, "\n")
+    /*
+     * Convert escaped Markdown list markers, such as "\* Item",
+     * into proper list markers before rendering.
+     */
+    .replace(/^\s*\\([*+-])\s+/gm, "$1 ")
+    .split("\n");
 
     const html = [];
 
@@ -1120,18 +1125,39 @@ window.setInterval(() => {
     }
   }
 
-  function normalizeConversationText(
-    text
-  ) {
-    return String(text || "")
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9\s]/g,
-        " "
-      )
-      .replace(/\s+/g, " ")
-      .trim();
-  }
+  function normalizeConversationText(text) {
+  const normalized = String(text || "")
+    .toLowerCase()
+    .replace(/[’']/g, "")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const aliases = {
+    u: "you",
+    r: "are",
+    ur: "your",
+    ya: "you",
+    im: "i am",
+    ive: "i have",
+    whats: "what is",
+    whos: "who is",
+    hows: "how is",
+    cant: "cannot",
+    dont: "do not",
+    pls: "please",
+    plz: "please",
+    thx: "thanks",
+    thanx: "thanks",
+  };
+
+  return normalized
+    .split(" ")
+    .map((word) => aliases[word] || word)
+    .join(" ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
   /*
    * Handles normal conversation without searching
@@ -1177,13 +1203,26 @@ window.setInterval(() => {
       };
     }
 
-    const wellbeingPatterns = [
-      "how are you",
-      "how are you doing",
-      "how is it going",
-      "how are things",
-      "are you okay",
-    ];
+    const isWellbeingQuestion =
+  /\bhow\s+(?:are|is)\s+(?:you|it|things)\b/.test(cleanText) ||
+  /\bare\s+you\s+(?:okay|ok|good|well)\b/.test(cleanText) ||
+  /\bhow\s+you\s+(?:doing|going)\b/.test(cleanText);
+
+if (isWellbeingQuestion) {
+  return {
+    text:
+      "I’m doing well, thank you! I’m ready to help with IIM certifications, " +
+      "membership, training, events, advisory services, or contact information.",
+
+    quickReplies: [
+      "Membership",
+      "CDPO certification",
+      "Talk to a human",
+    ],
+
+    intentId: "wellbeing",
+  };
+}
 
     if (
       wellbeingPatterns.some(
