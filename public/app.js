@@ -1204,9 +1204,15 @@ window.setInterval(() => {
     }
 
     const isWellbeingQuestion =
-  /\bhow\s+(?:are|is)\s+(?:you|it|things)\b/.test(cleanText) ||
-  /\bare\s+you\s+(?:okay|ok|good|well)\b/.test(cleanText) ||
-  /\bhow\s+you\s+(?:doing|going)\b/.test(cleanText);
+  /\bhow\s+(?:are|is)\s+(?:you|it|things)\b/.test(
+    cleanText
+  ) ||
+  /\bare\s+you\s+(?:okay|ok|good|well)\b/.test(
+    cleanText
+  ) ||
+  /\bhow\s+you\s+(?:doing|going)\b/.test(
+    cleanText
+  );
 
 if (isWellbeingQuestion) {
   return {
@@ -1223,29 +1229,6 @@ if (isWellbeingQuestion) {
     intentId: "wellbeing",
   };
 }
-
-    if (
-      wellbeingPatterns.some(
-        (pattern) =>
-          cleanText.includes(
-            pattern
-          )
-      )
-    ) {
-      return {
-        text:
-          "I’m doing well, thank you! I’m ready to help with IIM certifications, " +
-          "membership, training, events, advisory services, or contact information.",
-
-        quickReplies: [
-          "Membership",
-          "CDPO certification",
-          "Talk to a human",
-        ],
-
-        intentId: "wellbeing",
-      };
-    }
 
     const thankYouPatterns = [
       "thanks",

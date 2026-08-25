@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "knowledgeBaseVersion": "1.1.0",
-  "lastReviewed": "2026-08-13",
+  "lastReviewed": "2026-08-25",
   "organization": {
     "name": "Institute of Information Management (IIM)",
     "shortName": "IIM",
@@ -664,6 +664,33 @@
       ],
       "text": "Fees, event calendars, training dates, provider accreditation validity and live certification status can change. If a stored review date is old or the user asks for a live/current status, the chatbot should say the information may have changed and direct the user to the current IIM website or responsible department. The chatbot must never infer approval, eligibility, certification status or examination outcome for a specific person from general information.",
       "source": "https://www.iim-africa.org/"
+    },
+    {
+      "id": "points_based_certification",
+      "scope": "Global",
+      "category": "certification",
+      "title": "IIM Points-Based Certification Pathway",
+      "status": "dynamic",
+      "active": true,
+      "lastReviewed": "2026-08-25",
+      "keywords": [
+        "points based certification",
+        "points-based certification pathway",
+        "certification points",
+        "minimum certification points",
+        "points required for certification",
+        "how many points",
+        "40 qualifying points",
+        "two years professional experience",
+        "one year professional experience",
+        "certification evaluation",
+        "supplementary courses",
+        "supplementary examinations",
+        "pbcp",
+        "executive certification"
+      ],
+      "text": "IIM’s Points-Based Certification Pathway evaluates applicants using their relevant education and professional experience. According to IIM, applicants must have at least two years of relevant professional experience and obtain at least 40 qualifying points. Applicants scoring below 40 points may be advised to complete supplementary courses or examinations. Submitting an application does not guarantee certification because eligibility and ranking must be assessed by IIM.",
+      "source": "https://iim-africa.org/ng/executive-certification/"
     }
   ],
   "personas": [

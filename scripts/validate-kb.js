@@ -287,19 +287,45 @@ global.IIM_KB_DATA = data;
 
 require(loaderPath);
 
+const activeDocuments =
+  documents.filter(
+    (document) =>
+      document.active !== false
+  );
+
 if (
   !global.IIM_KB ||
   global.IIM_KB.ragCorpus.length !==
-    documents.length
+    activeDocuments.length
 ) {
   console.error(
-    "Knowledge loader did not produce the expected RAG corpus."
+    "Knowledge loader did not produce the expected active RAG corpus."
   );
+
+  console.error(
+    `Expected ${activeDocuments.length} active documents but received ${
+      global.IIM_KB
+        ? global.IIM_KB.ragCorpus.length
+        : 0
+    }.`
+  );
+
   process.exit(1);
 }
 
 console.log(
-  `Knowledge base valid: ${documents.length} documents`
+  `Knowledge base valid: ${documents.length} stored documents`
+);
+
+console.log(
+  `Active in retrieval: ${activeDocuments.length}`
+);
+
+console.log(
+  `Inactive: ${
+    documents.length -
+    activeDocuments.length
+  }`
 );
 console.log(
   `Statuses: ${JSON.stringify(statusCounts)}`

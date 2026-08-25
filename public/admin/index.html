@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1"
+  >
+
+  <title>IIM Knowledge Administration</title>
+
+  <link
+    rel="stylesheet"
+    href="/admin/admin.css"
+  >
+</head>
+
+<body>
+  <div
+    id="login-screen"
+    class="login-screen"
+  >
+    <form
+      id="login-form"
+      class="login-card"
+    >
+      <div class="brand-mark">
+        IIM
+      </div>
+
+      <h1>Knowledge Administration</h1>
+
+      <p>
+        Sign in to manage the verified information
+        used by the IIM AI Assistant.
+      </p>
+
+      <label for="admin-password">
+        Admin password
+      </label>
+
+      <input
+        id="admin-password"
+        type="password"
+        autocomplete="current-password"
+        required
+      >
+
+      <button type="submit">
+        Sign in
+      </button>
+
+      <p
+        id="login-message"
+        class="message"
+        role="alert"
+      ></p>
+    </form>
+  </div>
+
+  <div
+    id="admin-panel"
+    class="admin-panel hidden"
+  >
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">
+          IIM AI ASSISTANT
+        </p>
+
+        <h1>
+          Knowledge Administration
+        </h1>
+      </div>
+
+      <div class="topbar-actions">
+        <a
+          href="/"
+          class="secondary-button"
+          target="_blank"
+        >
+          Open chatbot
+        </a>
+
+        <button
+          id="logout-button"
+          class="secondary-button"
+          type="button"
+        >
+          Sign out
+        </button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="records-panel">
+        <div class="records-heading">
+          <div>
+            <h2>Knowledge records</h2>
+
+            <p id="record-count">
+              Loading records…
+            </p>
+          </div>
+
+          <button
+            id="new-record-button"
+            type="button"
+          >
+            + New
+          </button>
+        </div>
+
+        <label
+          class="search-box"
+          for="search-input"
+        >
+          <span>Search</span>
+
+          <input
+            id="search-input"
+            type="search"
+            placeholder="Title, category or keyword"
+          >
+        </label>
+
+        <div
+          id="record-list"
+          class="record-list"
+        ></div>
+      </aside>
+
+      <section class="editor-panel">
+        <div class="editor-heading">
+          <div>
+            <p class="eyebrow">
+              KNOWLEDGE RECORD
+            </p>
+
+            <h2 id="editor-title">
+              Select a record
+            </h2>
+          </div>
+
+          <span
+            id="save-status"
+            class="save-status"
+          ></span>
+        </div>
+
+        <form
+          id="knowledge-form"
+          class="knowledge-form"
+        >
+          <div class="form-grid">
+            <label>
+              Record ID
+
+              <input
+                id="record-id"
+                name="id"
+                type="text"
+                placeholder="example_record_id"
+                required
+              >
+            </label>
+
+            <label>
+              Title
+
+              <input
+                id="record-title"
+                name="title"
+                type="text"
+                required
+              >
+            </label>
+
+            <label>
+              Category
+
+              <select
+                id="record-category"
+                name="category"
+                required
+              >
+                <option value="about">About IIM</option>
+                <option value="approvals">Approvals</option>
+                <option value="membership">Membership</option>
+                <option value="certification">Certification</option>
+                <option value="cdpo">CDPO</option>
+                <option value="cpd">Professional development</option>
+                <option value="training">Training</option>
+                <option value="verification">Verification</option>
+                <option value="resources">Resources</option>
+                <option value="services">Services</option>
+                <option value="privacy">Privacy</option>
+                <option value="contact">Contact</option>
+                <option value="events">Events</option>
+                <option value="governance">Governance</option>
+              </select>
+            </label>
+
+            <label>
+              Scope
+
+              <input
+                id="record-scope"
+                name="scope"
+                type="text"
+                placeholder="global, Nigeria or Australia"
+                required
+              >
+            </label>
+
+            <label>
+              Verification status
+
+              <select
+                id="record-status"
+                name="status"
+                required
+              >
+                <option value="stable">
+                  Stable and verified
+                </option>
+
+                <option value="dynamic">
+                  Dynamic information
+                </option>
+
+                <option value="verify">
+                  Needs verification
+                </option>
+
+                <option value="live">
+                  Live information
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Last reviewed
+
+              <input
+                id="record-reviewed"
+                name="lastReviewed"
+                type="date"
+                required
+              >
+            </label>
+          </div>
+
+          <label class="full-field">
+            Keywords
+
+            <input
+              id="record-keywords"
+              name="keywords"
+              type="text"
+              placeholder="membership, fees, professional member"
+              required
+            >
+
+            <small>
+              Separate keywords with commas.
+            </small>
+          </label>
+
+          <label class="full-field">
+            Approved knowledge text
+
+            <textarea
+              id="record-text"
+              name="text"
+              rows="10"
+              required
+            ></textarea>
+          </label>
+
+          <label class="full-field">
+            Official source URL
+
+            <input
+              id="record-source"
+              name="source"
+              type="url"
+              placeholder="https://www.iim-africa.org/"
+              required
+            >
+          </label>
+
+          <label class="active-control">
+            <input
+              id="record-active"
+              name="active"
+              type="checkbox"
+              checked
+            >
+
+            <span>
+              Active in chatbot retrieval
+            </span>
+          </label>
+
+          <div class="form-actions">
+            <button
+              id="reset-button"
+              class="secondary-button"
+              type="button"
+            >
+              Reset
+            </button>
+
+            <button
+              id="save-button"
+              type="submit"
+            >
+              Save knowledge
+            </button>
+          </div>
+        </form>
+
+        <div
+          id="empty-editor"
+          class="empty-editor"
+        >
+          Select a record from the list or create
+          a new knowledge record.
+        </div>
+      </section>
+    </main>
+
+    <div
+      id="notification"
+      class="notification hidden"
+      role="status"
+    ></div>
+  </div>
+
+  <script src="/admin/admin.js"></script>
+</body>
+</html>

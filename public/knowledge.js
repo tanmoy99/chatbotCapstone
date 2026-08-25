@@ -144,7 +144,17 @@
     governance: "Governance",
   };
 
-  const ragCorpus = documents.map((entry) => ({
+  /*
+ * Keep inactive records in the administration data,
+ * but exclude them from chatbot retrieval.
+ */
+const activeDocuments =
+  documents.filter(
+    (document) =>
+      document.active !== false
+  );
+
+  const ragCorpus = activeDocuments.map((entry) => ({
     id: entry.id,
     title: entry.title,
     category:
@@ -168,7 +178,7 @@
     org: data.organization || {},
     contacts: data.contacts || {},
     sources: data.sources || {},
-    knowledge: documents,
+    vknowledge: activeDocuments,
     ragCorpus,
     personas: Array.isArray(data.personas)
       ? data.personas

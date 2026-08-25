@@ -20,6 +20,7 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const helmet = require("helmet");
+const registerAdminApi = require("./admin-api");
 
 const app = express();
 
@@ -187,6 +188,12 @@ app.use(
     limit: "12kb",
   })
 );
+/*
+ * Register the password-protected
+ * knowledge administration API.
+ */
+
+registerAdminApi(app);
 
 /*
  * Simple request logging.
