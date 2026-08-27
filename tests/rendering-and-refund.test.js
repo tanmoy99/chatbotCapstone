@@ -6,7 +6,6 @@ const path = require("path");
 const vm = require("vm");
 const {
   isRefundPolicyQuery,
-  REFUND_POLICY_FALLBACK,
 } = require("../query-intents");
 
 /* Evaluate the production Markdown functions themselves, without starting
@@ -65,6 +64,7 @@ for (const query of [
   "refund policy",
   "waht is IIM refun policy",
   "Are refunds available?",
+  "Are membership payments refundable?",
   "I am refunding a payment",
 ]) {
   assert(isRefundPolicyQuery(query), `Expected refund intent for: ${query}`);
@@ -72,7 +72,12 @@ for (const query of [
 for (const query of ["funding policy", "return to membership", "refine policy"]) {
   assert(!isRefundPolicyQuery(query), `Unexpected refund intent for: ${query}`);
 }
-assert(REFUND_POLICY_FALLBACK.includes("approved IIM refund policy"));
-assert(REFUND_POLICY_FALLBACK.includes("info@iim-africa.org"));
-
-console.log("Rendering and refund-policy regression tests passed.");
+const hyphenatedCertificationHtml = formatterContext.markdownToHtml(
+  "Certifications include CDPO-Compliance (Certified Data Professional - Compliance), CDPP and CAMP."
+);
+assert.strictEqual(
+  (hyphenatedCertificationHtml.match(/<li>/g) || []).length,
+  0,
+  "A hyphen inside a certification name must not become a list item"
+);
+console.log("Rendering and refund-intent regression tests passed.");

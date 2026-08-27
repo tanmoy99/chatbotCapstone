@@ -22,7 +22,6 @@ const express = require("express");
 const helmet = require("helmet");
 const {
   isRefundPolicyQuery,
-  REFUND_POLICY_FALLBACK,
 } = require("./query-intents");
 const registerAdminApi = require("./admin-api");
 
@@ -521,19 +520,72 @@ function getGroundedTemplateAnswer(
   userText,
   chunks
 ) {
-  const query = String(
-    userText || ""
-  )
-    .toLowerCase()
-    .replace(/[^a-z0-9@.+-]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const query =
+    typeof RAG.normalize === "function"
+      ? RAG.normalize(userText)
+      : String(userText || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9@.+-]+/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
 
   const sourceIds = new Set(
     chunks.map(
       (chunk) => chunk.id
     )
   );
+
+  const joiningMembership =
+    /\b(?:join|apply for)\s+(?:iim\s+)?membership\b/.test(query) ||
+    /\bbecome\s+(?:an?\s+)?(?:iim\s+)?member\b/.test(query) ||
+    /\bmembership\s+(?:process|application)\b/.test(query) ||
+    /\bhow can i join\b/.test(query);
+
+  if (
+    joiningMembership &&
+    sourceIds.has("ng_membership_categories") &&
+    sourceIds.has("ng_membership_grade_eligibility")
+  ) {
+    return {
+      id: "membership-joining-overview",
+      answer:
+        "IIM offers Student, Individual and Corporate membership categories. " +
+        "Individual grades are STIIM, GMIIM, AMIIM, PMIIM, SPMIIM and FIIM, and eligibility depends on the selected grade. " +
+        "Applications are subject to IIM approval, and active membership requires the applicable fees. " +
+        "The current approved knowledge does not contain the complete application procedure, required documents or processing times. " +
+        "For the official application steps, contact IIM at membership@iim-africa.org.",
+    };
+  }
+
+  if (
+    isRefundPolicyQuery(userText) &&
+    sourceIds.has("ng_membership_fees")
+  ) {
+    return {
+      id: "membership-refund-policy",
+      answer:
+        "IIM's Nigeria Membership Fees information states that membership payments are non-refundable. " +
+        "This statement applies specifically to membership payments, not training, examinations, events or certifications. " +
+        "Because policies may change, confirm the current terms with IIM at membership@iim-africa.org before paying.",
+    };
+  }
+
+  const certificationListIntent =
+    /\b(?:certification|certifications|certificate|certificates)\b/.test(query) &&
+    /\b(?:offer|available|list|show|which)\b/.test(query) &&
+    /\b(?:iim|you|your)\b/.test(query);
+
+  if (
+    certificationListIntent &&
+    sourceIds.has("certification_framework")
+  ) {
+    return {
+      id: "certification-list",
+      answer:
+        "IIM's certification framework includes a foundation stage, Information Management Professional (IMP) Stages I, II and III, and master or specialist certifications. " +
+        "Examples listed by IIM include CDPP, CDPO-Compliance, PDPS, CDPCO, CRIMP, CHIMP, CDMP, CISP, CGISP, CAMP, CDBMP, CDOMP, CKMP and CLMP.",
+    };
+  }
 
   if (
     sourceIds.has("ng_membership_fees") &&
@@ -992,22 +1044,6 @@ app.post(
         body.history
       );
 
-    if (isRefundPolicyQuery(message)) {
-      return response.json({
-        answer: REFUND_POLICY_FALLBACK,
-        sources: [],
-        quickReplies: ["Certifications overview", "Talk to a human"],
-        meta: {
-          provider: "none",
-          model: null,
-          fallback: true,
-          fallbackReason: "missing_approved_refund_policy",
-          confidence: 0,
-          responseTimeMs: Date.now() - startedAt,
-        },
-      });
-    }
-
     /* Missing evidence is not evidence that IIM offers no guarantee. */
     if (
       /\b(?:job|employment|placement)\b/i.test(message) &&
@@ -1042,11 +1078,17 @@ app.post(
       !retrieval.chunks.length ||
       !retrieval.hasReliableMatch
     ) {
+      const asksAboutCim =
+        /\bcim\b/i.test(message) &&
+        !/\biim\b/i.test(message);
+
       return response.json({
         answer:
-          "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. "  +
-          "I can help with certifications, membership, training, events, advisory services, " +
-          "or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+          asksAboutCim
+            ? "I couldn't find approved information about CIM. Did you mean IIM—the Institute of Information Management?"
+            : "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. "  +
+              "I can help with certifications, membership, training, events, advisory services, " +
+              "or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
 
         sources: [],
 
@@ -1062,7 +1104,9 @@ app.post(
           model: null,
           fallback: true,
           fallbackReason:
-            "no_reliable_knowledge",
+            asksAboutCim
+              ? "unsupported_acronym_clarification"
+              : "no_reliable_knowledge",
 
           confidence:
             retrieval.confidence,

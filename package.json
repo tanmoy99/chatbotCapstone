@@ -9,6 +9,7 @@
   "test:chatbot": "node scripts/run-tests.js",
   "test:rag-pmiim": "node tests/rag-pmiim.test.js",
   "test:rendering-refund": "node tests/rendering-and-refund.test.js",
+  "test:rag-intents": "node tests/rag-intents.test.js",
   "test:kb": "node scripts/validate-kb.js"
 
 },

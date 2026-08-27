@@ -1,8 +1,8 @@
 {
-  "runAt": "2026-08-27T09:20:40.778Z",
-  "passed": 47,
-  "total": 61,
-  "accuracy": 77.04918032786885,
+  "runAt": "2026-08-27T10:12:02.712Z",
+  "passed": 62,
+  "total": 75,
+  "accuracy": 82.66666666666667,
   "results": [
     {
       "id": "about-iim-overview",
@@ -302,7 +302,7 @@
       "id": "professional-membership-fees",
       "question": "How much does professional membership cost?",
       "passed": true,
-      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
+      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria membership fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -322,7 +322,7 @@
       "id": "professional-membership-fees-paraphrase",
       "question": "What fees do I need to pay for PMIIM?",
       "passed": true,
-      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
+      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria membership fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -461,7 +461,7 @@
       "id": "certification-offerings",
       "question": "What professional certifications does IIM offer?",
       "passed": true,
-      "answer": "IIM offers several professional certifications, which are categorized into a framework: * Foundation stage for candidates who do not yet meet professional examination requirements\n* Compulsory Information Management Professional (IMP) Stage I, Stage II, and Stage III\n* Master/specialist certifications, including: • CDPP • CDPO-Compliance • PDPS • CDPCO • CRIMP • CHIMP • CDMP • CISP • CGISP • CAMP • CDBMP • CDOMP • CKMP • CLMP",
+      "answer": "IIM's certification framework includes a foundation stage, Information Management Professional (IMP) Stages I, II and III, and master or specialist certifications. Examples listed by IIM include CDPP, CDPO-Compliance, PDPS, CDPCO, CRIMP, CHIMP, CDMP, CISP, CGISP, CAMP, CDBMP, CDOMP, CKMP and CLMP.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -500,18 +500,11 @@
     {
       "id": "certification-application-fee",
       "question": "Is there an application processing fee for certification?",
-      "passed": false,
-      "answer": "Yes, according to there is a non-refundable USD 16 application-processing fee for certification, as displayed on IIM's General Certification Process page on 13 August 2026. If you need more information or have further questions about this topic, please contact IIM at certification@iim-africa.org.",
+      "passed": true,
+      "answer": "Yes, according to General Certification Process, there is a non-refundable USD 16 application-processing fee for certification, as displayed on IIM's official website when reviewed on 13 August 2026. However, exact current refund terms should be confirmed before quoting them. If you need more information or have further questions about the certification process, please contact IIM at certification@iim-africa.org.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "dynamic",
-            "current",
-            "confirm",
-            "may change"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -527,19 +520,25 @@
     {
       "id": "cdpo-purpose",
       "question": "What is the IIM CDPO certification for?",
-      "passed": true,
-      "answer": "The IIM Certified Data Protection Officer (CDPO) certification is designed to validate competence in data protection and privacy, including compliance, governance, data protection impact assessments (DPIAs), breach/risk management, and organisational compliance support.",
+      "passed": false,
+      "answer": "The IIM CDPO (Chief Data Protection Officer) certification is designed to verify an individual's eligibility and competence in data protection, compliance, or information security roles.",
       "requiredCheck": {
-        "passed": true,
-        "failedGroups": []
+        "passed": false,
+        "failedGroups": [
+          [
+            "privacy"
+          ]
+        ]
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": true,
-        "missingSources": []
+        "passed": false,
+        "missingSources": [
+          "cdpo_overview"
+        ]
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -568,7 +567,7 @@
       "id": "cdpo-exam-format",
       "question": "How many questions are in the CDPO exam, how long is it, and what is the pass mark?",
       "passed": true,
-      "answer": "Here's the answer to your question: The Certified Data Protection Officer (CDPO) examination consists of 60 questions that need to be completed within a time frame of 150 minutes. To pass the exam, you need to achieve a passing requirement of at least 70%.",
+      "answer": "Here's the answer to your question: The CDPO examination consists of 60 questions that need to be completed within a time frame of 150 minutes. To pass the exam, you need to achieve a score of at least 70%.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -620,15 +619,10 @@
       "id": "cdpo-validity",
       "question": "How long is the IIM CDPO certificate valid?",
       "passed": false,
-      "answer": "Unfortunately, the provided information does not specify the validity period of the IIM Certified Data Protection Officer (CDPO) certificate. The approved knowledge only mentions that the programme is aligned with the Nigeria Data Protection Act 2023 and references GDPR, the Malabo Convention, Convention 108+ and ISO/IEC 27701, but it does not provide details on the validity period of the certification.",
+      "answer": "The IIM CDPO certificate is valid for one year (12 months).",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [
-          [
-            "one year",
-            "1 year",
-            "12 months"
-          ],
           [
             "annual",
             "annually"
@@ -640,10 +634,8 @@
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "cdpo_recertification"
-        ]
+        "passed": true,
+        "missingSources": []
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -652,7 +644,7 @@
       "id": "cdpo-renewal-timing",
       "question": "When should I apply to renew my CDPO certificate?",
       "passed": true,
-      "answer": "To Renew Your CDPO Certificate According to the Certified Data Protection Officer (CDPO) re-certification SOP, you should apply for renewal at least 30 days before your current certificate expires. Here are the steps: 1. Check if you have completed a minimum of 20 Continuing Professional Development (CPD) points in the certification year.\n2. Gather required items: - CPD evidence/log - Re-certification application - Valid identification - Professional conduct/compliance declaration - Proof of applicable fee (maintenance fees are currently NGN 50,000 for IIM Accredited Members and NGN 70,000 for non-IIM members)\n3. Submit your application within the recommended timeframe. Please note that applications may be reviewed within five working days, and CPD evidence may be audited. If you have any issues or concerns, you can submit an appeal in writing to certification@iim-africa.org within 14 days of notification.",
+      "answer": "To renew your CDPO certificate, you can apply at least 30 days before its expiry date. The application window typically opens 60 days before expiry. Please note that these details are subject to change and may be updated by IIM. For the most recent information, we recommend checking with IIM's Certification department directly at certification@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -672,7 +664,7 @@
       "id": "cdpo-renewal-documents",
       "question": "What documents are required to renew a CDPO certificate?",
       "passed": true,
-      "answer": "To renew a Certified Data Protection Officer (CDPO) certificate, you will need to provide the following documents: * CPD evidence/log\n* The re-certification application\n* Valid identification\n* Professional conduct/compliance declaration\n* Proof of the applicable fee Please note that these requirements are subject to change and may be reviewed within five working days.",
+      "answer": "To renew a CDPO certificate, you will need to provide the following documents: * CPD evidence/log\n* The re-certification application\n* Valid identification\n* Professional conduct/compliance declaration\n* Proof of the applicable fee (currently NGN 50,000 for an IIM Accredited Member and NGN 70,000 for a non-IIM member) Please note that these documents are subject to review within five working days, and CPD evidence may be audited.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -732,22 +724,10 @@
       "id": "cdpo-maintenance-fees",
       "question": "What are the CDPO certificate maintenance fees for members and non-members?",
       "passed": false,
-      "answer": "I don't have information on CDPO certificate maintenance fees, including for members and non-members. The approved IIM knowledge does not provide details on fees associated with maintaining a CDPO certification. If you're interested in learning more about the certification process or requirements, I recommend contacting IIM's Certification department directly at certification@iim-africa.org for further information.",
+      "answer": "According to the CDPO certificate maintenance fees are as follows: * For IIM Accredited Members: NGN 50,000\n* For Non-IIM Members: NGN 70,000",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [
-          [
-            "NGN 50,000",
-            "50,000"
-          ],
-          [
-            "NGN 70,000",
-            "70,000"
-          ],
-          [
-            "Accredited Member",
-            "accredited member"
-          ],
           [
             "dynamic",
             "current",
@@ -762,10 +742,8 @@
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "cdpo_recertification"
-        ]
+        "passed": true,
+        "missingSources": []
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -794,7 +772,7 @@
       "id": "cdpo-appeal",
       "question": "How can I appeal a CDPO re-certification decision?",
       "passed": true,
-      "answer": "To appeal a CDPO re-certification decision, you should submit your appeal in writing to certification@iim-africa.org within 14 days of receiving notification.",
+      "answer": "To appeal a CDPO re-certification decision, you need to submit an appeal in writing to certification@iim-africa.org within 14 days of receiving your notification.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1076,16 +1054,11 @@
     {
       "id": "department-contacts",
       "question": "How do I contact IIM's membership and certification departments?",
-      "passed": false,
-      "answer": "To contact IIM's membership department, you can send an email to: membership@iim-africa.org Alternatively, you can also reach out to them by phone at one of the following numbers: +234 705 8000 405, +234 812 3695 594 or +234 813 6021 453. For certification department inquiries, please contact: certification@iim-africa.org",
+      "passed": true,
+      "answer": "To contact IIM's membership department, you can send an email to: membership@iim-africa.org Alternatively, you can also reach out to them by phone at +234 808 377 3640. For certification-related inquiries, please contact: certification@iim-africa.org",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "info@iim-africa.org",
-            "+234 808 377 3640"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -1214,7 +1187,7 @@
       "id": "office-locations",
       "question": "Where are IIM's offices?",
       "passed": false,
-      "answer": "I can provide you with some of IIM's office locations. According to IIM has an office in Nigeria at: Shop 14, Dokal Shopping Plaza, off Orita Police Station, Orita Challenge, Ibadan, Oyo State, Nigeria\nPhone: +234 907 0556 463 Please note that this location appears on the Staff Contacts page rather than the main contact page, so it's recommended to confirm with IIM before treating it as a permanent primary office address. I couldn't find any information about other office locations.",
+      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [
@@ -1223,6 +1196,9 @@
           ],
           [
             "Lagos"
+          ],
+          [
+            "Ibadan"
           ]
         ]
       },
@@ -1234,11 +1210,12 @@
         "passed": false,
         "missingSources": [
           "ng_office_abuja",
-          "ng_office_lagos"
+          "ng_office_lagos",
+          "ng_office_ibadan"
         ]
       },
-      "fallbackPassed": true,
-      "actualFallback": false
+      "fallbackPassed": false,
+      "actualFallback": true
     },
     {
       "id": "events-types",
@@ -1304,7 +1281,7 @@
       "id": "unknown-refund-policy",
       "question": "What is your refund policy?",
       "passed": true,
-      "answer": "I couldn't find an approved IIM refund policy in the current knowledge base. Please contact IIM at info@iim-africa.org for official refund information.",
+      "answer": "IIM's Nigeria Membership Fees information states that membership payments are non-refundable. This statement applies specifically to membership payments, not training, examinations, events or certifications. Because policies may change, confirm the current terms with IIM at membership@iim-africa.org before paying.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1318,13 +1295,13 @@
         "missingSources": []
       },
       "fallbackPassed": true,
-      "actualFallback": true
+      "actualFallback": false
     },
     {
       "id": "unknown-refund-policy-misspelled",
       "question": "waht is IIM refun policy",
       "passed": true,
-      "answer": "I couldn't find an approved IIM refund policy in the current knowledge base. Please contact IIM at info@iim-africa.org for official refund information.",
+      "answer": "IIM's Nigeria Membership Fees information states that membership payments are non-refundable. This statement applies specifically to membership payments, not training, examinations, events or certifications. Because policies may change, confirm the current terms with IIM at membership@iim-africa.org before paying.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1338,7 +1315,7 @@
         "missingSources": []
       },
       "fallbackPassed": true,
-      "actualFallback": true
+      "actualFallback": false
     },
     {
       "id": "unknown-social-media",
@@ -1363,6 +1340,286 @@
     {
       "id": "irrelevant-weather",
       "question": "What will the weather be tomorrow?",
+      "passed": true,
+      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    },
+    {
+      "id": "rag-member-become",
+      "question": "How do I become a member?",
+      "passed": true,
+      "answer": "IIM offers Student, Individual and Corporate membership categories. Individual grades are STIIM, GMIIM, AMIIM, PMIIM, SPMIIM and FIIM, and eligibility depends on the selected grade. Applications are subject to IIM approval, and active membership requires the applicable fees. The current approved knowledge does not contain the complete application procedure, required documents or processing times. For the official application steps, contact IIM at membership@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-member-join-iim",
+      "question": "How can I join IIM?",
+      "passed": true,
+      "answer": "IIM offers Student, Individual and Corporate membership categories. Individual grades are STIIM, GMIIM, AMIIM, PMIIM, SPMIIM and FIIM, and eligibility depends on the selected grade. Applications are subject to IIM approval, and active membership requires the applicable fees. The current approved knowledge does not contain the complete application procedure, required documents or processing times. For the official application steps, contact IIM at membership@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-member-iim-member",
+      "question": "How do I become an IIM member?",
+      "passed": true,
+      "answer": "IIM offers Student, Individual and Corporate membership categories. Individual grades are STIIM, GMIIM, AMIIM, PMIIM, SPMIIM and FIIM, and eligibility depends on the selected grade. Applications are subject to IIM approval, and active membership requires the applicable fees. The current approved knowledge does not contain the complete application procedure, required documents or processing times. For the official application steps, contact IIM at membership@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-member-apply",
+      "question": "I want to apply for membership.",
+      "passed": true,
+      "answer": "IIM offers Student, Individual and Corporate membership categories. Individual grades are STIIM, GMIIM, AMIIM, PMIIM, SPMIIM and FIIM, and eligibility depends on the selected grade. Applications are subject to IIM approval, and active membership requires the applicable fees. The current approved knowledge does not contain the complete application procedure, required documents or processing times. For the official application steps, contact IIM at membership@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-member-process",
+      "question": "What is the membership process?",
+      "passed": true,
+      "answer": "IIM offers Student, Individual and Corporate membership categories. Individual grades are STIIM, GMIIM, AMIIM, PMIIM, SPMIIM and FIIM, and eligibility depends on the selected grade. Applications are subject to IIM approval, and active membership requires the applicable fees. The current approved knowledge does not contain the complete application procedure, required documents or processing times. For the official application steps, contact IIM at membership@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-certifications-you",
+      "question": "What certifications do you offer?",
+      "passed": true,
+      "answer": "IIM's certification framework includes a foundation stage, Information Management Professional (IMP) Stages I, II and III, and master or specialist certifications. Examples listed by IIM include CDPP, CDPO-Compliance, PDPS, CDPCO, CRIMP, CHIMP, CDMP, CISP, CGISP, CAMP, CDBMP, CDOMP, CKMP and CLMP.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-certifications-your",
+      "question": "Show me your available certifications.",
+      "passed": true,
+      "answer": "IIM's certification framework includes a foundation stage, Information Management Professional (IMP) Stages I, II and III, and master or specialist certifications. Examples listed by IIM include CDPP, CDPO-Compliance, PDPS, CDPCO, CRIMP, CHIMP, CDMP, CISP, CGISP, CAMP, CDBMP, CDOMP, CKMP and CLMP.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-certifications-typos",
+      "question": "waht certifications do you ofer?",
+      "passed": true,
+      "answer": "IIM's certification framework includes a foundation stage, Information Management Professional (IMP) Stages I, II and III, and master or specialist certifications. Examples listed by IIM include CDPP, CDPO-Compliance, PDPS, CDPCO, CRIMP, CHIMP, CDMP, CISP, CGISP, CAMP, CDBMP, CDOMP, CKMP and CLMP.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-refund-membership",
+      "question": "Are membership payments refundable?",
+      "passed": true,
+      "answer": "IIM's Nigeria Membership Fees information states that membership payments are non-refundable. This statement applies specifically to membership payments, not training, examinations, events or certifications. Because policies may change, confirm the current terms with IIM at membership@iim-africa.org before paying.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": false
+    },
+    {
+      "id": "rag-cim-ambiguity",
+      "question": "What is CIM?",
+      "passed": true,
+      "answer": "I couldn't find approved information about CIM. Did you mean IIM—the Institute of Information Management?",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    },
+    {
+      "id": "rag-negative-microsoft",
+      "question": "What certifications does Microsoft offer?",
+      "passed": true,
+      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    },
+    {
+      "id": "rag-negative-gym",
+      "question": "How do I join a gym?",
+      "passed": true,
+      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    },
+    {
+      "id": "rag-negative-airline-refund",
+      "question": "What is an airline refund policy?",
+      "passed": true,
+      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "requiredCheck": {
+        "passed": true,
+        "failedGroups": []
+      },
+      "forbiddenCheck": {
+        "passed": true,
+        "foundTerms": []
+      },
+      "sourceCheck": {
+        "passed": true,
+        "missingSources": []
+      },
+      "fallbackPassed": true,
+      "actualFallback": true
+    },
+    {
+      "id": "rag-negative-other-membership",
+      "question": "Tell me about an unrelated organisation's membership.",
       "passed": true,
       "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
       "requiredCheck": {

@@ -145,6 +145,18 @@ window.IIM_RAG = (function () {
     "programme",
   ]);
 
+  /* Conservative corrections for known, high-frequency retrieval mistakes.
+   * This list intentionally excludes acronyms: CIM must never be rewritten to
+   * IIM merely because the strings are similar. */
+  const spellingCorrections = {
+    waht: "what",
+    requierments: "requirements",
+    refun: "refund",
+    ofer: "offer",
+    offers: "offer",
+    memebr: "member",
+  };
+
   /*
    * Query expansion.
    *
@@ -644,7 +656,7 @@ window.IIM_RAG = (function () {
   ========================================================= */
 
   function normalize(text) {
-    return String(text || "")
+    const normalized = String(text || "")
       .toLowerCase()
 
       .replace(
@@ -723,6 +735,11 @@ window.IIM_RAG = (function () {
       )
 
       .trim();
+
+    return normalized
+      .split(" ")
+      .map((token) => spellingCorrections[token] || token)
+      .join(" ");
   }
 
   /* =========================================================
@@ -979,6 +996,83 @@ window.IIM_RAG = (function () {
 
     const additions = [];
 
+    const containsPhrase = (value, phrase) => {
+      const words = normalize(phrase)
+        .split(" ")
+        .filter(Boolean)
+        .map(
+          (word) =>
+            word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
+        );
+
+      return words.length > 0 && new RegExp(
+        `\\b${words.join("\\s+")}\\b`
+      ).test(value);
+    };
+
+    const isExternalSubject =
+      /\b(?:microsoft|google|amazon|apple|gym|airline|another|unrelated|other)\b/.test(
+        normalizedQuery
+      );
+
+    const membershipJoiningIntent =
+      !isExternalSubject &&
+      (
+        /\b(?:join|apply for)\s+(?:iim\s+)?membership\b/.test(normalizedQuery) ||
+        /\bbecome\s+(?:an?\s+)?(?:iim\s+)?member\b/.test(normalizedQuery) ||
+        /\bmembership\s+(?:process|application)\b/.test(normalizedQuery) ||
+        /\bhow can i join\b/.test(normalizedQuery)
+      );
+
+    const certificationListIntent =
+      !isExternalSubject &&
+      /\b(?:certification|certifications|certificate|certificates)\b/.test(normalizedQuery) &&
+      (
+        /\b(?:offer|available|list|show)\b/.test(normalizedQuery) ||
+        /\bwhich\s+(?:professional\s+)?certifications?\b/.test(normalizedQuery)
+      ) &&
+      (
+        /\biim\b/.test(normalizedQuery) ||
+        /\b(?:you|your|your organisation|your institute)\b/.test(normalizedQuery)
+      );
+
+    const refundIntent =
+      !isExternalSubject &&
+      /\b(?:refund|refundable|payment back)\b/.test(normalizedQuery) &&
+      (
+        /\b(?:iim|membership|member|you|your)\b/.test(normalizedQuery) ||
+        /\brefund\s+policy\b/.test(normalizedQuery) ||
+        normalizedQuery === "refund"
+      );
+
+    const professionalMembershipFeeIntent =
+      /\b(?:pmiim|professional member(?:ship)?)\b/.test(normalizedQuery) &&
+      /\b(?:how much|cost|price|fee|fees|charge|charges)\b/.test(normalizedQuery);
+
+    if (membershipJoiningIntent) {
+      additions.push(
+        "iim membership categories grades eligibility application approval how to join"
+      );
+    }
+
+    if (certificationListIntent) {
+      additions.push(
+        "iim available certifications certification framework"
+      );
+    }
+
+    if (refundIntent) {
+      additions.push(
+        "iim membership payment non refundable refund policy membership fees"
+      );
+    }
+
+    if (professionalMembershipFeeIntent) {
+      additions.push(
+        "pmiim professional member registration induction annual membership fees"
+      );
+    }
+
     for (
       const [
         phrase,
@@ -989,11 +1083,7 @@ window.IIM_RAG = (function () {
       )
     ) {
       if (
-        normalizedQuery.includes(
-          normalize(
-            phrase
-          )
-        )
+        containsPhrase(normalizedQuery, phrase)
       ) {
         additions.push(
           ...aliases
@@ -1801,6 +1891,20 @@ window.IIM_RAG = (function () {
       normalize(
         query
       );
+
+    /* An unsupported acronym should not inherit Certification-category
+     * evidence through fuzzy or broad matches. A later response layer can
+     * use this empty result to offer the safe IIM clarification. */
+    if (/\bcim\b/.test(originalQuery) && !/\biim\b/.test(originalQuery)) {
+      return [];
+    }
+
+    if (
+      /\b(?:microsoft|google|amazon|apple|gym|airline|another|unrelated|other)\b/.test(originalQuery) &&
+      !/\biim\b/.test(originalQuery)
+    ) {
+      return [];
+    }
 
     /* Fee words by themselves are not a reliable IIM subject. Without a
      * recognised product, service, or membership entity, synonym expansion

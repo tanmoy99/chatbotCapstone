@@ -951,6 +951,8 @@ window.setInterval(() => {
       .map((line) => {
         const orderedMarkers =
           line.match(/\s+\d+[.)]\s+/g) || [];
+        const bulletMarkers =
+          line.match(/\s+[-*\u2022]\s+/g) || [];
 
         /* Inline ordered lists produced by small models normally follow a
          * label such as "Grades:" and contain at least two items. Requiring
@@ -966,12 +968,25 @@ window.setInterval(() => {
           );
         }
 
+        /* A single spaced hyphen is often punctuation inside a formal name
+         * (for example, "Certified Data Professional - Compliance"). Only
+         * reinterpret inline bullets when the line has a list label and at
+         * least two bullet markers. */
+        if (
+          line.includes(":") &&
+          bulletMarkers.length >= 2
+        ) {
+          return line.replace(
+            /\s+(?=[-*\u2022]\s+)/g,
+            "\n"
+          );
+        }
+
         return line;
       })
       .join("\n");
 
     return lines
-      .replace(/([^\n])\s+(?=(?:[-*\u2022])\s+)/g, "$1\n")
       .replace(/([^\n])\s+(?=#{2,4}\s+)/g, "$1\n");
   }
 

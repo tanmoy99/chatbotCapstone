@@ -1404,46 +1404,38 @@
   {
     "id": "unknown-refund-policy",
     "question": "What is your refund policy?",
-    "expectedSourceIds": [],
+    "expectedSourceIds": ["ng_membership_fees"],
     "requiredGroups": [
       [
-        "couldn't find an approved iim refund policy",
-        "couldn't confirm",
-        "could not confirm",
-        "don't have information",
-        "do not have information",
-        "not included"
+        "membership payments are non-refundable"
       ],
       [
-        "contact",
-        "official",
-        "info@iim-africa.org"
+        "membership@iim-africa.org"
       ]
     ],
     "forbiddenTerms": [
       "30-day refund",
       "full refund within"
     ],
-    "expectFallback": true
+    "expectFallback": false
   },
   {
     "id": "unknown-refund-policy-misspelled",
     "question": "waht is IIM refun policy",
-    "expectedSourceIds": [],
+    "expectedSourceIds": ["ng_membership_fees"],
     "requiredGroups": [
       [
-        "couldn't find an approved iim refund policy"
+        "membership payments are non-refundable"
       ],
       [
-        "official refund information",
-        "info@iim-africa.org"
+        "membership@iim-africa.org"
       ]
     ],
     "forbiddenTerms": [
       "30-day refund",
       "full refund within"
     ],
-    "expectFallback": true
+    "expectFallback": false
   },
   {
     "id": "unknown-social-media",
@@ -1490,6 +1482,118 @@
       "degrees Celsius",
       "degrees Fahrenheit"
     ],
+    "expectFallback": true
+  },
+  {
+    "id": "rag-member-become",
+    "question": "How do I become a member?",
+    "expectedSourceIds": ["ng_membership_categories", "ng_membership_grade_eligibility"],
+    "requiredGroups": [["Student, Individual and Corporate"], ["subject to IIM approval"], ["complete application procedure"]],
+    "forbiddenTerms": ["processing takes", "upload your documents", "guaranteed approval"],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-member-join-iim",
+    "question": "How can I join IIM?",
+    "expectedSourceIds": ["ng_membership_categories", "ng_membership_grade_eligibility"],
+    "requiredGroups": [["STIIM"], ["membership@iim-africa.org"]],
+    "forbiddenTerms": ["guaranteed approval"],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-member-iim-member",
+    "question": "How do I become an IIM member?",
+    "expectedSourceIds": ["ng_membership_categories", "ng_membership_grade_eligibility"],
+    "requiredGroups": [["eligibility depends"], ["applicable fees"]],
+    "forbiddenTerms": ["processing takes", "approved within"],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-member-apply",
+    "question": "I want to apply for membership.",
+    "expectedSourceIds": ["ng_membership_categories", "ng_membership_grade_eligibility"],
+    "requiredGroups": [["IIM approval"], ["official application steps"]],
+    "forbiddenTerms": ["application URL"],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-member-process",
+    "question": "What is the membership process?",
+    "expectedSourceIds": ["ng_membership_categories", "ng_membership_grade_eligibility"],
+    "requiredGroups": [["does not contain the complete application procedure"]],
+    "forbiddenTerms": ["takes 5 days"],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-certifications-you",
+    "question": "What certifications do you offer?",
+    "expectedSourceIds": ["certification_framework"],
+    "requiredGroups": [["CDPO-Compliance"], ["IMP"]],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-certifications-your",
+    "question": "Show me your available certifications.",
+    "expectedSourceIds": ["certification_framework"],
+    "requiredGroups": [["CDPP"], ["CLMP"]],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-certifications-typos",
+    "question": "waht certifications do you ofer?",
+    "expectedSourceIds": ["certification_framework"],
+    "requiredGroups": [["CDPO-Compliance"]],
+    "forbiddenTerms": [],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-refund-membership",
+    "question": "Are membership payments refundable?",
+    "expectedSourceIds": ["ng_membership_fees"],
+    "requiredGroups": [["membership payments are non-refundable"], ["before paying"]],
+    "forbiddenTerms": ["training payments are non-refundable", "exam payments are non-refundable"],
+    "expectFallback": false
+  },
+  {
+    "id": "rag-cim-ambiguity",
+    "question": "What is CIM?",
+    "expectedSourceIds": [],
+    "requiredGroups": [["couldn't find approved information about CIM"], ["Did you mean IIM"]],
+    "forbiddenTerms": ["CIM is IIM"],
+    "expectFallback": true
+  },
+  {
+    "id": "rag-negative-microsoft",
+    "question": "What certifications does Microsoft offer?",
+    "expectedSourceIds": [],
+    "requiredGroups": [["couldn't confirm"]],
+    "forbiddenTerms": ["CDPO", "CDPP"],
+    "expectFallback": true
+  },
+  {
+    "id": "rag-negative-gym",
+    "question": "How do I join a gym?",
+    "expectedSourceIds": [],
+    "requiredGroups": [["couldn't confirm"]],
+    "forbiddenTerms": ["STIIM", "PMIIM"],
+    "expectFallback": true
+  },
+  {
+    "id": "rag-negative-airline-refund",
+    "question": "What is an airline refund policy?",
+    "expectedSourceIds": [],
+    "requiredGroups": [["couldn't confirm"]],
+    "forbiddenTerms": ["membership payments are non-refundable"],
+    "expectFallback": true
+  },
+  {
+    "id": "rag-negative-other-membership",
+    "question": "Tell me about an unrelated organisation's membership.",
+    "expectedSourceIds": [],
+    "requiredGroups": [["couldn't confirm"]],
+    "forbiddenTerms": ["STIIM", "PMIIM"],
     "expectFallback": true
   }
 ]
