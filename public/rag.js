@@ -154,6 +154,14 @@ window.IIM_RAG = (function () {
    * "re-examination".
    */
   const phraseAliases = {
+    "how much": [
+      "cost",
+      "price",
+      "fee",
+      "fees",
+      "charges",
+    ],
+
     join: [
       "membership",
       "become a member",
@@ -169,6 +177,7 @@ window.IIM_RAG = (function () {
       "fee",
       "fees",
       "cost",
+      "charges",
       "subscription",
     ],
 
@@ -176,7 +185,37 @@ window.IIM_RAG = (function () {
       "fee",
       "fees",
       "price",
+      "charges",
       "subscription",
+    ],
+
+    fee: [
+      "fees",
+      "cost",
+      "price",
+      "charges",
+      "subscription",
+    ],
+
+    fees: [
+      "fee",
+      "cost",
+      "price",
+      "charges",
+      "subscription",
+    ],
+
+    charges: [
+      "fee",
+      "fees",
+      "cost",
+      "price",
+      "subscription",
+    ],
+
+    pmiim: [
+      "professional member",
+      "professional membership",
     ],
 
     pay: [
@@ -1538,6 +1577,45 @@ window.IIM_RAG = (function () {
       score += 180;
     }
 
+    /* "How much" and fee synonyms describe the question type, while PMIIM
+     * and Professional Member identify the exact membership grade. Route
+     * that combination to the approved fee table without weakening the
+     * global reliability threshold for unrelated short questions. */
+    const professionalMembershipFeeQuestion =
+      /\b(?:pmiim|professional member(?:ship)?)\b/.test(originalQuery) &&
+      /\b(?:how much|cost|price|fee|fees|charge|charges|registration|induction|annual|subscription)\b/.test(originalQuery);
+
+    if (
+      professionalMembershipFeeQuestion &&
+      document.id === "ng_membership_fees"
+    ) {
+      score += 180;
+    }
+
+    /* Entity + question-type routing beats generic documents that happen to
+     * repeat words such as "requirements" or "professional". */
+    const pmiimRequirementsQuestion =
+      /\b(?:pmiim|professional member(?:ship)?)\b/.test(originalQuery) &&
+      /\b(?:requirement|requirements|eligible|eligibility|qualify)\b/.test(originalQuery);
+
+    if (
+      pmiimRequirementsQuestion &&
+      document.id === "ng_membership_grade_eligibility"
+    ) {
+      score += 180;
+    }
+
+    const cdpoAudienceQuestion =
+      /\bcdpo\b/.test(originalQuery) &&
+      /\b(?:who|audience|for|suitable|eligible|eligibility|take)\b/.test(originalQuery);
+
+    if (
+      cdpoAudienceQuestion &&
+      document.id === "cdpo_eligibility"
+    ) {
+      score += 180;
+    }
+
     return (
       Math.round(
         score * 100
@@ -1723,6 +1801,22 @@ window.IIM_RAG = (function () {
       normalize(
         query
       );
+
+    /* Fee words by themselves are not a reliable IIM subject. Without a
+     * recognised product, service, or membership entity, synonym expansion
+     * would turn questions such as "price of lunch" into false fee matches. */
+    const hasFeeIntent =
+      /\b(?:how much|cost|price|fee|fees|charge|charges)\b/.test(originalQuery);
+
+    const hasRecognizedFeeSubject =
+      /\b(?:iim|membership|member|pmiim|spmiim|stiim|gmiim|amiim|fiim|cormiim|certification|certificate|cdpo|cim|training|course|workshop|exam|renewal|recertification|subscription|registration|induction)\b/.test(originalQuery);
+
+    if (
+      hasFeeIntent &&
+      !hasRecognizedFeeSubject
+    ) {
+      return [];
+    }
 
     if (
       !expandedQuery

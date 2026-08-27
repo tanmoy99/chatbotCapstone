@@ -20,6 +20,10 @@ const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const helmet = require("helmet");
+const {
+  isRefundPolicyQuery,
+  REFUND_POLICY_FALLBACK,
+} = require("./query-intents");
 const registerAdminApi = require("./admin-api");
 
 const app = express();
@@ -531,19 +535,16 @@ function getGroundedTemplateAnswer(
     )
   );
 
-  const asksForFees =
-    [
-      "fee",
-      "fees",
-      "cost",
-      "price",
-      "pay",
-      "payment",
-      "subscription",
-    ].some(
-      (term) =>
-        query.includes(term)
+  if (
+    sourceIds.has("ng_membership_fees") &&
+    /\bhow\s+much\b/i.test(userText) &&
+    /\b(?:pmiim|professional\s+member(?:ship)?)\b/i.test(userText)
+  ) {
+    return getConfiguredGroundedResponse(
+      "professional-membership-fees",
+      sourceIds
     );
+  }
 
   const asksForProfessionalGrade =
     query.includes("pmiim") ||
@@ -554,12 +555,32 @@ function getGroundedTemplateAnswer(
       "professional membership"
     );
 
+  const asksForEligibility =
+    [
+      "requirement",
+      "requirements",
+      "eligible",
+      "eligibility",
+      "qualify",
+    ].some((term) => query.includes(term));
+
+  if (
+    sourceIds.has("ng_membership_grade_eligibility") &&
+    asksForProfessionalGrade &&
+    asksForEligibility
+  ) {
+    return getConfiguredGroundedResponse(
+      "professional-membership-eligibility",
+      sourceIds
+    );
+  }
+
   if (
     sourceIds.has(
       "ng_membership_fees"
     ) &&
-    asksForFees &&
-    asksForProfessionalGrade
+    asksForProfessionalGrade &&
+    !asksForEligibility
   ) {
     return getConfiguredGroundedResponse(
       "professional-membership-fees",
@@ -588,6 +609,22 @@ function getGroundedTemplateAnswer(
   ) {
     return getConfiguredGroundedResponse(
       "expired-cdpo-policy",
+      sourceIds
+    );
+  }
+
+  const asksForCdpoAudience =
+    query.includes("cdpo") &&
+    ["who", "audience", "suitable", "eligible", "eligibility", "take"].some(
+      (term) => query.includes(term)
+    );
+
+  if (
+    sourceIds.has("cdpo_eligibility") &&
+    asksForCdpoAudience
+  ) {
+    return getConfiguredGroundedResponse(
+      "cdpo-target-audience",
       sourceIds
     );
   }
@@ -954,6 +991,43 @@ app.post(
       sanitiseHistory(
         body.history
       );
+
+    if (isRefundPolicyQuery(message)) {
+      return response.json({
+        answer: REFUND_POLICY_FALLBACK,
+        sources: [],
+        quickReplies: ["Certifications overview", "Talk to a human"],
+        meta: {
+          provider: "none",
+          model: null,
+          fallback: true,
+          fallbackReason: "missing_approved_refund_policy",
+          confidence: 0,
+          responseTimeMs: Date.now() - startedAt,
+        },
+      });
+    }
+
+    /* Missing evidence is not evidence that IIM offers no guarantee. */
+    if (
+      /\b(?:job|employment|placement)\b/i.test(message) &&
+      /\bguarantee(?:d|s)?\b/i.test(message)
+    ) {
+      return response.json({
+        answer:
+          "I couldn't confirm whether IIM provides a job or employment guarantee because the approved IIM knowledge does not state a guarantee policy. For an official answer, contact IIM at info@iim-africa.org.",
+        sources: [],
+        quickReplies: ["Training programs", "Certifications overview", "Talk to a human"],
+        meta: {
+          provider: "none",
+          model: null,
+          fallback: true,
+          fallbackReason: "missing_guarantee_policy",
+          confidence: 0,
+          responseTimeMs: Date.now() - startedAt,
+        },
+      });
+    }
 
     const retrieval =
       selectBestChunks(

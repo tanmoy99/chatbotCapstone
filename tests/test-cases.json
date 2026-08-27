@@ -1407,6 +1407,7 @@
     "expectedSourceIds": [],
     "requiredGroups": [
       [
+        "couldn't find an approved iim refund policy",
         "couldn't confirm",
         "could not confirm",
         "don't have information",
@@ -1416,6 +1417,25 @@
       [
         "contact",
         "official",
+        "info@iim-africa.org"
+      ]
+    ],
+    "forbiddenTerms": [
+      "30-day refund",
+      "full refund within"
+    ],
+    "expectFallback": true
+  },
+  {
+    "id": "unknown-refund-policy-misspelled",
+    "question": "waht is IIM refun policy",
+    "expectedSourceIds": [],
+    "requiredGroups": [
+      [
+        "couldn't find an approved iim refund policy"
+      ],
+      [
+        "official refund information",
         "info@iim-africa.org"
       ]
     ],

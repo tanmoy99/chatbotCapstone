@@ -680,7 +680,7 @@ window.setInterval(() => {
    */
   function markdownToHtml(markdown) {
     const lines =
-  String(markdown || "")
+  normalizeMarkdownBlocks(markdown)
     .replace(/\r\n/g, "\n")
     /*
      * Convert escaped Markdown list markers, such as "\* Item",
@@ -937,6 +937,42 @@ window.setInterval(() => {
     closeList();
 
     return html.join("");
+  }
+
+  /*
+   * Small local models sometimes put a heading and every list item on one
+   * line (for example, "Grades: 1. Student 2. Graduate").  Restore block
+   * boundaries before parsing so valid-looking Markdown does not render as
+   * one malformed paragraph.
+   */
+  function normalizeMarkdownBlocks(markdown) {
+    const lines = String(markdown || "")
+      .split("\n")
+      .map((line) => {
+        const orderedMarkers =
+          line.match(/\s+\d+[.)]\s+/g) || [];
+
+        /* Inline ordered lists produced by small models normally follow a
+         * label such as "Grades:" and contain at least two items. Requiring
+         * both signals prevents sentence-ending values such as "USD 180."
+         * or "in 2026." from being reinterpreted as list markers. */
+        if (
+          line.includes(":") &&
+          orderedMarkers.length >= 2
+        ) {
+          return line.replace(
+            /\s+(?=\d+[.)]\s+)/g,
+            "\n"
+          );
+        }
+
+        return line;
+      })
+      .join("\n");
+
+    return lines
+      .replace(/([^\n])\s+(?=(?:[-*\u2022])\s+)/g, "$1\n")
+      .replace(/([^\n])\s+(?=#{2,4}\s+)/g, "$1\n");
   }
 
   function addMessage(
@@ -1284,6 +1320,9 @@ if (isWellbeingQuestion) {
       cleanText === "what are you" ||
       cleanText.includes(
         "what can you do"
+      ) ||
+      /\bwhat\s+can\s+you\s+help\s+(?:me\s+)?with\b/.test(
+        cleanText
       )
     ) {
       return {

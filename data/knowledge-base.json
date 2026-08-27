@@ -198,6 +198,8 @@
         "graduate member",
         "associate member",
         "professional member eligibility",
+        "pmiim requirements",
+        "pmiim eligibility",
         "senior professional",
         "fellow eligibility",
         "corporate membership"
@@ -323,6 +325,9 @@
         "cdpo eligibility",
         "cdpo requirements",
         "who can take cdpo",
+        "who is cdpo for",
+        "cdpo target audience",
+        "cdpo suitable for",
         "cdpo experience",
         "dpo training"
       ],
@@ -988,7 +993,15 @@
   "groundedResponses": {
     "professional-membership-fees": {
       "sourceId": "ng_membership_fees",
-      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying."
+      "answer": "PMIIM is IIM's Professional Member grade. The current Nigeria membership fees are: registration — USD 100; one-time induction — USD 99; and annual subscription — USD 180. Because fees can change, confirm the latest amounts with membership@iim-africa.org before paying."
+    },
+    "professional-membership-eligibility": {
+      "sourceId": "ng_membership_grade_eligibility",
+      "answer": "Professional Member (PMIIM) eligibility can be met through degree, HND or OND plus relevant experience; a recognised IIM professional or master certification; or another qualification approved by the Membership Committee. IIM must assess and approve each application."
+    },
+    "cdpo-target-audience": {
+      "sourceId": "cdpo_eligibility",
+      "answer": "CDPO is intended for people entering through one of the listed eligibility routes: at least two years of experience in data protection, compliance or information security; completion of IIM-accredited DPO training; or a relevant IIM-recognised professional certification. IIM should confirm an individual candidate's eligibility and any exemption."
     },
     "expired-cdpo-policy": {
       "sourceId": "cdpo_expired_policy",
