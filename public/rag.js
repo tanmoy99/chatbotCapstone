@@ -155,6 +155,8 @@ window.IIM_RAG = (function () {
     ofer: "offer",
     offers: "offer",
     memebr: "member",
+    benifit: "benefit",
+    benifits: "benefits",
   };
 
   /*
@@ -369,9 +371,10 @@ window.IIM_RAG = (function () {
       "cdpo",
     ],
 
-    student: [
-      "student membership",
-      "stiim",
+    benefits: [
+      "membership benefits",
+      "member benefits",
+      "advantages",
     ],
 
     graduate: [

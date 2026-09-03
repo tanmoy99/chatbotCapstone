@@ -80,4 +80,9 @@ assert.strictEqual(
   0,
   "A hyphen inside a certification name must not become a list item"
 );
+const escapedListHtml = formatterContext.markdownToHtml(
+  "\\* Archiving and Preservation\n\\* Database Management"
+);
+assert.strictEqual((escapedListHtml.match(/<li>/g) || []).length, 2);
+assert(!escapedListHtml.includes("\\*"));
 console.log("Rendering and refund-intent regression tests passed.");

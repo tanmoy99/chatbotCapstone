@@ -1,8 +1,8 @@
 {
-  "runAt": "2026-08-27T10:12:02.712Z",
-  "passed": 62,
+  "runAt": "2026-09-02T04:05:01.701Z",
+  "passed": 61,
   "total": 75,
-  "accuracy": 82.66666666666667,
+  "accuracy": 81.33333333333333,
   "results": [
     {
       "id": "about-iim-overview",
@@ -139,7 +139,7 @@
       "id": "student-membership-eligibility",
       "question": "What are the requirements to become a Student Member?",
       "passed": true,
-      "answer": "To become a Student Member, you need to be a full-time student in an information management or related professional course and provide proof of active study.",
+      "answer": "STIIM is IIM's Student Member grade, not a course or certification. It is for full-time students studying information management or a related professional course, with proof of active study.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -159,7 +159,7 @@
       "id": "graduate-membership-eligibility",
       "question": "What are the requirements for Graduate Membership?",
       "passed": true,
-      "answer": "To be eligible for Graduate Member (GMIIM) status, you must: 1. Be a recent graduate.\n2. Complete IIM membership pre-induction training before induction. These are the requirements as stated in Nigeria Membership Grade Eligibility. If you have any further questions or need assistance with the application process, please contact IIM's Membership department at membership@iim-africa.org.",
+      "answer": "To be eligible for Graduate Membership, you must: 1. Be a recent graduate.\n2. Complete IIM membership pre-induction training before induction. Please note that these details can be found in Nigeria Membership Grade Eligibility. If you have any further questions or need assistance with the application process, you can contact IIM's Membership department at membership@iim-africa.org for more information.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -342,7 +342,7 @@
       "id": "student-membership-fee",
       "question": "How much is the Student Membership fee?",
       "passed": true,
-      "answer": "According to Nigeria membership fees shown on IIM's official Grades page on 13 August 2026 were: - Student (registration exempt): annual subscription USD 50\n- Graduate (registration exempt, one-time induction): annual subscription USD 100 There is no information provided for the \"Student\" category regarding a fee.",
+      "answer": "For Nigeria, the STIIM Student Member grade is exempt from the registration fee and has an annual subscription of USD 50. Fees can change, so confirm the current amount with membership@iim-africa.org before paying.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -644,7 +644,7 @@
       "id": "cdpo-renewal-timing",
       "question": "When should I apply to renew my CDPO certificate?",
       "passed": true,
-      "answer": "To renew your CDPO certificate, you can apply at least 30 days before its expiry date. The application window typically opens 60 days before expiry. Please note that these details are subject to change and may be updated by IIM. For the most recent information, we recommend checking with IIM's Certification department directly at certification@iim-africa.org.",
+      "answer": "To renew your CDPO certificate, you can apply during the 60-day window that opens before the expiry of your current certificate. The Institute of Information Management (IIM) recommends applying at least 30 days before the expiry date to ensure a smooth renewal process. Please note that the application window may be subject to change, and it's always best to check with IIM directly for the most up-to-date information. If you have any further questions or concerns about renewing your CDPO certificate, you can contact IIM's Certification department at certification@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -664,7 +664,7 @@
       "id": "cdpo-renewal-documents",
       "question": "What documents are required to renew a CDPO certificate?",
       "passed": true,
-      "answer": "To renew a CDPO certificate, you will need to provide the following documents: * CPD evidence/log\n* The re-certification application\n* Valid identification\n* Professional conduct/compliance declaration\n* Proof of the applicable fee (currently NGN 50,000 for an IIM Accredited Member and NGN 70,000 for a non-IIM member) Please note that these documents are subject to review within five working days, and CPD evidence may be audited.",
+      "answer": "To renew a CDPO certificate, you will need to provide the following documents: * CPD evidence/log\n* The re-certification application\n* Valid identification\n* Professional conduct/compliance declaration\n* Proof of the applicable fee (currently NGN 50,000 for an IIM Accredited Member and NGN 70,000 for a non-IIM member) Please note that these documents are subject to change, and you should check with certification@iim-africa.org for any updates.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -772,7 +772,7 @@
       "id": "cdpo-appeal",
       "question": "How can I appeal a CDPO re-certification decision?",
       "passed": true,
-      "answer": "To appeal a CDPO re-certification decision, you need to submit an appeal in writing to certification@iim-africa.org within 14 days of receiving your notification.",
+      "answer": "To appeal a CDPO re-certification decision, you should submit your appeal in writing to certification@iim-africa.org within 14 days of receiving notification.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -864,7 +864,7 @@
       "id": "training-areas",
       "question": "What training subjects does IIM cover?",
       "passed": true,
-      "answer": "**Training Subjects Covered by IIM** IIM offers training and certification in various subject areas, including: * Archiving and preservation\n* Archives management\n* Database management\n* Document management\n* Geographic information systems\n* Health information management\n* Information security\n* Knowledge management\n* Library management\n* Records/information management These subjects are listed on IIM's official training and certification pages.",
+      "answer": "Yes. IIM's training and certification pages list subject areas including Archiving and Preservation, Archives Management, Database Management, Document Management, Geographic Information Systems, Health Information Management, Information Security, Knowledge Management, Library Management, Records/Information Management, and related data/privacy specialisations. These are subject areas; certifications and membership grades are separate.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -883,19 +883,35 @@
     {
       "id": "ato-purpose",
       "question": "What is an IIM Accredited Training Organisation?",
-      "passed": true,
-      "answer": "An IIM Accredited Training Organisation is a provider that has been accredited by the Institute of Information Management (IIM) against specific criteria covering trainer competence, course content, training methods, facilities or online platforms, quality assurance, data-protection compliance, ethics, reporting and continuous improvement. These organisations may provide IIM-aligned training and Continuing Professional Development (CPD) support.",
+      "passed": false,
+      "answer": "Yes. IIM's training and certification pages list subject areas including Archiving and Preservation, Archives Management, Database Management, Document Management, Geographic Information Systems, Health Information Management, Information Security, Knowledge Management, Library Management, Records/Information Management, and related data/privacy specialisations. These are subject areas; certifications and membership grades are separate.",
       "requiredCheck": {
-        "passed": true,
-        "failedGroups": []
+        "passed": false,
+        "failedGroups": [
+          [
+            "accredited",
+            "training provider"
+          ],
+          [
+            "trainer competence",
+            "course content"
+          ],
+          [
+            "quality assurance",
+            "data-protection compliance",
+            "data protection compliance"
+          ]
+        ]
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": true,
-        "missingSources": []
+        "passed": false,
+        "missingSources": [
+          "ato_overview"
+        ]
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -1135,7 +1151,7 @@
       "id": "australia-office",
       "question": "What is the address and phone number for IIM Australia?",
       "passed": false,
-      "answer": "I don't have information on an IIM Australia contact address or phone number in my database. However, according to IIM Australia's contact information is listed as 23/122 Johnson Road Rd, Hillcrest QLD 4118, Australia; but I couldn't find the phone number. However, I can suggest that you visit the official IIM website for more accurate and up-to-date information on their Australian contact details.",
+      "answer": "I don't have information on an IIM Australia contact address or phone number in my database. However, according to IIM Australia's contact information is listed as 23/122 Johnson Road Rd, Hillcrest QLD 4118, Australia; but I couldn't verify the phone number. However, for general inquiries and membership-related issues, you can reach out to: - General Information: info@iim-africa.org\n- Membership: membership@iim-africa.org",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [

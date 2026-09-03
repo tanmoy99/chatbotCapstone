@@ -22,6 +22,7 @@ const express = require("express");
 const helmet = require("helmet");
 const {
   isRefundPolicyQuery,
+  resolveConversationIntent,
 } = require("./query-intents");
 const registerAdminApi = require("./admin-api");
 
@@ -296,7 +297,7 @@ function sanitiseHistory(history) {
  * Select the strongest and most relevant
  * knowledge entries.
  */
-function selectBestChunks(userText) {
+function selectBestChunks(userText, requiredSourceIds = [], allowedSourceIds = []) {
   let retrievalResult;
 
   if (
@@ -322,7 +323,9 @@ function selectBestChunks(userText) {
   }
 
   const results =
-    retrievalResult.results || [];
+    (retrievalResult.results || []).filter(
+      (chunk) => !allowedSourceIds.length || allowedSourceIds.includes(chunk.id)
+    );
 
   if (!results.length) {
     return {
@@ -416,6 +419,13 @@ function selectBestChunks(userText) {
   selected =
     selected.slice(0, 3);
 
+  for (const sourceId of requiredSourceIds) {
+    if (!selected.some((chunk) => chunk.id === sourceId)) {
+      const requiredChunk = RAG.getDocumentById(sourceId);
+      if (requiredChunk) selected.push(requiredChunk);
+    }
+  }
+
   return {
     chunks: selected,
 
@@ -464,6 +474,7 @@ function buildContext(chunks) {
     `General: ${KB.contacts.general.email}`,
     `Membership: ${KB.contacts.membership.email}`,
     `Certification: ${KB.contacts.certification.email}`,
+    `Training: ${KB.contacts.training.email}`,
   ].join("\n");
 
   return (
@@ -518,7 +529,8 @@ function getConfiguredGroundedResponse(
 
 function getGroundedTemplateAnswer(
   userText,
-  chunks
+  chunks,
+  conversationIntent = { type: "default" }
 ) {
   const query =
     typeof RAG.normalize === "function"
@@ -535,11 +547,59 @@ function getGroundedTemplateAnswer(
     )
   );
 
+  if (conversationIntent.type === "it_training_recommendation" && sourceIds.has("training_areas")) {
+    return {
+      id: "it-training-recommendation",
+      answer: "As an IT student, Information Security or Database Management would be the most relevant options. Information Security is suitable if you are interested in cybersecurity, privacy or compliance. Database Management is useful for software development, backend systems and data administration. IIM also lists Geographic Information Systems if you are interested in spatial data. These are training and certification subject areas, so confirm the currently available course, schedule and entry requirements with training@iim-africa.org.",
+    };
+  }
+
+  if (conversationIntent.type === "training_overview" && sourceIds.has("training_areas")) {
+    return {
+      id: "training-overview",
+      answer: "Yes. IIM's training and certification pages list these subject areas:\n\n- Archiving and Preservation\n- Archives Management\n- Database Management\n- Document Management\n- Geographic Information Systems\n- Health Information Management\n- Information Security\n- Knowledge Management\n- Library Management\n- Records/Information Management\n- Related data/privacy specialisations\n\nThese are subject areas; certifications and membership grades are separate. Confirm currently available courses with training@iim-africa.org.",
+    };
+  }
+
+  if (conversationIntent.type === "ambiguous_course_fee") {
+    return {
+      id: "ambiguous-course-fee",
+      answer: "I suggested Information Security and Database Management. Which course do you mean?",
+    };
+  }
+
+  if (conversationIntent.type === "selected_course_fee" && sourceIds.has("training_areas")) {
+    const course = conversationIntent.selectedCourse.replace(/\b\w/g, (letter) => letter.toUpperCase());
+    return {
+      id: "selected-course-fee",
+      answer: `The approved knowledge base does not list an exact fee for the ${course} course. Please confirm the current training fee with IIM at training@iim-africa.org.`,
+    };
+  }
+
+  if (conversationIntent.type === "stiim_eligibility" && sourceIds.has("ng_membership_grade_eligibility")) {
+    return { id: "stiim-eligibility", answer: "STIIM is IIM's Student Member grade, not a course or certification. It is for full-time students studying information management or a related professional course, with proof of active study." };
+  }
+
+  if (conversationIntent.type === "stiim_fees" && sourceIds.has("ng_membership_fees")) {
+    return { id: "stiim-fees", answer: "For Nigeria, the STIIM Student Member grade is exempt from the registration fee and has an annual subscription of USD 50. Fees can change, so confirm the current amount with membership@iim-africa.org before paying." };
+  }
+
+  if (conversationIntent.type === "stiim_benefits" && sourceIds.has("ng_membership_grade_eligibility") && sourceIds.has("membership_benefits")) {
+    return { id: "stiim-benefits", answer: "STIIM is IIM's Student Member grade. The approved source lists these as general IIM membership benefits, not STIIM-specific benefits: participation in member meetings; meeting notices and programme information; eligible governance or election participation subject to membership rules; special consideration for seminars, conferences and workshops; access to IIM information resources; and professional development, networking and recognition opportunities." };
+  }
+
   const joiningMembership =
     /\b(?:join|apply for)\s+(?:iim\s+)?membership\b/.test(query) ||
     /\bbecome\s+(?:an?\s+)?(?:iim\s+)?member\b/.test(query) ||
     /\bmembership\s+(?:process|application)\b/.test(query) ||
     /\bhow can i join\b/.test(query);
+
+  if (conversationIntent.type === "membership_joining") {
+    return {
+      id: "membership-joining-overview",
+      answer: "Being a student does not automatically make someone an IIM Student Member. STIIM is a membership grade that requires an application and IIM approval. Full-time students studying information management or a related professional course may be eligible if they provide proof of active study. Contact membership@iim-africa.org for the official application process.",
+    };
+  }
 
   if (
     joiningMembership &&
@@ -1044,6 +1104,8 @@ app.post(
         body.history
       );
 
+    const conversationIntent = resolveConversationIntent(message, history);
+
     /* Missing evidence is not evidence that IIM offers no guarantee. */
     if (
       /\b(?:job|employment|placement)\b/i.test(message) &&
@@ -1067,7 +1129,9 @@ app.post(
 
     const retrieval =
       selectBestChunks(
-        message
+        conversationIntent.retrievalQuery,
+        conversationIntent.requiredSourceIds,
+        conversationIntent.allowedSourceIds
       );
 
     /*
@@ -1121,7 +1185,8 @@ app.post(
     const groundedTemplate =
       getGroundedTemplateAnswer(
         message,
-        retrieval.chunks
+        retrieval.chunks,
+        conversationIntent
       );
 
     if (groundedTemplate) {
@@ -1327,8 +1392,9 @@ app.use(
 /*
  * Start the server.
  */
-app.listen(
-  PORT,
+function startServer(port = PORT) {
+return app.listen(
+  port,
   async () => {
     console.log(
       ""
@@ -1392,3 +1458,10 @@ app.listen(
     );
   }
 );
+}
+
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, startServer, selectBestChunks, getGroundedTemplateAnswer };
