@@ -2,19 +2,19 @@
   "name": "llm-based-chat-boat",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-  "start": "node server.js",
-  "dev": "node --watch server.js",
-  "test:chatbot": "node scripts/run-tests.js",
-  "test:rag-pmiim": "node tests/rag-pmiim.test.js",
-  "test:rendering-refund": "node tests/rendering-and-refund.test.js",
-  "test:rag-intents": "node tests/rag-intents.test.js",
-  "test:conversation-context": "node tests/conversation-context.test.js",
-  "test:kb": "node scripts/validate-kb.js"
-
-},
-
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "npm run test:kb && npm run test:rag-pmiim && npm run test:rendering-refund && npm run test:rag-intents && npm run test:conversation-context && npm run test:fallback",
+    "test:chatbot": "node scripts/run-tests.js",
+    "test:rag-pmiim": "node tests/rag-pmiim.test.js",
+    "test:rendering-refund": "node tests/rendering-and-refund.test.js",
+    "test:rag-intents": "node tests/rag-intents.test.js",
+    "test:conversation-context": "node tests/conversation-context.test.js",
+    "test:kb": "node scripts/validate-kb.js",
+    "test:fallback": "node tests/fallback.test.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tanmoy99/chatbotCapstone.git"

@@ -1,5 +1,8 @@
 # IIM AI Assistant — Baseline Notes
 
+> Historical snapshot: this document preserves the 19 August 2026 assessment baseline. Counts, architecture, limitations and proposed actions below describe that snapshot, not the current application. See [Knowledge Base Maintenance](knowledge-base-maintenance.md) for current operation and dynamic counts.
+
+
 ## 1. Baseline identification
 
 - **Project:** IIM AI Assistant chatbot
@@ -163,3 +166,17 @@ The following evidence should be retained in the repository:
 - `tests/test-cases.json`
 - `tests/results-expanded-baseline-50-of-60.json`
 - `docs/baseline-notes.md`
+
+## 14. Historical evidence inventory
+
+The files below are retained as historical snapshots, not current test results. Their timestamps identify separate evaluation runs; similar scores do not make the evidence redundant. Original JSON payloads are unchanged. `tests/latest-results.json` is the runner output path and represents only its recorded run until the runner is executed again.
+
+| File | Recorded run |
+| --- | --- |
+| `tests/latest-results.json` | 2026-09-02T04:05:01.701Z |
+| `tests/results-core-6-of-6.json` | 2026-08-19T10:43:41.281Z |
+| `tests/results-expanded-baseline-50-of-60.json` | 2026-08-19T11:17:14.302Z |
+| `tests/results-grounded-responses-50-of-60.json` | 2026-08-19T12:59:24.724Z |
+| `tests/results-kb-separation-50-of-60.json` | 2026-08-19T12:31:58.260Z |
+
+`docs/baseline-notes.md` preserves the August baseline narrative. `docs/kb-audit-v1.xlsx` is a historical knowledge audit workbook, retained for assessment provenance; use `data/knowledge-base.json`, the admin counts and `npm run test:kb` for current knowledge status. Test case datasets are executable evaluation inputs and remain in use by `scripts/run-tests.js`.

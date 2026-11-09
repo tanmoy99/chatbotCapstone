@@ -1,5 +1,8 @@
 # Chatbot MVP — Test Scenarios & Evaluation (Objective 3)
 
+> Historical MVP assessment snapshot. The scenarios and expected answers below reflect an earlier design and are retained as assessment evidence, not current approved facts or acceptance criteria. Current automated tests are in `tests/`; start the current application with `npm start` at `http://localhost:3100` (or your configured `PORT`).
+
+
 Run each scenario in `chatbot/index.html`. Record: intent hit, answer correct (Y/N),
 contained (resolved without human handoff Y/N), and notes. Targets: accuracy ≥ 85%,
 containment ≥ 80%, task completion ≥ 90%.

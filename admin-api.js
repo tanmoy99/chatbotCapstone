@@ -38,6 +38,45 @@ module.exports = function registerAdminApi(app) {
     );
   }
 
+  /*
+   * Slow down password guessing: after too many failed
+   * attempts from one address, refuse for a while.
+   */
+  const MAX_FAILED_ATTEMPTS = 5;
+  const LOCKOUT_MS = 15 * 60 * 1000;
+  const failedAttempts = new Map();
+
+  function isLockedOut(key) {
+    const entry = failedAttempts.get(key);
+
+    if (!entry) {
+      return false;
+    }
+
+    if (Date.now() - entry.firstFailure > LOCKOUT_MS) {
+      failedAttempts.delete(key);
+      return false;
+    }
+
+    return entry.count >= MAX_FAILED_ATTEMPTS;
+  }
+
+  function recordFailure(key) {
+    const entry = failedAttempts.get(key);
+
+    if (
+      !entry ||
+      Date.now() - entry.firstFailure > LOCKOUT_MS
+    ) {
+      failedAttempts.set(key, {
+        count: 1,
+        firstFailure: Date.now(),
+      });
+    } else {
+      entry.count += 1;
+    }
+  }
+
   function requireAdmin(
     request,
     response,
@@ -50,16 +89,31 @@ module.exports = function registerAdminApi(app) {
       });
     }
 
+    const clientKey =
+      request.ip ||
+      request.socket.remoteAddress ||
+      "unknown";
+
+    if (isLockedOut(clientKey)) {
+      return response.status(429).json({
+        error:
+          "Too many failed attempts. Try again in 15 minutes.",
+      });
+    }
+
     const suppliedPassword =
       request.get("x-admin-password") || "";
 
     if (!passwordsMatch(suppliedPassword)) {
+      recordFailure(clientKey);
+
       return response.status(401).json({
         error:
           "Incorrect admin password.",
       });
     }
 
+    failedAttempts.delete(clientKey);
     next();
   }
 
@@ -98,6 +152,29 @@ module.exports = function registerAdminApi(app) {
     }
 
     return cleaned;
+  }
+
+  function validUrl(value, field) {
+    try {
+      const parsed = new URL(value);
+
+      if (
+        ![
+          "http:",
+          "https:",
+        ].includes(
+          parsed.protocol
+        )
+      ) {
+        throw new Error();
+      }
+    } catch {
+      throw new Error(
+        `${field} must be a valid HTTP or HTTPS URL.`
+      );
+    }
+
+    return value;
   }
 
   function validateDocument(
@@ -169,31 +246,14 @@ module.exports = function registerAdminApi(app) {
       );
     }
 
-    const source = requiredText(
-      input.source,
-      "Source URL",
-      500
+    const source = validUrl(
+      requiredText(
+        input.source,
+        "Source URL",
+        500
+      ),
+      "Source"
     );
-
-    try {
-      const parsedSource =
-        new URL(source);
-
-      if (
-        ![
-          "http:",
-          "https:",
-        ].includes(
-          parsedSource.protocol
-        )
-      ) {
-        throw new Error();
-      }
-    } catch {
-      throw new Error(
-        "Source must be a valid HTTP or HTTPS URL."
-      );
-    }
 
     const keywords =
       Array.isArray(input.keywords)
@@ -220,7 +280,36 @@ module.exports = function registerAdminApi(app) {
       );
     }
 
+    /*
+     * Optional secondary links. The admin form does not edit
+     * them, so an omitted field keeps the stored value.
+     */
+    const optionalSources = {};
+
+    for (const field of [
+      "secondarySource",
+      "liveListSource",
+    ]) {
+      if (
+        input[field] !== undefined &&
+        input[field] !== null &&
+        String(input[field]).trim()
+      ) {
+        optionalSources[field] =
+          validUrl(
+            requiredText(
+              String(input[field]),
+              field,
+              500
+            ),
+            field
+          );
+      }
+    }
+
     return {
+      ...optionalSources,
+
       id,
 
       scope: requiredText(
@@ -378,8 +467,25 @@ module.exports = function registerAdminApi(app) {
           );
 
         if (index >= 0) {
-          documents[index] =
-            document;
+          const preserved = {};
+
+          for (const field of [
+            "secondarySource",
+            "liveListSource",
+          ]) {
+            if (
+              documents[index][field] &&
+              !document[field]
+            ) {
+              preserved[field] =
+                documents[index][field];
+            }
+          }
+
+          documents[index] = {
+            ...preserved,
+            ...document,
+          };
         } else {
           documents.push(
             document
@@ -394,14 +500,33 @@ module.exports = function registerAdminApi(app) {
             .toISOString()
             .slice(0, 10);
 
-        const backup =
-          saveKnowledge(data);
+        let backup;
+
+        try {
+          backup =
+            saveKnowledge(data);
+        } catch (error) {
+          console.error(
+            "Knowledge save failed:",
+            error
+          );
+
+          return response
+            .status(500)
+            .json({
+              error:
+                "The knowledge base could not be saved. Check the server log.",
+            });
+        }
 
         response.json({
           saved: true,
           created:
             index < 0,
-          document,
+          document:
+            index >= 0
+              ? documents[index]
+              : document,
           backup,
           restartRequired:
             true,

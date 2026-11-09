@@ -45,7 +45,6 @@ function resolveConversationIntent(message, history) {
   const query = normalizeQuery(message);
   const safeHistory = Array.isArray(history) ? history : [];
   const recentText = safeHistory.slice(-6).map((item) => normalizeQuery(item && item.content)).join(" \n ");
-  const transcript = `${recentText} \n ${query}`.trim();
   const stiim = /\b(?:stiim|student member(?:ship)?)\b/.test(query);
   const benefits = /\b(?:benefit|benefits|benifit|benifits|advantage|advantages)\b/.test(query);
   const fee = /\b(?:fee|fees|cost|price|how much|charge|charges)\b/.test(query);
@@ -70,8 +69,23 @@ function resolveConversationIntent(message, history) {
 
   const explicitMembership = /\b(?:student membership|student member|stiim|membership|membership grade|membership fee|member benefits?|join iim|join the iim|become (?:an? )?(?:iim )?member)\b/.test(query);
 
-  if (explicitMembership && /\b(?:join|become|apply|member|membership)\b/.test(query)) {
-    return { type: "membership_joining", retrievalQuery: "IIM membership categories grades eligibility application approval how to join", requiredSourceIds: ["ng_membership_categories", "ng_membership_grade_eligibility"] };
+  const joining = /\b(?:join|become|apply|application|process|procedure|steps)\b/.test(query);
+  const specificGrade = /\b(?:pmiim|spmiim|gmiim|amiim|fiim|professional|graduate|associate|fellow|senior)\b/.test(query);
+  // Questions that need a different source (or are about another organisation)
+  // must reach normal retrieval instead of a fixed membership template.
+  const otherMembershipTopic = /\b(?:upgrade|upgrading|corporate|company|organi[sz]ation|organi[sz]ations|unrelated|another|other|contact|email|phone|department|departments|renew|renewal)\b/.test(query);
+  const asksCategories = /\b(?:categor(?:y|ies)|grades?|types?|levels?|kinds?|options|offer|offers|offered|available)\b/.test(query) || /^(?:iim )?membership$/.test(query);
+  if (explicitMembership && asksCategories && !fee && !benefits && !specificGrade && !otherMembershipTopic && !isRefundPolicyQuery(query)) {
+    return { type: "membership_categories", retrievalQuery: "IIM membership categories grades", requiredSourceIds: ["ng_membership_categories"], allowedSourceIds: ["ng_membership_categories"] };
+  }
+  if (explicitMembership && joining && !fee && !benefits && !otherMembershipTopic) {
+    return { type: /\bstudent\b/.test(query) ? "student_membership_joining" : "membership_joining", retrievalQuery: "IIM membership categories grades eligibility application approval how to join", requiredSourceIds: ["ng_membership_categories", "ng_membership_grade_eligibility"], allowedSourceIds: ["ng_membership_categories", "ng_membership_grade_eligibility"] };
+  }
+  if (explicitMembership && benefits && !specificGrade && !otherMembershipTopic) {
+    return { type: "membership_benefits", retrievalQuery: "IIM membership benefits", requiredSourceIds: ["membership_benefits"], allowedSourceIds: ["membership_benefits"] };
+  }
+  if (/\bdata protection officer\b/.test(query) && /\bcertification\b/.test(query) && /\b(?:which|fits?|suitable|recommend)\b/.test(query)) {
+    return { type: "cdpo_recommendation", retrievalQuery: "CDPO certification data protection officer", requiredSourceIds: ["cdpo_overview"], allowedSourceIds: ["cdpo_overview"] };
   }
 
   if (asksRecommendation && trainingContext && itBackground) {

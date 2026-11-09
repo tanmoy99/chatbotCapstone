@@ -29,7 +29,7 @@ const registerAdminApi = require("./admin-api");
 const app = express();
 
 const PORT = Number(
-  process.env.PORT || 3000
+  process.env.PORT || 3100
 );
 
 const OLLAMA_BASE_URL = String(
@@ -152,7 +152,6 @@ ANSWER STYLE
 - Do not include a Sources section because the application displays sources separately.
 - Do not create Markdown links.
 - Write email addresses as plain text.
--- Do not include a Sources section because the application displays sources separately.
 `;
 
 /*
@@ -547,6 +546,16 @@ function getGroundedTemplateAnswer(
     )
   );
 
+  const directSources = {
+    membership_categories: "ng_membership_categories",
+    membership_benefits: "membership_benefits",
+    cdpo_recommendation: "cdpo_overview",
+  };
+  const directSource = directSources[conversationIntent.type];
+  if (directSource && sourceIds.has(directSource)) {
+    return { id: conversationIntent.type, answer: chunks.find((chunk) => chunk.id === directSource).text };
+  }
+
   if (conversationIntent.type === "it_training_recommendation" && sourceIds.has("training_areas")) {
     return {
       id: "it-training-recommendation",
@@ -557,7 +566,7 @@ function getGroundedTemplateAnswer(
   if (conversationIntent.type === "training_overview" && sourceIds.has("training_areas")) {
     return {
       id: "training-overview",
-      answer: "Yes. IIM's training and certification pages list these subject areas:\n\n- Archiving and Preservation\n- Archives Management\n- Database Management\n- Document Management\n- Geographic Information Systems\n- Health Information Management\n- Information Security\n- Knowledge Management\n- Library Management\n- Records/Information Management\n- Related data/privacy specialisations\n\nThese are subject areas; certifications and membership grades are separate. Confirm currently available courses with training@iim-africa.org.",
+      answer: "IIM's training and certification pages list these subject areas:\n\n- Archiving and Preservation\n- Archives Management\n- Database Management\n- Document Management\n- Geographic Information Systems\n- Health Information Management\n- Information Security\n- Knowledge Management\n- Library Management\n- Records/Information Management\n- Related data/privacy specialisations\n\nThese are subject areas; certifications and membership grades are separate. Confirm currently available courses with training@iim-africa.org.",
     };
   }
 
@@ -594,7 +603,7 @@ function getGroundedTemplateAnswer(
     /\bmembership\s+(?:process|application)\b/.test(query) ||
     /\bhow can i join\b/.test(query);
 
-  if (conversationIntent.type === "membership_joining") {
+  if (conversationIntent.type === "student_membership_joining" && sourceIds.has("ng_membership_grade_eligibility")) {
     return {
       id: "membership-joining-overview",
       answer: "Being a student does not automatically make someone an IIM Student Member. STIIM is a membership grade that requires an application and IIM approval. Full-time students studying information management or a related professional course may be eligible if they provide proof of active study. Contact membership@iim-africa.org for the official application process.",
@@ -602,7 +611,7 @@ function getGroundedTemplateAnswer(
   }
 
   if (
-    joiningMembership &&
+    (joiningMembership || conversationIntent.type === "membership_joining") &&
     sourceIds.has("ng_membership_categories") &&
     sourceIds.has("ng_membership_grade_eligibility")
   ) {
@@ -1303,13 +1312,13 @@ app.post(
        * when Ollama is unavailable.
        */
       const fallback =
-        Engine.respond(message);
+        Engine.respond(message, retrieval.chunks);
 
       return response.json({
         answer:
           fallback.text,
 
-        sources: [],
+        sources: fallback.sources || [],
 
         quickReplies:
           fallback.quickReplies ||
@@ -1393,71 +1402,23 @@ app.use(
  * Start the server.
  */
 function startServer(port = PORT) {
-return app.listen(
-  port,
-  async () => {
-    console.log(
-      ""
-    );
+  const server = app.listen(port, async () => {
+    const actualPort = server.address().port;
+    console.log("IIM AI Chatbot Server");
+    console.log(`Website: http://localhost:${actualPort}`);
+    console.log(`Health:  http://localhost:${actualPort}/api/health`);
+    console.log(`Model:   ${OLLAMA_MODEL}`);
+    console.log(`Ollama:  ${OLLAMA_BASE_URL}`);
 
-    console.log(
-      "=========================================="
-    );
-
-    console.log(
-      " IIM AI Chatbot Server"
-    );
-
-    console.log(
-      "=========================================="
-    );
-
-    console.log(
-      `Website: http://localhost:${PORT}`
-    );
-
-    console.log(
-      `Health:  http://localhost:${PORT}/api/health`
-    );
-
-    console.log(
-      `Model:   ${OLLAMA_MODEL}`
-    );
-
-    console.log(
-      `Ollama:  ${OLLAMA_BASE_URL}`
-    );
-
-    const ollama =
-      await checkOllama();
-
-    console.log(
-      `Status:  ${
-        ollama.connected
-          ? "Ollama connected"
-          : "Ollama unavailable — fallback will be used"
-      }`
-    );
-
-    if (
-      ollama.connected &&
-      ollama.models.length
-    ) {
-      console.log(
-        "Models:  " +
-          ollama.models.join(", ")
-      );
+    const ollama = await checkOllama();
+    console.log(`Status:  ${ollama.connected
+      ? "Ollama connected"
+      : "Ollama unavailable; fallback will be used"}`);
+    if (ollama.connected && ollama.models.length) {
+      console.log("Models:  " + ollama.models.join(", "));
     }
-
-    console.log(
-      "=========================================="
-    );
-
-    console.log(
-      ""
-    );
-  }
-);
+  });
+  return server;
 }
 
 if (require.main === module) {

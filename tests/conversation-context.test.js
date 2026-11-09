@@ -76,6 +76,31 @@ function addTurn(history, user, result) {
       assert.deepStrictEqual(standalone.meta.retrievedDocuments.map((item) => item.id), ["training_areas"]);
     }
 
+    for (const previous of [[], history]) {
+      for (const question of ["what membership IIM offers", "What membership types are available?"]) {
+        const result = await chat(baseUrl, question, previous);
+        assert(/Student/i.test(result.answer) && /Individual/i.test(result.answer) && /Corporate/i.test(result.answer));
+        assert(!/Being a student|full-time students/i.test(result.answer));
+        assert.deepStrictEqual(result.sources, ["Nigeria Membership Categories and Grades"]);
+      }
+    }
+    const generalJoining = await chat(baseUrl, "How do I join IIM?");
+    assert(/Student, Individual and Corporate/.test(generalJoining.answer));
+    assert(!/Being a student/.test(generalJoining.answer));
+    const generalBenefits = await chat(baseUrl, "What are the membership benefits?");
+    assert(generalBenefits.sources.includes("Membership Benefits"));
+    assert(!/Being a student/.test(generalBenefits.answer));
+    const professionalFees = await chat(baseUrl, "How much is PMIIM membership?");
+    assert(/USD 180/.test(professionalFees.answer));
+    const professionalEligibility = await chat(baseUrl, "What are the Professional Membership requirements?");
+    assert(!/Being a student/.test(professionalEligibility.answer));
+    const overview = await chat(baseUrl, "what courses IIM offers");
+    assert(!/^Yes\./.test(overview.answer));
+    const cdpo = await chat(baseUrl, "I'm a data protection officer. Which certification fits me?");
+    assert(/CDPO/.test(cdpo.answer));
+    assert(!/biometric|marketing|privacy policy/i.test(cdpo.answer));
+    assert.deepStrictEqual(cdpo.sources, ["Certified Data Protection Officer (CDPO)"]);
+
     const fresh = await chat(baseUrl, "Which one is good for me?", []);
     assert(!/Information Security.*Database Management/i.test(fresh.answer));
     console.log("Conversation context regression tests passed.");

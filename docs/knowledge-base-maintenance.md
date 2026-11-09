@@ -6,7 +6,7 @@ The editable IIM content is stored separately from the chatbot code in:
 
 `data/knowledge-base.json`
 
-The file contains the organisation details, approved contacts, official source URLs, 31 knowledge documents, suggested topics, intents and user journeys. `public/knowledge.js` now validates this data and builds the RAG corpus; it should not contain changing IIM facts.
+The file contains the organisation details, approved contacts, official source URLs, knowledge documents, suggested topics, intents and user journeys. `public/knowledge.js` now validates this data and builds the RAG corpus; it should not contain changing IIM facts.
 
 ## Safe update process
 
@@ -19,7 +19,7 @@ The file contains the organisation details, approved contacts, official source U
 7. Run `npm run test:chatbot` before publishing the change.
 8. Commit the data change and its test results together.
 
-The Node server must be restarted after a manual change to the JSON file. A future admin dashboard can reload the data automatically after an approved publish action.
+The Node server must be restarted after manual or admin edits to activate the saved knowledge. The admin dashboard displays stored and active counts; `npm run test:kb` validates the current data, and `/api/health` reports the loaded active corpus.
 
 ## Knowledge document fields
 
@@ -52,8 +52,12 @@ The Node server must be restarted after a manual change to the JSON file. A futu
 - Do not publish private client or user information in the knowledge file.
 - Do not replace a verified record with information from an unofficial source.
 - Do not treat dynamic or live information as permanently correct.
-- Prefer deactivating or replacing an outdated record through the future dashboard instead of silently deleting its history.
+- Prefer deactivating or replacing an outdated record through the admin dashboard instead of silently deleting its history.
 
-## Planned non-technical editor
+## Knowledge management interface
 
-The next stage is a password-protected Knowledge Management Dashboard. It will provide forms, validation, draft and publish controls, backups and an audit trail so client staff will not need to edit JSON directly.
+The password-protected dashboard at `/admin/` supports document loading, editing, creation and deactivation. Set `ADMIN_PASSWORD` in the ignored `.env` file. Saves validate the document and create a backup in ignored `data/backups/`; restart the server to activate changes. Draft/publish controls and a full audit trail remain future work.
+
+## Local startup
+
+Copy `.env.example` to `.env`, configure the admin password, and run `npm start`. The default URL is `http://localhost:3100`; `PORT` can override it. Ollama defaults to `llama3.2:3b`. The browser sends knowledge questions to `/api/chat`; the backend handles lexical retrieval, grounded templates, Ollama and rule-based fallback. Built-in conversation and a browser rule-based fallback remain available if the backend request fails.

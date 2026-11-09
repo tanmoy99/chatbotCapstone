@@ -4,3 +4,8 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 data/backups/
+.env.*
+!.env.example
+*.pem
+*.key
+data/knowledge-base.json.tmp

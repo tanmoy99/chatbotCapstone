@@ -5,7 +5,7 @@ const path = require("path");
 
 const BASE_URL =
   process.env.TEST_BASE_URL ||
-  "http://localhost:3000";
+  "http://localhost:3100";
 
 const TEST_FILE = path.join(
   __dirname,

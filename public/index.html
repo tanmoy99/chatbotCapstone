@@ -2,540 +2,287 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta
     name="description"
     content="IIM AI Assistant — AI-powered information assistant for the Institute of Information Management."
   />
-
+  <meta name="theme-color" content="#070b18" />
   <title>IIM AI Assistant</title>
 
-  <!--
-    Increase the version number whenever you make a major CSS change.
-    This prevents the browser from loading an old cached stylesheet.
-  -->
-  <link
-    rel="stylesheet"
-    href="styles.css?v=7"
-  />
+  <!-- Bump the version whenever styles.css changes to avoid a stale cache. -->
+  <link rel="stylesheet" href="styles.css?v=9" />
 </head>
 
 <body>
+  <a class="skip-link" href="#chat-input">Skip to chat</a>
 
-  <!-- Accessibility shortcut -->
-  <a
-    class="skip-link"
-    href="#chat-input"
-  >
-    Skip to chat
-  </a>
-
+  <!-- Decorative animated background -->
+  <div class="aurora" aria-hidden="true">
+    <span class="aurora-blob blob-a"></span>
+    <span class="aurora-blob blob-b"></span>
+    <span class="aurora-blob blob-c"></span>
+  </div>
 
   <!-- ======================================================
-       TOP HEADER
+       HEADER
   ======================================================= -->
-
   <header class="app-header">
-
     <div class="header-inner">
-
-      <!-- Brand -->
-      <div class="brand">
-
-        <div
-          class="brand-logo"
-          aria-hidden="true"
+      <div class="header-left">
+        <button
+          id="sidebar-toggle"
+          class="icon-button sidebar-toggle"
+          type="button"
+          aria-controls="sidebar"
+          aria-expanded="false"
+          aria-label="Open menu"
         >
-          IIM
-        </div>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+        </button>
 
-        <div class="brand-copy">
-
-          <div class="brand-title-row">
-
-            <h1>
-              IIM AI Assistant
-            </h1>
-
-            <span class="beta-badge">
-              AI
-            </span>
-
+        <div class="brand">
+          <div class="brand-orb" aria-hidden="true"><span>IIM</span></div>
+          <div class="brand-copy">
+            <h1>IIM <span class="gradient-text">Assistant</span></h1>
+            <p class="brand-subtitle">Institute of Information Management</p>
           </div>
-
-          <p class="brand-subtitle">
-            Institute of Information Management
-          </p>
-
         </div>
-
       </div>
 
-
-      <!-- Header right side -->
       <div class="header-actions">
+        <div
+          id="system-status"
+          class="connection-pill checking"
+          aria-label="Checking AI service status"
+          aria-live="polite"
+        >
+          <span id="status-dot" class="connection-dot"></span>
+          <span id="status-text" class="connection-text">Checking AI...</span>
+        </div>
 
-        <!--
-          The IDs below are harmless if your current app.js
-          does not use them, but allow a health script to update
-          the status later.
-        -->
-      
-
-  <div
-  id="system-status"
-  class="connection-pill checking"
-  aria-label="Checking AI service status"
-  aria-live="polite"
->
-  <span
-    id="status-dot"
-    class="connection-dot"
-  ></span>
-
-  <span
-    id="status-text"
-    class="connection-text"
-  >
-    Checking AI...
-  </span>
-</div>
-
+        <button
+          id="new-chat-btn"
+          class="ghost-button"
+          type="button"
+          aria-label="Start a new chat"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          <span class="button-label">New chat</span>
+        </button>
 
         <button
           id="settings-btn"
-          class="settings-button"
+          class="icon-button"
           type="button"
           aria-haspopup="dialog"
           aria-expanded="false"
-          aria-label="Open AI settings"
+          aria-label="About this assistant"
         >
-
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Z"
-              stroke="currentColor"
-              stroke-width="1.8"
-            />
-
-            <path
-              d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21a2 2 0 1 1-4 0v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3a2 2 0 1 1 4 0v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.7 1.7 0 0 0 19.4 9c.08.36.3.7.6 1 .3.24.7.38 1.1.4H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51.6Z"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" />
+            <path d="M12 11v5M12 8h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
           </svg>
-
-          <span>
-            Settings
-          </span>
-
         </button>
-
       </div>
-
     </div>
-
   </header>
 
-
   <!-- ======================================================
-       MAIN APPLICATION
+       MAIN
   ======================================================= -->
-
   <main class="app-shell">
 
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
-    <!-- ====================================================
-         LEFT SIDEBAR
-    ===================================================== -->
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar" aria-label="IIM assistant navigation">
 
-    <aside
-      class="sidebar"
-      aria-label="IIM assistant navigation"
-    >
-
-      <!-- Role selector -->
-      <section class="sidebar-section">
-
-        <div class="section-heading">
-
-          <span class="section-icon">
-            👤
+      <section class="panel">
+        <h2 class="panel-title">
+          <span class="panel-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8" />
+              <path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
           </span>
+          Personalise your help
+        </h2>
 
-          <div>
-            <h2>
-              Personalise your help
-            </h2>
-
-            <p>
-              Choose the option that best describes you.
-            </p>
-          </div>
-
-        </div>
-
-
-        <label
-          for="persona-select"
-          class="field-label"
-        >
-          Your role
-        </label>
-
-        <select
-          id="persona-select"
-          class="persona-select"
-        >
-          <option value="">
-            Select your role
-          </option>
+        <label for="persona-select" class="field-label">I am a…</label>
+        <select id="persona-select" class="persona-select">
+          <option value="">Select your role</option>
         </select>
-
-        <p
-          id="persona-hint"
-          class="persona-hint"
-        ></p>
-
+        <p id="persona-hint" class="persona-hint"></p>
       </section>
 
-
-      <!-- Popular topics -->
-      <section class="sidebar-section">
-
-        <div class="section-heading">
-
-          <span class="section-icon">
-            ✦
+      <section class="panel">
+        <h2 class="panel-title">
+          <span class="panel-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 3l2.4 5.6L20 9.5l-4.3 3.9L17 19l-5-3-5 3 1.3-5.6L4 9.5l5.6-.9L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" />
+            </svg>
           </span>
-
-          <div>
-            <h2>
-              Popular topics
-            </h2>
-
-            <p>
-              Start with a common question.
-            </p>
-          </div>
-
-        </div>
-
-
-        <div
-          id="topic-chips"
-          class="chips"
-          aria-label="Popular IIM topics"
-        ></div>
-
+          Popular topics
+        </h2>
+        <div id="topic-chips" class="chips" aria-label="Popular IIM topics"></div>
       </section>
 
-
-      <!-- Knowledge trust card -->
-      <section class="trust-card">
-
-        <div class="trust-icon">
-          ✓
+      <section class="panel trust-panel">
+        <div class="trust-icon" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3 4 7v5c0 5 3.4 8.5 8 9.8 4.6-1.3 8-4.8 8-9.8V7l-8-4Z" stroke="currentColor" stroke-width="1.8" />
+            <path d="m8.5 12 2.2 2.2 4.8-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
         </div>
-
-        <div class="trust-copy">
-
-          <strong>
-            Knowledge-grounded answers
-          </strong>
-
+        <div>
+          <strong>Verified answers only</strong>
           <p>
-            Responses are generated from the approved IIM
-            knowledge base using Retrieval-Augmented Generation.
+            Answers come from the approved IIM knowledge base. If something
+            isn't confirmed, the assistant says so instead of guessing.
           </p>
-
         </div>
-
       </section>
 
-
-      <!-- About -->
-      <section class="sidebar-section compact-section">
-
-        <h2 class="small-heading">
-          About IIM
-        </h2>
-
-        <p
-          id="about-text"
-          class="about-text"
-        ></p>
-
+      <section class="panel compact">
+        <h2 class="panel-title small">About IIM</h2>
+        <p id="about-text" class="about-text"></p>
       </section>
 
-
-      <!-- Feedback stats -->
-      <section class="sidebar-section compact-section">
-
-        <h2 class="small-heading">
-          Session feedback
-        </h2>
-
-        <div class="feedback-summary">
-
-          <div class="feedback-summary-icon">
-            ◎
-          </div>
-
-          <p
-            id="feedback-stats"
-            class="feedback-stats"
-          >
-            No responses rated yet.
-          </p>
-
-        </div>
-
+      <section class="panel compact">
+        <h2 class="panel-title small">Session feedback</h2>
+        <p id="feedback-stats" class="feedback-stats">No responses rated yet.</p>
       </section>
 
-
-      <!-- Disclaimer -->
-      <div class="sidebar-footer">
-
-        <p>
-          AI-generated responses may require official
-          confirmation for time-sensitive or case-specific
-          information.
-        </p>
-
-      </div>
-
+      <p class="sidebar-footer">
+        Fees, dates and case-specific decisions may change. Please confirm
+        time-sensitive details with IIM.
+      </p>
     </aside>
 
+    <!-- Chat -->
+    <section class="chat-area" aria-label="Chat conversation">
 
+      <div class="chat-scroll" id="chat-scroll">
 
-    <!-- ====================================================
-         CHAT AREA
-    ===================================================== -->
-
-    <section
-      class="chat-area"
-      aria-label="Chat conversation"
-    >
-
-
-      <!-- Chat top information bar -->
-      <div class="chat-topbar">
-
-        <div>
-
-          <h2>
-            Ask IIM
-          </h2>
-
-          <p>
-            Membership, certification, CDPO, training,
-            CPD, events and official contact information.
-          </p>
-
-        </div>
-
-
-        <div class="knowledge-badge">
-
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M12 3 4 7v5c0 5 3.4 8.5 8 9.8 4.6-1.3 8-4.8 8-9.8V7l-8-4Z"
-              stroke="currentColor"
-              stroke-width="1.8"
-            />
-
-            <path
-              d="m8.5 12 2.2 2.2 4.8-5"
-              stroke="currentColor"
-              stroke-width="1.8"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
-
-          Verified knowledge
-
-        </div>
-
-      </div>
-
-
-
-      <!-- Conversation -->
-      <div
-        id="messages"
-        class="messages"
-        role="log"
-        aria-live="polite"
-        aria-atomic="false"
-      ></div>
-
-
-
-      <!-- Typing indicator -->
-      <div
-        id="typing"
-        class="typing hidden"
-        aria-live="polite"
-        aria-label="Assistant is typing"
-      >
-
-        <div class="typing-avatar">
-          IIM
-        </div>
-
-        <div class="typing-bubble">
-
-          <span></span>
-          <span></span>
-          <span></span>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- ==================================================
-           MESSAGE COMPOSER
-      =================================================== -->
-
-      <div class="composer-area">
-
-        <div class="composer-container">
-
-          <form
-            id="chat-form"
-            class="chat-form"
-            autocomplete="off"
-          >
-
-            <label
-              for="chat-input"
-              class="visually-hidden"
-            >
-              Type your question
-            </label>
-
-
-            <div class="input-wrapper">
-
-              <input
-                id="chat-input"
-                type="text"
-                placeholder="Ask a question about IIM..."
-                maxlength="2000"
-                autocomplete="off"
-              />
-
-
-              <button
-                type="submit"
-                class="send-btn"
-                aria-label="Send message"
-              >
-
-                <span class="send-text">
-                  Send
-                </span>
-
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="m5 12 14-7-4.5 14-3-5.5L5 12Z"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linejoin="round"
-                  />
-
-                  <path
-                    d="m11.5 13.5 3.5-3.5"
-                    stroke="currentColor"
-                    stroke-width="1.8"
-                    stroke-linecap="round"
-                  />
-                </svg>
-
-              </button>
-
-            </div>
-
-          </form>
-
-
-          <div class="composer-footer">
-
-            <span>
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"
-                  stroke="currentColor"
-                  stroke-width="1.7"
-                />
-
-                <path
-                  d="M12 10v6M12 7h.01"
-                  stroke="currentColor"
-                  stroke-width="1.9"
-                  stroke-linecap="round"
-                />
-              </svg>
-
-              Answers are grounded in IIM knowledge where available.
-            </span>
-
-
-            <span class="powered-text">
-              LLM + RAG
-            </span>
-
+        <!-- Welcome screen (hidden after the first question) -->
+        <div id="welcome" class="welcome">
+          <div class="hero-orb" aria-hidden="true">
+            <span class="hero-ring"></span>
+            <span class="hero-core">IIM</span>
           </div>
 
+          <h2 class="welcome-title">
+            How can I <span class="gradient-text">help you</span> today?
+          </h2>
+          <p class="welcome-subtitle">
+            Ask about certifications, membership, CDPO, CPD, training, events
+            or how to contact IIM.
+          </p>
+
+          <div class="welcome-cards" id="welcome-cards">
+            <button type="button" class="welcome-card" data-question="Certifications overview">
+              <span class="card-icon icon-cyan" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="9" r="5" stroke="currentColor" stroke-width="1.8" />
+                  <path d="m9 13.5-1.5 7L12 18l4.5 2.5-1.5-7" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="card-title">Certifications</span>
+              <span class="card-text">What certifications does IIM offer?</span>
+            </button>
+
+            <button type="button" class="welcome-card" data-question="Membership">
+              <span class="card-icon icon-violet" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="9" cy="8" r="3.5" stroke="currentColor" stroke-width="1.8" />
+                  <path d="M3 19c1-3.5 3.3-5 6-5s5 1.5 6 5M16 5.5a3 3 0 0 1 0 5.5M18 14c1.6.6 2.6 2.2 3 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span class="card-title">Membership</span>
+              <span class="card-text">How do I become an IIM member?</span>
+            </button>
+
+            <button type="button" class="welcome-card" data-question="CDPO renewal">
+              <span class="card-icon icon-pink" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v4h-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </span>
+              <span class="card-title">CDPO renewal</span>
+              <span class="card-text">How do I keep my CDPO active?</span>
+            </button>
+
+            <button type="button" class="welcome-card" data-question="Talk to a human">
+              <span class="card-icon icon-green" aria-hidden="true">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 6h16v10H8l-4 4V6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                  <path d="M8 10h8M8 13h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                </svg>
+              </span>
+              <span class="card-title">Contact IIM</span>
+              <span class="card-text">I'd like to talk to a person.</span>
+            </button>
+          </div>
         </div>
 
+        <!-- Conversation -->
+        <div
+          id="messages"
+          class="messages"
+          role="log"
+          aria-live="polite"
+          aria-atomic="false"
+        ></div>
+
+        <!-- Typing indicator -->
+        <div id="typing" class="typing hidden" aria-live="polite">
+          <div class="avatar" aria-hidden="true"></div>
+          <div class="typing-bubble">
+            <span class="typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="typing-text">Searching IIM knowledge…</span>
+          </div>
+        </div>
       </div>
 
-    </section>
+      <!-- Composer -->
+      <div class="composer-area">
+        <form id="chat-form" class="chat-form" autocomplete="off">
+          <label for="chat-input" class="visually-hidden">Type your question</label>
 
+          <div class="input-wrapper">
+            <textarea
+              id="chat-input"
+              rows="1"
+              placeholder="Ask anything about IIM…"
+              maxlength="2000"
+              autocomplete="off"
+              aria-describedby="composer-hint"
+            ></textarea>
+
+            <button type="submit" class="send-btn" aria-label="Send message">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </form>
+
+        <p id="composer-hint" class="composer-footer">
+          <span>Enter to send · Shift + Enter for a new line</span>
+          <span class="powered-text">Grounded by RAG · approved IIM knowledge</span>
+        </p>
+      </div>
+    </section>
   </main>
 
-
-
   <!-- ======================================================
-       SETTINGS DIALOG
+       ABOUT DIALOG
   ======================================================= -->
-
   <div
     id="settings-dialog"
     class="dialog hidden"
@@ -543,184 +290,43 @@
     aria-modal="true"
     aria-labelledby="settings-title"
   >
-
     <div class="dialog-box">
-
       <div class="dialog-header">
-
         <div class="dialog-title-group">
-
-          <div class="dialog-icon">
-            ⚙
-          </div>
-
+          <div class="brand-orb small" aria-hidden="true"><span>AI</span></div>
           <div>
-
-            <h2 id="settings-title">
-              AI Settings
-            </h2>
-
-            <p>
-              Configure the model used by the assistant.
-            </p>
-
+            <h2 id="settings-title">About this assistant</h2>
+            <p>How your answers are produced</p>
           </div>
-
         </div>
-
-
-        <button
-          id="settings-close"
-          class="dialog-close"
-          type="button"
-          aria-label="Close settings"
-        >
-          ×
+        <button id="settings-close" class="icon-button" type="button" aria-label="Close dialog">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
         </button>
-
       </div>
 
+      <ol class="how-steps">
+        <li><strong>Search.</strong> Your question is matched against the approved IIM knowledge base.</li>
+        <li><strong>Ground.</strong> Only reliable matches are used. High-risk facts such as fees use checked templates.</li>
+        <li><strong>Answer.</strong> A local Ollama model writes the reply from those sources, which are shown under each answer.</li>
+        <li><strong>Fallback.</strong> If nothing reliable is found, you're pointed to an official IIM contact instead of a guess.</li>
+      </ol>
 
-      <div class="dialog-content">
-
-
-        <!-- Provider -->
-        <div class="settings-field">
-
-          <label for="llm-provider">
-            AI provider
-          </label>
-
-          <select id="llm-provider">
-
-            <option
-              value="local"
-              selected
-            >
-              Local model — Ollama
-            </option>
-
-            <option value="openai">
-              OpenAI Cloud API
-            </option>
-
-          </select>
-
-        </div>
-
-
-        <!-- Model -->
-        <div class="settings-field">
-
-          <label for="llm-model">
-            Model
-          </label>
-
-          <input
-            id="llm-model"
-            type="text"
-            value="llama3.2:3b"
-            autocomplete="off"
-          />
-
-          <span class="field-help">
-            Example: llama3.2:3b or another Ollama model.
-          </span>
-
-        </div>
-
-
-        <!-- Base URL -->
-        <div class="settings-field">
-
-          <label for="llm-base">
-            API base URL
-          </label>
-
-          <input
-            id="llm-base"
-            type="text"
-            value="http://localhost:11434/v1"
-            autocomplete="off"
-          />
-
-        </div>
-
-
-        <!-- API key -->
-        <div class="settings-field">
-
-          <label for="llm-key">
-            API key
-          </label>
-
-          <input
-            id="llm-key"
-            type="password"
-            placeholder="Not required for local Ollama"
-            autocomplete="off"
-          />
-
-          <span class="field-help">
-            Only required when using a cloud provider.
-          </span>
-
-        </div>
-
-
-        <!-- Provider information -->
-        <div class="provider-information">
-
-          <div class="provider-information-icon">
-            i
-          </div>
-
-          <p id="provider-hint">
-            Local Ollama runs on your own computer and does
-            not require an API key.
-          </p>
-
-        </div>
-
-      </div>
-
-
-
-      <div class="dialog-actions">
-
-        <button
-          id="settings-save"
-          type="button"
-          class="primary-btn"
-        >
-          Save settings
-        </button>
-
-      </div>
-
+      <p class="dialog-note">
+        The status badge in the header shows whether the AI model is online. If it is
+        offline, rule-based answers are still available.
+      </p>
     </div>
-
   </div>
 
-
-
-  <!-- ======================================================
-       APPLICATION FILES
-
-       IMPORTANT:
-       knowledge-data.js MUST load before knowledge.js.
-       knowledge.js MUST load before rag.js.
-  ======================================================= -->
-
+  <!--
+    Load order matters:
+    knowledge-data.js → knowledge.js → engine.js → app.js
+  -->
   <script src="knowledge-data.js?v=1"></script>
-
   <script src="knowledge.js?v=3"></script>
-
-  <script src="engine.js?v=2"></script>
-
-  <script src="rag.js?v=5"></script>
-
-  <script src="app.js?v=6"></script>
-
+  <script src="engine.js?v=4"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>
