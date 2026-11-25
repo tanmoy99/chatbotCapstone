@@ -880,6 +880,167 @@ a {
   border-color: rgba(52, 211, 153, 0.5);
 }
 
+.handoff-button.primary {
+  border: none;
+  background: var(--gradient);
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.handoff-button.primary:hover,
+.handoff-button.primary:focus-visible {
+  background: var(--gradient);
+  filter: brightness(1.1);
+}
+
+.handoff-button.primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.handoff-alt-label {
+  margin: 16px 0 8px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+
+/* Enquiry form */
+
+.enquiry-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border-strong);
+}
+
+.enquiry-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.enquiry-field {
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+}
+
+.enquiry-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.enquiry-field small {
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+
+.enquiry-field input,
+.enquiry-field select,
+.enquiry-field textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: rgba(7, 11, 24, 0.6);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.86rem;
+}
+
+.enquiry-field textarea {
+  resize: vertical;
+  min-height: 90px;
+}
+
+.enquiry-field select option {
+  background: #0d1428;
+}
+
+.enquiry-field input:focus-visible,
+.enquiry-field select:focus-visible,
+.enquiry-field textarea:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.enquiry-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.enquiry-consent input {
+  margin-top: 2px;
+  accent-color: var(--green);
+}
+
+.enquiry-form > .handoff-button.primary {
+  justify-self: start;
+}
+
+.enquiry-status {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.enquiry-status:empty {
+  display: none;
+}
+
+.enquiry-status.error {
+  color: var(--red);
+}
+
+.enquiry-trap {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.enquiry-done {
+  margin-top: 4px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.enquiry-done strong {
+  color: var(--green);
+  font-size: 0.88rem;
+}
+
+.enquiry-done p {
+  margin: 4px 0 0;
+  font-size: 0.82rem;
+  color: var(--text);
+}
+
+@media (max-width: 640px) {
+  .enquiry-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.embed .enquiry-row {
+  grid-template-columns: 1fr;
+}
+
 /* Message actions */
 
 .msg-meta {

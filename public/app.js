@@ -629,9 +629,32 @@
 
     const text = document.createElement("p");
     text.className = "handoff-text";
-    text.textContent = questionText
-      ? "Contact IIM directly. Your question will be filled in for you to review and send."
-      : "Contact IIM directly. A message will be started for you to complete and send.";
+    text.textContent =
+      "Send your enquiry to IIM from here, and choose whether they reply by email, WhatsApp or phone.";
+
+    const formToggle = document.createElement("button");
+    formToggle.type = "button";
+    formToggle.className = "handoff-button primary";
+    formToggle.textContent = "Send IIM a message";
+    formToggle.setAttribute("aria-expanded", "false");
+
+    const formSlot = document.createElement("div");
+
+    formToggle.addEventListener("click", () => {
+      formToggle.remove();
+      formSlot.appendChild(buildEnquiryForm(questionText));
+      const firstField = formSlot.querySelector("input");
+
+      if (firstField) {
+        firstField.focus();
+      }
+
+      scrollToBottom();
+    });
+
+    const altLabel = document.createElement("p");
+    altLabel.className = "handoff-alt-label";
+    altLabel.textContent = "Or contact IIM yourself:";
 
     const actions = document.createElement("div");
     actions.className = "handoff-actions";
@@ -663,9 +686,197 @@
 
     card.appendChild(title);
     card.appendChild(text);
+    card.appendChild(formToggle);
+    card.appendChild(formSlot);
+    card.appendChild(altLabel);
     card.appendChild(actions);
 
     return card;
+  }
+
+  let enquiryFormCount = 0;
+
+  function formField(labelText, control, hint) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "enquiry-field";
+
+    const label = document.createElement("label");
+    label.htmlFor = control.id;
+    label.textContent = labelText;
+
+    wrapper.appendChild(label);
+    wrapper.appendChild(control);
+
+    if (hint) {
+      const hintText = document.createElement("small");
+      hintText.id = `${control.id}-hint`;
+      hintText.textContent = hint;
+      control.setAttribute("aria-describedby", hintText.id);
+      wrapper.appendChild(hintText);
+    }
+
+    return wrapper;
+  }
+
+  function textInput(id, type, autocomplete, maxLength) {
+    const input = document.createElement("input");
+    input.id = id;
+    input.type = type;
+    input.autocomplete = autocomplete;
+    input.maxLength = maxLength;
+    return input;
+  }
+
+  /*
+   * Enquiry form. Submits to /api/enquiry, which saves the
+   * enquiry for IIM staff and emails it to IIM.
+   */
+  function buildEnquiryForm(questionText) {
+    enquiryFormCount += 1;
+    const prefix = `enquiry-${enquiryFormCount}`;
+
+    const form = document.createElement("form");
+    form.className = "enquiry-form";
+    form.noValidate = true;
+
+    const name = textInput(`${prefix}-name`, "text", "name", 100);
+    name.required = true;
+
+    const email = textInput(`${prefix}-email`, "email", "email", 254);
+    const phone = textInput(`${prefix}-phone`, "tel", "tel", 30);
+    phone.placeholder = "+234 800 000 0000";
+
+    const preferred = document.createElement("select");
+    preferred.id = `${prefix}-preferred`;
+    [
+      ["email", "Email"],
+      ["whatsapp", "WhatsApp"],
+      ["phone", "Phone call"],
+    ].forEach(([value, label]) => {
+      const option = document.createElement("option");
+      option.value = value;
+      option.textContent = label;
+      preferred.appendChild(option);
+    });
+
+    const message = document.createElement("textarea");
+    message.id = `${prefix}-message`;
+    message.rows = 4;
+    message.maxLength = 2000;
+    message.required = true;
+    message.value = questionText || "";
+
+    /* Hidden from people; bots that fill it are ignored. */
+    const trap = textInput(`${prefix}-website`, "text", "off", 100);
+    trap.tabIndex = -1;
+    const trapWrapper = document.createElement("div");
+    trapWrapper.className = "enquiry-trap";
+    trapWrapper.setAttribute("aria-hidden", "true");
+    trapWrapper.appendChild(trap);
+
+    const consentWrapper = document.createElement("label");
+    consentWrapper.className = "enquiry-consent";
+    const consent = document.createElement("input");
+    consent.type = "checkbox";
+    consent.id = `${prefix}-consent`;
+    const consentText = document.createElement("span");
+    consentText.textContent =
+      "I agree that IIM may use these details to reply to this enquiry.";
+    consentWrapper.appendChild(consent);
+    consentWrapper.appendChild(consentText);
+
+    const status = document.createElement("p");
+    status.className = "enquiry-status";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+
+    const submit = document.createElement("button");
+    submit.type = "submit";
+    submit.className = "handoff-button primary";
+    submit.textContent = "Send to IIM";
+
+    const contactRow = document.createElement("div");
+    contactRow.className = "enquiry-row";
+    contactRow.appendChild(formField("Email", email));
+    contactRow.appendChild(
+      formField("Phone / WhatsApp", phone, "Include the country code.")
+    );
+
+    form.appendChild(formField("Your name", name));
+    form.appendChild(contactRow);
+    form.appendChild(formField("How should IIM reply?", preferred));
+    form.appendChild(formField("Your enquiry", message));
+    form.appendChild(trapWrapper);
+    form.appendChild(consentWrapper);
+    form.appendChild(submit);
+    form.appendChild(status);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      status.classList.remove("error");
+      status.textContent = "Sending…";
+      submit.disabled = true;
+
+      try {
+        const response = await fetch("/api/enquiry", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: name.value,
+            email: email.value,
+            phone: phone.value,
+            preferredContact: preferred.value,
+            message: message.value,
+            consent: consent.checked,
+            website: trap.value,
+            embedded: document.documentElement.classList.contains("embed"),
+          }),
+        });
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+        if (!response.ok) {
+          throw new Error(
+            data.error || "Your enquiry could not be sent. Please email IIM directly."
+          );
+        }
+
+        const done = document.createElement("div");
+        done.className = "enquiry-done";
+        done.setAttribute("role", "status");
+
+        const heading = document.createElement("strong");
+        heading.textContent = "Enquiry sent to IIM";
+
+        const detail = document.createElement("p");
+        const replyBy = {
+          email: "by email",
+          whatsapp: "on WhatsApp",
+          phone: "by phone",
+        }[preferred.value];
+        detail.textContent =
+          `Your reference is ${data.reference}. The IIM team will reply ${replyBy}. ` +
+          "Keep the reference in case you need to follow up.";
+
+        done.appendChild(heading);
+        done.appendChild(detail);
+        form.replaceWith(done);
+        scrollToBottom();
+      } catch (error) {
+        status.classList.add("error");
+        status.textContent = error.message;
+        submit.disabled = false;
+      }
+    });
+
+    return form;
   }
 
   /*

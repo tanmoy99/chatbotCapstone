@@ -10,3 +10,5 @@ data/backups/
 *.key
 data/knowledge-base.json.tmp
 data/feedback.jsonl
+data/enquiries.jsonl
+data/*.jsonl.tmp

@@ -26,6 +26,7 @@ const {
 } = require("./query-intents");
 const registerAdminApi = require("./admin-api");
 const registerFeedbackApi = require("./feedback-api");
+const registerEnquiryApi = require("./enquiry-api");
 
 const app = express();
 
@@ -144,6 +145,25 @@ const FEEDBACK_DATA_PATH = process.env
       path.dirname(KNOWLEDGE_DATA_PATH),
       "feedback.jsonl"
     );
+
+/*
+ * Visitor enquiries (contact form), stored beside the
+ * live knowledge file like feedback.
+ */
+const ENQUIRY_DATA_PATH = process.env
+  .ENQUIRY_DATA_PATH
+  ? path.resolve(
+      process.env.ENQUIRY_DATA_PATH
+    )
+  : path.join(
+      path.dirname(KNOWLEDGE_DATA_PATH),
+      "enquiries.jsonl"
+    );
+
+const ENQUIRY_LIMIT_PER_10_MINUTES = Number(
+  process.env.ENQUIRY_LIMIT_PER_10_MINUTES ||
+    5
+);
 
 /*
  * Sites allowed to show the chatbot through embed.js,
@@ -383,11 +403,15 @@ const { requireAdmin } = registerAdminApi(app, {
  * occupy the local model for many seconds, so one client
  * must not be able to crowd everyone else out.
  */
-function createRateLimiter(limitPerMinute, errorMessage) {
+function createRateLimiter(
+  limit,
+  errorMessage,
+  windowMs = 60 * 1000
+) {
   const requestLog = new Map();
 
   const cleanup = setInterval(() => {
-    const cutoff = Date.now() - 60 * 1000;
+    const cutoff = Date.now() - windowMs;
 
     for (const [key, times] of requestLog) {
       if (!times.length || times[times.length - 1] < cutoff) {
@@ -399,7 +423,7 @@ function createRateLimiter(limitPerMinute, errorMessage) {
   cleanup.unref();
 
   return function rateLimit(request, response, next) {
-    if (!(limitPerMinute > 0)) {
+    if (!(limit > 0)) {
       return next();
     }
 
@@ -409,11 +433,11 @@ function createRateLimiter(limitPerMinute, errorMessage) {
       "unknown";
     const now = Date.now();
     const recent = (requestLog.get(key) || [])
-      .filter((time) => now - time < 60 * 1000);
+      .filter((time) => now - time < windowMs);
 
-    if (recent.length >= limitPerMinute) {
+    if (recent.length >= limit) {
       const retryAfterSeconds = Math.ceil(
-        (recent[0] + 60 * 1000 - now) / 1000
+        (recent[0] + windowMs - now) / 1000
       );
 
       requestLog.set(key, recent);
@@ -443,6 +467,19 @@ const { rememberAnswer } = registerFeedbackApi(app, {
       ? CHAT_RATE_LIMIT_PER_MINUTE * 2
       : 0,
     "Too many ratings. Please wait a moment and try again."
+  ),
+});
+
+registerEnquiryApi(app, {
+  enquiryPath: ENQUIRY_DATA_PATH,
+  requireAdmin,
+  getDefaultRecipient: () =>
+    (KB && KB.contacts && KB.contacts.general && KB.contacts.general.email) ||
+    "info@iim-africa.org",
+  rateLimit: createRateLimiter(
+    ENQUIRY_LIMIT_PER_10_MINUTES,
+    "You've sent several enquiries already. Please wait a few minutes, or email IIM directly.",
+    10 * 60 * 1000
   ),
 });
 
@@ -505,7 +542,7 @@ function buildHumanHandoffAnswer() {
   return [
     "Of course. A member of the IIM team can help you directly.",
     "",
-    "Use the buttons below to send IIM your question, or contact the right department:",
+    "Use the form below to send IIM your enquiry, or contact the right department:",
     "",
     ...departments,
   ].join("\n");

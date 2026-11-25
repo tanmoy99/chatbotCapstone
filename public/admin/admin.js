@@ -109,6 +109,27 @@
 
     feedbackList:
       document.getElementById("feedback-list"),
+
+    viewEnquiries:
+      document.getElementById("view-enquiries"),
+
+    enquiriesWorkspace:
+      document.getElementById("enquiries-workspace"),
+
+    enquiriesSummary:
+      document.getElementById("enquiries-summary"),
+
+    enquiriesFilter:
+      document.getElementById("enquiries-filter"),
+
+    enquiriesRefresh:
+      document.getElementById("enquiries-refresh"),
+
+    enquiriesEmailNote:
+      document.getElementById("enquiries-email-note"),
+
+    enquiriesList:
+      document.getElementById("enquiries-list"),
   };
 
   const state = {
@@ -117,6 +138,7 @@
     selectedId: null,
     isNew: false,
     feedback: [],
+    enquiries: [],
   };
 
   function today() {
@@ -189,14 +211,10 @@
     state.documents = [];
     state.selectedId = null;
     state.feedback = [];
+    state.enquiries = [];
     elements.feedbackList.replaceChildren();
-
-    elements.workspace.classList.remove("hidden");
-    elements.feedbackWorkspace.classList.add("hidden");
-    elements.viewKnowledge.classList.add("active");
-    elements.viewFeedback.classList.remove("active");
-    elements.viewKnowledge.setAttribute("aria-pressed", "true");
-    elements.viewFeedback.setAttribute("aria-pressed", "false");
+    elements.enquiriesList.replaceChildren();
+    setActiveView("knowledge");
 
     elements.password.value = "";
 
@@ -492,21 +510,208 @@
 
   /* ---------- Feedback view ---------- */
 
+  function setActiveView(name) {
+    const views = {
+      knowledge: [elements.workspace, elements.viewKnowledge],
+      enquiries: [elements.enquiriesWorkspace, elements.viewEnquiries],
+      feedback: [elements.feedbackWorkspace, elements.viewFeedback],
+    };
+
+    Object.entries(views).forEach(([viewName, [panel, button]]) => {
+      const active = viewName === name;
+      panel.classList.toggle("hidden", !active);
+      button.classList.toggle("active", active);
+      button.setAttribute("aria-pressed", String(active));
+    });
+  }
+
   function showView(name) {
-    const feedback = name === "feedback";
+    setActiveView(name);
 
-    elements.workspace.classList.toggle("hidden", feedback);
-    elements.feedbackWorkspace.classList.toggle("hidden", !feedback);
-    elements.viewKnowledge.classList.toggle("active", !feedback);
-    elements.viewFeedback.classList.toggle("active", feedback);
-    elements.viewKnowledge.setAttribute("aria-pressed", String(!feedback));
-    elements.viewFeedback.setAttribute("aria-pressed", String(feedback));
+    const loader = {
+      feedback: loadFeedback,
+      enquiries: loadEnquiries,
+    }[name];
 
-    if (feedback) {
-      loadFeedback().catch((error) =>
+    if (loader) {
+      loader().catch((error) =>
         showNotification(error.message, true)
       );
     }
+  }
+
+  /* ---------- Enquiries view ---------- */
+
+  const ENQUIRY_STATUS_LABELS = {
+    new: "New",
+    in_progress: "In progress",
+    closed: "Closed",
+  };
+
+  const REPLY_LABELS = {
+    email: "Email",
+    whatsapp: "WhatsApp",
+    phone: "Phone call",
+  };
+
+  const EMAIL_STATUS_LABELS = {
+    sent: "emailed to IIM",
+    failed: "email failed",
+    pending: "email not confirmed",
+    not_configured: "not emailed (SMTP not set up)",
+  };
+
+  function contactLink(href, text) {
+    const link = document.createElement("a");
+    link.href = href;
+    link.textContent = text;
+    link.rel = "noopener noreferrer";
+    return link;
+  }
+
+  function renderEnquiries() {
+    const filter = elements.enquiriesFilter.value;
+    const entries = state.enquiries.filter((entry) => {
+      if (filter === "all") return true;
+      if (filter === "open") return entry.status !== "closed";
+      return entry.status === filter;
+    });
+
+    elements.enquiriesList.replaceChildren();
+
+    if (!entries.length) {
+      const empty = document.createElement("p");
+      empty.className = "feedback-empty";
+      empty.textContent =
+        filter === "open" ? "No open enquiries." : "No enquiries to show.";
+      elements.enquiriesList.appendChild(empty);
+      return;
+    }
+
+    entries.forEach((entry) => {
+      const item = document.createElement("article");
+      item.className = `feedback-item enquiry-item status-${entry.status}`;
+
+      const meta = document.createElement("div");
+      meta.className = "feedback-meta";
+
+      const badge = document.createElement("span");
+      badge.className = "feedback-badge";
+      badge.textContent = ENQUIRY_STATUS_LABELS[entry.status] || entry.status;
+
+      const details = document.createElement("span");
+      details.textContent = [
+        entry.reference,
+        formatWhen(entry.at),
+        EMAIL_STATUS_LABELS[entry.emailStatus] || "",
+        entry.embedded ? "embedded widget" : "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+      meta.appendChild(badge);
+      meta.appendChild(details);
+
+      const who = document.createElement("div");
+      who.className = "enquiry-contact";
+
+      const name = document.createElement("strong");
+      name.textContent = entry.name;
+      who.appendChild(name);
+
+      if (entry.email) {
+        who.appendChild(
+          contactLink(
+            `mailto:${encodeURIComponent(entry.email)}?subject=${encodeURIComponent(`Re: your IIM enquiry ${entry.reference}`)}`,
+            entry.email
+          )
+        );
+      }
+
+      if (entry.phone) {
+        const digits = entry.phone.replace(/\D/g, "");
+        who.appendChild(contactLink(`tel:+${digits}`, entry.phone));
+        const whatsapp = contactLink(`https://wa.me/${digits}`, "WhatsApp");
+        whatsapp.target = "_blank";
+        who.appendChild(whatsapp);
+      }
+
+      const prefers = document.createElement("span");
+      prefers.className = "enquiry-prefers";
+      prefers.textContent = `Prefers: ${REPLY_LABELS[entry.preferredContact] || entry.preferredContact}`;
+      who.appendChild(prefers);
+
+      const statusLabel = document.createElement("label");
+      statusLabel.className = "feedback-filter enquiry-status-control";
+      const statusText = document.createElement("span");
+      statusText.textContent = "Status";
+      const statusSelect = document.createElement("select");
+
+      Object.entries(ENQUIRY_STATUS_LABELS).forEach(([value, label]) => {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = label;
+        option.selected = value === entry.status;
+        statusSelect.appendChild(option);
+      });
+
+      statusSelect.addEventListener("change", async () => {
+        statusSelect.disabled = true;
+
+        try {
+          await apiRequest(
+            `/api/admin/enquiries/${encodeURIComponent(entry.id)}`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({ status: statusSelect.value }),
+            }
+          );
+          entry.status = statusSelect.value;
+          showNotification(`${entry.reference} marked ${ENQUIRY_STATUS_LABELS[entry.status].toLowerCase()}.`);
+          updateEnquirySummary();
+          renderEnquiries();
+        } catch (error) {
+          statusSelect.value = entry.status;
+          statusSelect.disabled = false;
+          showNotification(error.message, true);
+        }
+      });
+
+      statusLabel.appendChild(statusText);
+      statusLabel.appendChild(statusSelect);
+
+      item.appendChild(meta);
+      item.appendChild(who);
+      item.appendChild(textBlock("feedback-question", "Enquiry", entry.message));
+      item.appendChild(statusLabel);
+
+      elements.enquiriesList.appendChild(item);
+    });
+  }
+
+  function updateEnquirySummary() {
+    const count = (status) =>
+      state.enquiries.filter((entry) => entry.status === status).length;
+    const total = state.enquiries.length;
+
+    elements.enquiriesSummary.textContent = total
+      ? `${total} enquiries · ${count("new")} new · ${count("in_progress")} in progress · ${count("closed")} closed`
+      : "No enquiries yet.";
+  }
+
+  async function loadEnquiries() {
+    elements.enquiriesSummary.textContent = "Loading enquiries…";
+
+    const data = await apiRequest("/api/admin/enquiries");
+
+    state.enquiries = Array.isArray(data.entries) ? data.entries : [];
+
+    elements.enquiriesEmailNote.textContent = data.emailConfigured
+      ? "New enquiries are also emailed to IIM. Reply using the visitor's preferred contact, then update the status."
+      : "Email sending is not set up (SMTP settings missing), so enquiries only appear here. Check this page regularly.";
+
+    updateEnquirySummary();
+    renderEnquiries();
   }
 
   function formatWhen(isoText) {
@@ -634,6 +839,12 @@
 
   elements.viewKnowledge.addEventListener("click", () => showView("knowledge"));
   elements.viewFeedback.addEventListener("click", () => showView("feedback"));
+  elements.viewEnquiries.addEventListener("click", () => showView("enquiries"));
+  elements.enquiriesFilter.addEventListener("change", renderEnquiries);
+
+  elements.enquiriesRefresh.addEventListener("click", () =>
+    loadEnquiries().catch((error) => showNotification(error.message, true))
+  );
   elements.feedbackFilter.addEventListener("change", renderFeedback);
 
   elements.feedbackRefresh.addEventListener("click", () =>

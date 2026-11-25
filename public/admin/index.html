@@ -11,6 +11,12 @@
   <title>IIM Knowledge Administration</title>
 
   <link
+    rel="icon"
+    href="/favicon.svg"
+    type="image/svg+xml"
+  >
+
+  <link
     rel="stylesheet"
     href="/admin/admin.css"
   >
@@ -83,6 +89,15 @@
             aria-pressed="true"
           >
             Knowledge
+          </button>
+
+          <button
+            id="view-enquiries"
+            class="secondary-button"
+            type="button"
+            aria-pressed="false"
+          >
+            Enquiries
           </button>
 
           <button
@@ -350,6 +365,60 @@
           a new knowledge record.
         </div>
       </section>
+    </main>
+
+    <main
+      id="enquiries-workspace"
+      class="feedback-workspace hidden"
+    >
+      <div class="feedback-heading">
+        <div>
+          <p class="eyebrow">
+            VISITOR ENQUIRIES
+          </p>
+
+          <h2>Messages sent to IIM</h2>
+
+          <p
+            id="enquiries-summary"
+            class="feedback-summary"
+          >
+            Loading enquiries…
+          </p>
+        </div>
+
+        <div class="feedback-actions">
+          <label class="feedback-filter">
+            <span>Show</span>
+
+            <select id="enquiries-filter">
+              <option value="open">Open (new and in progress)</option>
+              <option value="new">New</option>
+              <option value="in_progress">In progress</option>
+              <option value="closed">Closed</option>
+              <option value="all">All</option>
+            </select>
+          </label>
+
+          <button
+            id="enquiries-refresh"
+            class="secondary-button"
+            type="button"
+          >
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <p
+        id="enquiries-email-note"
+        class="feedback-note"
+      ></p>
+
+      <div
+        id="enquiries-list"
+        class="feedback-list"
+      ></div>
     </main>
 
     <main
