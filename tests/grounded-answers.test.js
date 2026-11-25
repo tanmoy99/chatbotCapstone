@@ -1,10 +1,10 @@
 "use strict";
 
 /*
- * Membership grade answers: each grade gets its own fees and
- * requirements from the approved records, and the Professional
- * (PMIIM) templates never answer Senior Professional (SPMIIM)
- * questions.
+ * Answers quoted from approved records instead of the model:
+ * each membership grade's fees and requirements (the PMIIM
+ * templates never answer Senior Professional questions), and
+ * office addresses.
  */
 
 const assert = require("assert");
@@ -94,6 +94,31 @@ for (const [question, label, phrases] of [
 assert.equal(templateFor("How do I become an IIM member?").template.id, "membership-joining-overview");
 assert.equal(templateFor("Am I eligible for professional membership?").template.id, "professional-membership-eligibility");
 
+/* Office details are quoted from the records. */
+{
+  const australia = templateFor("What is the address and phone number for IIM Australia?").template;
+  assert.equal(australia.id, "australia-office");
+  for (const fact of ["23/122 Johnson Road", "Hillcrest QLD 4118", "+61 451 109 163"]) {
+    assert(australia.answer.includes(fact), `Australia answer missing ${fact}`);
+  }
+  assert(!/must not|Nigeria's USD/.test(australia.answer), "internal guidance not shown to visitors");
+
+  const southAfrica = templateFor("How can I contact IIM South Africa?").template;
+  assert.equal(southAfrica.id, "south-africa-office");
+  assert(southAfrica.answer.includes("52 Monte Carlo Drive") && southAfrica.answer.includes("Centurion"));
+  assert(!/lorem ipsum/i.test(southAfrica.answer), "internal guidance not shown to visitors");
+
+  const all = templateFor("Where are IIM's offices?").template;
+  assert.equal(all.id, "office-locations");
+  for (const place of ["Abuja", "Lagos", "Ibadan", "Australia", "South Africa"]) {
+    assert(all.answer.includes(place), `Office list missing ${place}`);
+  }
+  assert(/confirm it with IIM/.test(all.answer), "Lagos street-number caution kept");
+
+  /* Single named offices keep their own answers. */
+  assert.equal(templateFor("Where is the Lagos office?").template.id, "lagos-office-address");
+}
+
 /* A changed fee record (e.g. an admin edit) is reflected directly. */
 const { chunks } = templateFor("How much is Fellow membership?");
 const edited = chunks.map((chunk) =>
@@ -104,4 +129,4 @@ const edited = chunks.map((chunk) =>
 const afterEdit = getGroundedTemplateAnswer("How much is Fellow membership?", edited, { type: "default" });
 assert(afterEdit.answer.includes("USD 260") && !afterEdit.answer.includes("USD 242"));
 
-console.log("Grounded fee tests passed.");
+console.log("Grounded answer tests passed.");

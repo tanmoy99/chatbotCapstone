@@ -1155,6 +1155,68 @@ function getGradeEligibilityAnswer(query, chunks) {
   };
 }
 
+/*
+ * Office addresses and phone numbers, quoted from the approved
+ * records rather than paraphrased by the model (which has said
+ * "no information" about an office whose record it was given).
+ */
+function firstSentence(text) {
+  return String(text || "").split(/(?<=\.)\s+(?=[A-Z])/)[0].trim();
+}
+
+function getOfficeAnswer(query, chunks, sourceIds) {
+  if (!/\b(?:address|addresses|phone|telephone|number|contact|office|offices|located|location|locations|where)\b/.test(query)) {
+    return null;
+  }
+
+  const record = (id) => chunks.find((chunk) => chunk.id === id);
+
+  if (/\baustralian?\b/.test(query) && sourceIds.has("au_contact")) {
+    return { id: "australia-office", answer: firstSentence(record("au_contact").text) };
+  }
+
+  if (/\bsouth african?\b/.test(query) && sourceIds.has("sa_contact")) {
+    return { id: "south-africa-office", answer: firstSentence(record("sa_contact").text) };
+  }
+
+  /* "Where are IIM's offices?": every office, when no single place is named. */
+  const asksAllOffices =
+    /\b(?:offices|office locations|branches)\b/.test(query) &&
+    !/\b(?:lagos|abuja|ibadan|australian?|south african?)\b/.test(query);
+
+  const contacts = (KB && KB.contacts) || {};
+  const nigeria = contacts.nigeria || {};
+
+  if (
+    !asksAllOffices ||
+    !["ng_office_abuja", "ng_office_lagos", "ng_office_ibadan"].some((id) => sourceIds.has(id)) ||
+    !nigeria.abuja || !nigeria.lagos || !nigeria.ibadan
+  ) {
+    return null;
+  }
+
+  const lines = [
+    "IIM lists these offices:",
+    "",
+    "**Nigeria**",
+    `- Abuja: ${nigeria.abuja.address}`,
+    `- Lagos: ${nigeria.lagos.addressSafe}. Official pages differ on the street number, so confirm it with IIM before visiting.`,
+    `- Ibadan: ${nigeria.ibadan.address}${nigeria.ibadan.phone ? `, phone ${nigeria.ibadan.phone}` : ""}. Listed on IIM's Staff Contacts page; confirm before visiting.`,
+  ];
+
+  if (contacts.australia && contacts.australia.address) {
+    lines.push("", "**Australia**", `- ${contacts.australia.address}${contacts.australia.phone ? `, phone ${contacts.australia.phone}` : ""}`);
+  }
+
+  if (contacts.southAfrica && contacts.southAfrica.address) {
+    lines.push("", "**South Africa**", `- ${contacts.southAfrica.address}${contacts.southAfrica.phone ? `, phone ${contacts.southAfrica.phone}` : ""}`);
+  }
+
+  lines.push("", `For general enquiries, email ${(contacts.general && contacts.general.email) || "info@iim-africa.org"}.`);
+
+  return { id: "office-locations", answer: lines.join("\n") };
+}
+
 function getGroundedTemplateAnswer(
   userText,
   chunks,
@@ -1236,6 +1298,12 @@ function getGroundedTemplateAnswer(
     if (gradeEligibility) {
       return gradeEligibility;
     }
+  }
+
+  const officeAnswer = getOfficeAnswer(query, chunks, sourceIds);
+
+  if (officeAnswer) {
+    return officeAnswer;
   }
 
   if (conversationIntent.type === "stiim_benefits" && sourceIds.has("ng_membership_grade_eligibility") && sourceIds.has("membership_benefits")) {
