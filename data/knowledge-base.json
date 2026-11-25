@@ -565,7 +565,10 @@
         "abuja",
         "abuja office",
         "nigeria office",
-        "address nigeria"
+        "address nigeria",
+        "iim offices",
+        "offices",
+        "office locations"
       ],
       "text": "IIM's Abuja office is listed as 3rd Floor, Upper Grace Plaza, Plot 217 Shettima Munguno Crescent, behind Julius Berger Yard, Utako, Abuja, Nigeria.",
       "source": "https://iim-africa.org/ng/contact/"
@@ -582,7 +585,10 @@
         "lagos office",
         "iim lagos",
         "address lagos",
-        "ilupeju"
+        "ilupeju",
+        "iim offices",
+        "offices",
+        "office locations"
       ],
       "text": "IIM has an office on Association Avenue, Ilupeju, Lagos, Nigeria. Official IIM pages currently conflict on the street number: some pages show 13 Association Avenue while the Staff Contacts page shows SAIM House 35, Association Avenue. Until IIM confirms the current address, the chatbot should avoid stating a street number as certain and should provide the department email or phone for confirmation.",
       "source": "https://iim-africa.org/ng/contact/",
@@ -599,7 +605,10 @@
         "ibadan",
         "ibadan office",
         "oyo",
-        "challenge ibadan"
+        "challenge ibadan",
+        "iim offices",
+        "offices",
+        "office locations"
       ],
       "text": "IIM's Staff Contacts page lists an Ibadan location at Shop 14, Dokal Shopping Plaza, off Orita Police Station, Orita Challenge, Ibadan, Oyo State, Nigeria, with phone +234 907 0556 463. Because this location appears on the Staff Contacts page rather than the main contact page, confirm it with IIM before treating it as a permanent primary office address.",
       "source": "https://iim-africa.org/ng/staff-contacts/"

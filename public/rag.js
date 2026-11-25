@@ -1698,9 +1698,12 @@ window.IIM_RAG = (function () {
       score += 180;
     }
 
+    /* Bare "for" or "take" is not enough: "What is CDPO for?" asks
+     * its purpose, "Can I take the exam remotely?" asks about the
+     * exam, and "fees for members" asks about fees. */
     const cdpoAudienceQuestion =
       /\bcdpo\b/.test(originalQuery) &&
-      /\b(?:who|audience|for|suitable|eligible|eligibility|take)\b/.test(originalQuery);
+      /\b(?:who|audience|suitable|eligible|eligibility|qualify|right for me|meant for)\b/.test(originalQuery);
 
     if (
       cdpoAudienceQuestion &&
@@ -2043,10 +2046,26 @@ window.IIM_RAG = (function () {
       rankedDocuments[0]
         .score;
 
+    /*
+     * Confidence depends on how far the top result is ahead of
+     * the best result on a different topic. Documents in the
+     * same category (e.g. "IIM Mission" and "About IIM") support
+     * each other rather than compete, so they don't lower it.
+     */
+    const topCategory =
+      rankedDocuments[0]
+        .category;
+
+    const bestOtherTopic =
+      rankedDocuments.find(
+        (document) =>
+          document.category !==
+          topCategory
+      );
+
     const secondScore =
-      rankedDocuments[1]
-        ? rankedDocuments[1]
-            .score
+      bestOtherTopic
+        ? bestOtherTopic.score
         : 0;
 
     const confidence =

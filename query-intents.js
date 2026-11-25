@@ -92,7 +92,11 @@ function resolveConversationIntent(message, history) {
     return { type: "it_training_recommendation", retrievalQuery: "IIM training subject areas database management information security geographic information systems", requiredSourceIds: ["training_areas"], allowedSourceIds: ["training_areas"] };
   }
 
-  if (!fee && /\b(?:course|courses|training|subject areas?)\b/.test(query) && /\b(?:offer|offers|available|list|what|which)\b/.test(query)) {
+  // Questions about who delivers training (accredited providers) are a
+  // different topic from which courses exist.
+  const aboutTrainingProviders = /\b(?:atos?|accredited training|training (?:providers?|organi[sz]ations?|partners?|centres?|centers?))\b/.test(query);
+
+  if (!fee && !aboutTrainingProviders && /\b(?:course|courses|training|subject areas?)\b/.test(query) && /\b(?:offer|offers|available|list|what|which)\b/.test(query)) {
     return { type: "training_overview", retrievalQuery: "IIM training courses subject areas", requiredSourceIds: ["training_areas"], allowedSourceIds: ["training_areas"] };
   }
 

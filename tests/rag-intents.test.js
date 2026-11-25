@@ -65,6 +65,46 @@ for (const query of [
   assert.strictEqual(result.hasReliableMatch, false, `Unexpected match for: ${query}`);
 }
 
+/* Questions that previously found nothing reliable, or the wrong topic. */
+const { resolveConversationIntent } = require(path.join(projectRoot, "query-intents"));
+
+function topIdsAfterIntent(query) {
+  const intent = resolveConversationIntent(query, []);
+  return idsFor(intent.retrievalQuery);
+}
+
+for (const [query, expectedTop, alsoExpected = []] of [
+  /* Same-topic runner-up ("About IIM") must not make this unreliable. */
+  ["What is IIM's mission?", "about_iim_mission_vision"],
+  /* Plural "offices" must reach the office records. */
+  ["Where are IIM's offices?", "ng_office_abuja", ["ng_office_lagos", "ng_office_ibadan"]],
+  /* Training providers are not the course list. */
+  ["What is an IIM Accredited Training Organisation?", "ato_overview"],
+  /* "for" / "take" alone are not audience questions. */
+  ["What is the IIM CDPO certification for?", "cdpo_overview"],
+  ["Can I take the CDPO examination remotely?", "cdpo_process_exam"],
+  /* Real audience questions still go to eligibility. */
+  ["Who is eligible to take the CDPO certification?", "cdpo_eligibility"],
+  ["Who is CDPO for?", "cdpo_eligibility"],
+  /* Course questions still list courses. */
+  ["What training courses does IIM offer?", "training_areas"],
+]) {
+  const ids = topIdsAfterIntent(query);
+  assert.strictEqual(ids[0], expectedTop, `Wrong top result for "${query}": ${ids.join(", ")}`);
+  for (const id of alsoExpected) {
+    assert(ids.includes(id), `Missing ${id} for "${query}": ${ids.join(", ")}`);
+  }
+}
+
+for (const query of [
+  "What is the weather in Paris?",
+  "Tell me a joke",
+  "What is the capital of France?",
+]) {
+  const result = global.IIM_RAG.retrieveWithMeta(query, 6);
+  assert.strictEqual(result.hasReliableMatch, false, `Unexpected match for: ${query}`);
+}
+
 assert.strictEqual(global.IIM_RAG.normalize("waht requierments refun ofer memebr"),
   "what requirements refund offer member");
 assert.strictEqual(global.IIM_RAG.normalize("CIM"), "cim");
