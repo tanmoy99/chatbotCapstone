@@ -165,6 +165,21 @@ async function main() {
     assert.equal(cleanModelAnswer(input), expected);
   }
 
+  /* ---------- Source citations removed cleanly ---------- */
+  for (const [input, expected] of [
+    ["However, according to SOURCE 2, members are expected to declare CPD.",
+      "However, members are expected to declare CPD."],
+    ["According to SOURCE 1, the fee is USD 50.", "The fee is USD 50."],
+    ["According to Title: Nigeria Membership Categories and Grades, there is no fee listed.",
+      "There is no fee listed."],
+    ["- According to SOURCE 4, apply 30 days before expiry.", "- Apply 30 days before expiry."],
+    ["Fees are set according to the grade you choose.", "Fees are set according to the grade you choose."],
+    ["Based on your experience, the Associate grade may suit you.",
+      "Based on your experience, the Associate grade may suit you."],
+  ]) {
+    assert.equal(cleanModelAnswer(input), expected);
+  }
+
   const server = startServer(0);
   await new Promise((resolve) => server.once("listening", resolve));
   const base = `http://127.0.0.1:${server.address().port}`;

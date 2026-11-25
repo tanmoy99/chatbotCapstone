@@ -333,6 +333,7 @@ ANSWER STYLE
 - Do not force the same structure onto every answer.
 - Do not repeat the user's question unnecessarily.
 - Do not include a Sources section because the application displays sources separately.
+- State facts directly. Do not refer to the knowledge by number or title (for example "SOURCE 1" or "according to the source").
 - Do not create Markdown links.
 - Write email addresses as plain text.
 `;
@@ -1623,11 +1624,33 @@ function fixAcronymExpansions(text) {
 }
 
 /*
+ * Remove lead-ins that cite the prompt's numbered sources, e.g.
+ * "However, according to SOURCE 2, members are ..." or
+ * "According to Title: Nigeria Membership Grades, the fee ...".
+ * Removing only "SOURCE 2" would leave "according to members".
+ * The next word is capitalised when it now starts a sentence.
+ */
+const SOURCE_LEAD_IN =
+  /\b(?:according to|as (?:stated|mentioned|noted|shown|described) in|as per|based on|per)\s+(?:the\s+)?(?:SOURCE\s+\d+|Title:\s*[^,.\n]+)\s*[,:]?\s*([a-z])?/gi;
+
+function stripSourceLeadIns(text) {
+  return text.replace(SOURCE_LEAD_IN, (match, nextLetter, offset, whole) => {
+    if (!nextLetter) {
+      return "";
+    }
+
+    const startsSentence = /(?:^|[.!?]\s*|\n\s*|^\s*[-*]\s*)$/.test(whole.slice(0, offset));
+
+    return startsSentence ? nextLetter.toUpperCase() : nextLetter;
+  });
+}
+
+/*
  * Tidy model output. Keeps line breaks so Markdown lists and
  * paragraphs survive; only runs of spaces are collapsed.
  */
 function cleanModelAnswer(answer) {
-  return fixAcronymExpansions(String(answer || ""))
+  return fixAcronymExpansions(stripSourceLeadIns(String(answer || "")))
     .replace(/\s*\(SOURCE\s+\d+\)/gi, "")
     .replace(/\bSOURCE\s+\d+\b[:,]?/gi, "")
     .replace(/\[([^\]]+)\]\(mailto:[^)]+\)/gi, "$1")
