@@ -1255,13 +1255,27 @@
         const bulletMarkers =
           line.match(/\s+[-*\u2022]\s+/g) || [];
 
+        /* Real inline lists number their items in sequence (1. 2. 3.).
+         * Amounts and years that end sentences ("USD 200. These ...
+         * as of 13 August 2026. Membership ...") do not, and must not
+         * be swallowed as list markers. */
+        const markerNumbers = orderedMarkers.map((marker) =>
+          Number(marker.trim().slice(0, -1))
+        );
+        const sequentialMarkers =
+          markerNumbers.length >= 2 &&
+          markerNumbers.every(
+            (number, index) =>
+              index === 0 || number === markerNumbers[index - 1] + 1
+          );
+
         /* Inline ordered lists produced by small models normally follow a
          * label such as "Grades:" and contain at least two items. Requiring
          * both signals prevents sentence-ending values such as "USD 180."
          * or "in 2026." from being reinterpreted as list markers. */
         if (
           line.includes(":") &&
-          orderedMarkers.length >= 2
+          sequentialMarkers
         ) {
           return line.replace(
             /\s+(?=\d+[.)]\s+)/g,

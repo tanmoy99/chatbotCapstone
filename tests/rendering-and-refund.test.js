@@ -50,6 +50,24 @@ for (const value of [
 }
 assert(!numericHtml.includes("<ol"), "Numeric prose must not become a list");
 
+/* A labelled sentence with amounts and a year ending sentences is not a
+ * list: "200." and "2026." were swallowed as list markers. */
+const feeSentenceHtml = formatterContext.markdownToHtml(
+  "For Nigeria, IIM's Senior Professional Member (SPMIIM) fees are: registration USD 100; " +
+  "induction USD 134; annual subscription USD 200. These are the amounts on IIM's official " +
+  "Grades page as of 13 August 2026. Membership payments are non-refundable."
+);
+for (const value of ["USD 200.", "13 August 2026."]) {
+  assert(feeSentenceHtml.includes(value), `Fee sentence must keep "${value}": ${feeSentenceHtml}`);
+}
+assert(!feeSentenceHtml.includes("<ol"), "Fee sentence must not become a list");
+
+/* A real inline numbered list after a label still splits. */
+const inlineListHtml = formatterContext.markdownToHtml(
+  "Steps: 1. Check eligibility 2. Apply online 3. Pay the fee"
+);
+assert.strictEqual((inlineListHtml.match(/<li>/g) || []).length, 3, "Inline sequential list renders");
+
 /* A numbered list interrupted by sub-bullets keeps counting. */
 const resumedListHtml = formatterContext.markdownToHtml(
   "Steps:\n\n1. Check eligibility\n2. Gather documents:\n- CPD log\n- ID\n3. Submit the application\n4. Pay the fee"
