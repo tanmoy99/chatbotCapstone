@@ -42,11 +42,11 @@ async function main() {
   const base = `http://127.0.0.1:${server.address().port}`;
   const feedbackPath = path.join(workDirectory, "feedback.jsonl");
 
-  const chat = async (message) => {
+  const chat = async (message, history = []) => {
     const response = await fetch(`${base}/api/chat`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, history }),
     });
     assert.equal(response.status, 200);
     return response.json();
@@ -105,15 +105,43 @@ async function main() {
     assert.equal(csv.trim().split("\r\n").length, 3, "header plus two rows");
 
     /* ---------- Human handoff ---------- */
-    const human = await chat("Can I talk to a human?");
-    assert(human.meta.handoff, "handoff offered when a person is requested");
-    assert.equal(human.meta.handoff.reason, "requested");
-    assert.equal(human.meta.handoff.email, "info@iim-africa.org");
-    assert.equal(human.meta.handoff.whatsapp, "2348000000000");
+    const earlierTurns = [
+      { role: "user", content: "How do I renew my CDPO?" },
+      { role: "assistant", content: "To renew your CDPO..." },
+    ];
+
+    for (const request of ["Talk to a human", "Can I speak to someone?", "I want a real person"]) {
+      const human = await chat(request, earlierTurns);
+      assert(human.meta.handoff, `handoff offered for "${request}"`);
+      assert.equal(human.meta.handoff.reason, "requested");
+      assert.equal(human.meta.handoff.email, "info@iim-africa.org");
+      assert.equal(human.meta.handoff.whatsapp, "2348000000000");
+      assert.equal(human.meta.intent, "human_handoff", "answered directly, not searched");
+      assert(!/couldn['’]t confirm/i.test(human.answer), "no 'couldn't confirm' reply");
+      assert(human.answer.includes("certification@iim-africa.org"), "department contacts listed");
+      assert.equal(
+        human.meta.handoff.question,
+        "How do I renew my CDPO?",
+        "email carries the earlier real question"
+      );
+      assert(!human.quickReplies.some((reply) => /human/i.test(reply)));
+    }
+
+    const firstMessageHuman = await chat("Talk to a human");
+    assert.equal(firstMessageHuman.meta.handoff.question, "", "no earlier question to pass on");
 
     const unknown = await chat("What is the weather in Paris tomorrow?");
     assert.equal(unknown.meta.fallbackReason, "no_reliable_knowledge");
     assert.equal(unknown.meta.handoff.reason, "unanswered");
+    assert.equal(unknown.meta.handoff.question, "What is the weather in Paris tomorrow?");
+    assert(
+      !unknown.quickReplies.some((reply) => /human/i.test(reply)),
+      "card replaces the 'Talk to a human' button"
+    );
+
+    /* Ordinary questions that mention people are not handoffs. */
+    const notHandoff = await chat("Can someone become a member of IIM?");
+    assert.notEqual(notHandoff.meta.intent, "human_handoff");
 
     assert.equal(answered.meta.handoff, undefined, "no handoff on a normal answer");
     assert.equal(answered.meta.error, undefined, "no internal error text in answers");

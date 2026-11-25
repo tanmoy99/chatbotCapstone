@@ -461,11 +461,59 @@ const HANDOFF_REASONS = new Set([
   "missing_guarantee_policy",
 ]);
 
-function getHandoff(message, payload) {
-  const meta = payload.meta || {};
-  const requested =
+function isHumanRequest(message) {
+  return (
     HUMAN_REQUEST_PATTERN.test(message) &&
-    /\b(?:talk|speak|chat|contact|connect|reach|call|human|person)\b/i.test(message);
+    /\b(?:talk|speak|chat|contact|connect|reach|call|human|person)\b/i.test(message)
+  );
+}
+
+/*
+ * When the visitor says "talk to a human", the useful thing to
+ * pass on is the question they asked before that.
+ */
+function getHandoffQuestion(message, history) {
+  if (!isHumanRequest(message)) {
+    return message;
+  }
+
+  const earlier = history
+    .filter((item) => item.role === "user" && !isHumanRequest(item.content))
+    .pop();
+
+  return earlier ? earlier.content : "";
+}
+
+/*
+ * Direct reply to "talk to a human": department contacts from
+ * the knowledge base, with the handoff card added afterwards.
+ */
+function buildHumanHandoffAnswer() {
+  const contacts = (KB && KB.contacts) || {};
+  const line = (label, entry) =>
+    entry && entry.email
+      ? `- **${label}:** ${entry.email}${entry.phone ? ` or ${entry.phone}` : ""}`
+      : null;
+
+  const departments = [
+    line("General enquiries", contacts.general),
+    line("Membership", contacts.membership),
+    line("Training", contacts.training),
+    line("Certification and CDPO", contacts.certification),
+  ].filter(Boolean);
+
+  return [
+    "Of course. A member of the IIM team can help you directly.",
+    "",
+    "Use the buttons below to send IIM your question, or contact the right department:",
+    "",
+    ...departments,
+  ].join("\n");
+}
+
+function getHandoff(message, payload, history = []) {
+  const meta = payload.meta || {};
+  const requested = isHumanRequest(message);
   const unanswered =
     HANDOFF_REASONS.has(meta.fallbackReason) ||
     NO_ANSWER_PATTERN.test(String(payload.answer || ""));
@@ -482,6 +530,7 @@ function getHandoff(message, payload) {
       (contacts.general && contacts.general.email) ||
       "info@iim-africa.org",
     whatsapp: HANDOFF_WHATSAPP || null,
+    question: getHandoffQuestion(message, history).slice(0, 1000),
   };
 }
 
@@ -503,14 +552,27 @@ function decorateChatAnswers(request, response, next) {
       typeof payload.answer === "string"
     ) {
       const meta = { ...(payload.meta || {}) };
-      const handoff = getHandoff(message, payload);
+      const handoff = getHandoff(
+        message,
+        payload,
+        sanitiseHistory((request.body || {}).history)
+      );
+      let quickReplies = payload.quickReplies;
 
       if (handoff) {
         meta.handoff = handoff;
+
+        /* The card already offers contact; don't repeat it. */
+        if (Array.isArray(quickReplies)) {
+          quickReplies = quickReplies.filter(
+            (reply) => !isHumanRequest(String(reply))
+          );
+        }
       }
 
       payload = {
         ...payload,
+        quickReplies,
         meta,
         responseId: rememberAnswer({
           question: message,
@@ -1429,6 +1491,22 @@ app.post(
       sanitiseHistory(
         body.history
       );
+
+    /* A request for a person is answered directly, not searched for. */
+    if (isHumanRequest(message)) {
+      return response.json({
+        answer: buildHumanHandoffAnswer(),
+        sources: [],
+        quickReplies: [],
+        meta: {
+          provider: "none",
+          model: null,
+          fallback: false,
+          intent: "human_handoff",
+          responseTimeMs: Date.now() - startedAt,
+        },
+      });
+    }
 
     const conversationIntent = resolveConversationIntent(message, history);
 

@@ -585,13 +585,28 @@
         bubble.appendChild(
           buildHandoffCard(
             meta.handoff,
-            meta.question
+            typeof meta.handoff.question === "string"
+              ? meta.handoff.question
+              : meta.question
           )
         );
       }
     }
 
     return node;
+  }
+
+  /*
+   * The visitor's question before the current message. Used
+   * when the current message is only "talk to a human".
+   */
+  function getEarlierQuestion() {
+    const earlier = state.conversation
+      .slice(0, -1)
+      .filter((message) => message.role === "user")
+      .pop();
+
+    return earlier ? earlier.content : "";
   }
 
   /*
@@ -610,15 +625,16 @@
         ? "Talk to the IIM team"
         : "Want a person to answer this?";
 
+    const questionText = String(question || "").trim().slice(0, 1000);
+
     const text = document.createElement("p");
     text.className = "handoff-text";
-    text.textContent =
-      "Contact IIM directly. Your question will be filled in for you.";
+    text.textContent = questionText
+      ? "Contact IIM directly. Your question will be filled in for you to review and send."
+      : "Contact IIM directly. A message will be started for you to complete and send.";
 
     const actions = document.createElement("div");
     actions.className = "handoff-actions";
-
-    const questionText = String(question || "").trim().slice(0, 1000);
     const messageBody = questionText
       ? `Hello IIM,\n\nI asked your website assistant:\n"${questionText}"\n\nCould someone help me with this?\n`
       : "Hello IIM,\n\nCould someone help me with an enquiry?\n";
@@ -1555,6 +1571,7 @@ if (isWellbeingQuestion) {
                     KB.contacts.general.email) ||
                   "info@iim-africa.org",
                 whatsapp: null,
+                question: getEarlierQuestion(),
               }
             : null,
 
