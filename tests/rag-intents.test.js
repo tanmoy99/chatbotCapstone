@@ -86,6 +86,12 @@ for (const [query, expectedTop, alsoExpected = []] of [
   /* Real audience questions still go to eligibility. */
   ["Who is eligible to take the CDPO certification?", "cdpo_eligibility"],
   ["Who is CDPO for?", "cdpo_eligibility"],
+  /* General questions about the institute, however phrased. */
+  ["what IIM do", "about_iim_overview"],
+  ["what does IIM do in Nigeria", "about_iim_overview"],
+  ["IIM", "about_iim_overview"],
+  /* Specific topics are not swallowed by the overview. */
+  ["What is IIM's mission?", "about_iim_mission_vision"],
   /* Course questions still list courses. */
   ["What training courses does IIM offer?", "training_areas"],
 ]) {

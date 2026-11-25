@@ -1198,6 +1198,7 @@ function getGroundedTemplateAnswer(
     membership_categories: "ng_membership_categories",
     membership_benefits: "membership_benefits",
     cdpo_recommendation: "cdpo_overview",
+    about_iim: "about_iim_overview",
   };
   const directSource = directSources[conversationIntent.type];
   if (directSource && sourceIds.has(directSource)) {

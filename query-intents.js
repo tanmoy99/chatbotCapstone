@@ -119,6 +119,27 @@ function resolveConversationIntent(message, history) {
     return { type: "ambiguous_course_fee", retrievalQuery: "IIM training subject areas courses", requiredSourceIds: ["training_areas"] };
   }
 
+  // "What does IIM do?", "what IIM do in Nigeria", or just "IIM": a general
+  // question about the institute. "IIM" alone is too common a word for
+  // retrieval to rely on, so route these to the overview, unless the
+  // question names a specific topic, which normal retrieval handles.
+  // Every word must be general; any other word ("conference", "fees",
+  // "mission", ...) means a specific question for normal retrieval.
+  const GENERAL_WORDS = new Set([
+    "what", "whats", "s", "does", "do", "is", "are", "doing", "about", "tell", "me", "us",
+    "the", "a", "an", "of", "in", "for", "exactly", "actually", "really", "please",
+    "iim", "institute", "information", "management", "organisation", "organization",
+    "nigeria", "australia", "south", "africa",
+  ]);
+  const words = query.replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean);
+  const namesIim = words.includes("iim") || words.includes("institute");
+  const onlyGeneralWords = words.length > 0 && words.every((word) => GENERAL_WORDS.has(word));
+  const asksWhatItIs = words.length === 1 || words.includes("what") || words.includes("tell");
+
+  if (namesIim && onlyGeneralWords && asksWhatItIs) {
+    return { type: "about_iim", retrievalQuery: "about iim what is iim institute information management", requiredSourceIds: ["about_iim_overview"] };
+  }
+
   return { type: "default", retrievalQuery: message, requiredSourceIds: [] };
 }
 
