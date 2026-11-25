@@ -3,12 +3,19 @@
 const fs = require("fs");
 const path = require("path");
 
-const dataPath = path.join(
-  __dirname,
-  "..",
-  "data",
-  "knowledge-base.json"
-);
+/*
+ * Validates the repository seed by default. Pass a path to check
+ * another copy, e.g. the live file on the server:
+ *   node scripts/validate-kb.js /var/lib/iim-chatbot/knowledge-base.json
+ */
+const dataPath = process.argv[2]
+  ? path.resolve(process.argv[2])
+  : path.join(
+      __dirname,
+      "..",
+      "data",
+      "knowledge-base.json"
+    );
 
 const loaderPath = path.join(
   __dirname,
@@ -309,6 +316,29 @@ if (
         : 0
     }.`
   );
+
+  process.exit(1);
+}
+
+/*
+ * Records the assistant quotes directly (fees, grade requirements,
+ * overseas offices) must keep the format their readers expect;
+ * see docs/knowledge-base-maintenance.md.
+ */
+const { checkQuotedRecords } = require(
+  path.join(__dirname, "..", "grounded-records.js")
+);
+
+const quotedRecordProblems = checkQuotedRecords(documents);
+
+if (quotedRecordProblems.length > 0) {
+  console.error(
+    `Quoted-record check failed with ${quotedRecordProblems.length} problem(s):`
+  );
+
+  quotedRecordProblems.forEach((problem) => {
+    console.error(`- ${problem}`);
+  });
 
   process.exit(1);
 }

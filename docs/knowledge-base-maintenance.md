@@ -52,6 +52,19 @@ When seed content changes in git after launch, those changes don't reach the liv
 | `live` | Information that should be confirmed using the current official page |
 | `verify` | Conflicting or uncertain information awaiting client confirmation |
 
+## Records the assistant quotes directly
+
+Some answers are built straight from a record's wording, so the AI model never restates the figures. Keep these records in their current format when editing them:
+
+| Record | Used for | Keep this format |
+| --- | --- | --- |
+| `ng_membership_fees` | Fee answers for Senior Professional, Fellow, Associate, Graduate and Corporate grades | `... were: Grade - item amount, item amount; Next grade - ...; Last grade - ... .` Grades separated by `;`, each starting `Grade name - `. The date in `on 13 August 2026` is quoted as "as of" |
+| `ng_membership_grade_eligibility` | Requirements for one named grade | One sentence per grade, starting with the grade name, e.g. `Fellow Member is ...`, `Corporate membership is ...` |
+| `au_contact`, `sa_contact` | Australia and South Africa office answers | The first sentence holds the address, phone and email. Internal notes go in later sentences |
+| `contacts` section (not a document) | "Where are IIM's offices?" list | `nigeria.abuja.address`, `nigeria.lagos.addressSafe`, `nigeria.ibadan.address`/`phone`, `australia.address`/`phone`, `southAfrica.address`/`phone` |
+
+If one of these records can't be read in the expected format, the assistant falls back to the AI model for that question rather than failing. `npm test` (the grounded answer tests) shows when that happens.
+
 ## Important controls
 
 - Do not remove source IDs used by tests without updating the relevant test cases.

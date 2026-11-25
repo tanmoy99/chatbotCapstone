@@ -27,6 +27,12 @@ const {
 const registerAdminApi = require("./admin-api");
 const registerFeedbackApi = require("./feedback-api");
 const registerEnquiryApi = require("./enquiry-api");
+const {
+  QUOTED_GRADES,
+  firstSentence,
+  parseMembershipFees,
+  findGradeSentence,
+} = require("./grounded-records");
 
 const app = express();
 
@@ -1038,45 +1044,15 @@ function getConfiguredGroundedResponse(
  * ("... were: Student - registration exempt, annual subscription
  * USD 50; Graduate - ...; Corporate - ... USD 245. ...").
  * Reading the record (not hard-coding amounts) keeps admin edits
- * authoritative; the model never restates fee figures.
+ * authoritative; the model never restates fee figures. The record
+ * readers live in grounded-records.js, shared with validate-kb.js.
  */
-const FEE_GRADES = [
-  { key: "senior professional", label: "Senior Professional Member (SPMIIM)", pattern: /\b(?:spmiim|senior professional)\b/ },
-  { key: "fellow", label: "Fellow Member (FIIM)", pattern: /\b(?:fiim|fellow|fellowship)\b/ },
-  { key: "associate", label: "Associate Member (AMIIM)", pattern: /\b(?:amiim|associate)\b/ },
-  { key: "graduate", label: "Graduate Member (GMIIM)", pattern: /\b(?:gmiim|graduate)\b/ },
-  { key: "corporate", label: "Corporate Member (CORMIIM)", pattern: /\b(?:cormiim|corporate)\b/ },
-];
-
-function parseMembershipFees(text) {
-  const start = text.indexOf(" were:");
-
-  if (start === -1) {
-    return null;
-  }
-
-  const list = text.slice(start + 6).split(/\.\s/)[0];
-  const fees = new Map();
-
-  for (const entry of list.split(";")) {
-    const match = entry.trim().match(/^([A-Za-z ]+?)\s+-\s+(.+)$/);
-
-    if (match) {
-      fees.set(match[1].trim().toLowerCase(), match[2].trim().replace(/\.$/, ""));
-    }
-  }
-
-  const asOf = (text.match(/\bon (\d{1,2} [A-Z][a-z]+ \d{4})\b/) || [])[1] || null;
-
-  return fees.size ? { fees, asOf } : null;
-}
-
 function getGradeFeeAnswer(query, chunks) {
   if (!/\b(?:fee|fees|cost|costs|price|how much|subscription|charge|charges|pay)\b/.test(query)) {
     return null;
   }
 
-  const grades = FEE_GRADES.filter((grade) => grade.pattern.test(query));
+  const grades = QUOTED_GRADES.filter((grade) => grade.pattern.test(query));
 
   /* Only a single named grade; comparisons go to the model. */
   if (grades.length !== 1) {
@@ -1111,14 +1087,6 @@ function getGradeFeeAnswer(query, chunks) {
  * ("Fellow Member is IIM's senior grade based on ..."). The
  * curated PMIIM and STIIM templates handle those two grades.
  */
-const ELIGIBILITY_SENTENCE_START = {
-  "senior professional": /^Senior Professional Member\b/,
-  fellow: /^Fellow Member\b/,
-  associate: /^Associate Member\b/,
-  graduate: /^Graduate Member\b/,
-  corporate: /^Corporate membership\b/i,
-};
-
 function getGradeEligibilityAnswer(query, chunks) {
   if (
     !/\b(?:requirements?|eligible|eligibility|qualify|qualifies|qualifications?|criteria|become|how do i get|how can i get)\b/.test(query) ||
@@ -1127,22 +1095,14 @@ function getGradeEligibilityAnswer(query, chunks) {
     return null;
   }
 
-  const grades = FEE_GRADES.filter((grade) => grade.pattern.test(query));
+  const grades = QUOTED_GRADES.filter((grade) => grade.pattern.test(query));
 
   if (grades.length !== 1) {
     return null;
   }
 
   const record = chunks.find((chunk) => chunk.id === "ng_membership_grade_eligibility");
-  const startPattern = ELIGIBILITY_SENTENCE_START[grades[0].key];
-
-  if (!record || !startPattern) {
-    return null;
-  }
-
-  const sentence = record.text
-    .split(/(?<=\.)\s+(?=[A-Z])/)
-    .find((part) => startPattern.test(part));
+  const sentence = record && findGradeSentence(record.text, grades[0]);
 
   if (!sentence) {
     return null;
@@ -1151,7 +1111,7 @@ function getGradeEligibilityAnswer(query, chunks) {
   return {
     id: "grade-membership-eligibility",
     answer:
-      `${grades[0].label}: ${sentence.trim()}` +
+      `${grades[0].label}: ${sentence}` +
       " Applications are subject to IIM approval. To check your eligibility or apply, contact membership@iim-africa.org.",
   };
 }
@@ -1161,10 +1121,6 @@ function getGradeEligibilityAnswer(query, chunks) {
  * records rather than paraphrased by the model (which has said
  * "no information" about an office whose record it was given).
  */
-function firstSentence(text) {
-  return String(text || "").split(/(?<=\.)\s+(?=[A-Z])/)[0].trim();
-}
-
 function getOfficeAnswer(query, chunks, sourceIds) {
   if (!/\b(?:address|addresses|phone|telephone|number|contact|office|offices|located|location|locations|where)\b/.test(query)) {
     return null;

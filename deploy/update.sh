@@ -20,8 +20,14 @@ sudo -u "$APP_USER" git pull --ff-only
 echo "==> Installing dependencies"
 sudo -u "$APP_USER" npm ci --omit=dev
 
-echo "==> Checking the knowledge seed and syntax"
+echo "==> Checking the knowledge base and syntax"
 sudo -u "$APP_USER" node scripts/validate-kb.js
+# The live copy (admin edits) is checked too, but only warns: the app
+# still runs, and affected questions fall back to the AI model.
+if [[ -f /var/lib/iim-chatbot/knowledge-base.json ]]; then
+  sudo -u "$APP_USER" node scripts/validate-kb.js /var/lib/iim-chatbot/knowledge-base.json \
+    || echo "WARNING: the live knowledge base has problems (see above). Fix them in /admin/."
+fi
 sudo -u "$APP_USER" node --check server.js
 
 echo "==> Restarting (in-flight answers are allowed to finish)"

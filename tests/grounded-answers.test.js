@@ -129,4 +129,23 @@ const edited = chunks.map((chunk) =>
 const afterEdit = getGroundedTemplateAnswer("How much is Fellow membership?", edited, { type: "default" });
 assert(afterEdit.answer.includes("USD 260") && !afterEdit.answer.includes("USD 242"));
 
+/* The format check used by validate-kb.js. */
+{
+  const { checkQuotedRecords } = require("../grounded-records");
+  const documents = JSON.parse(
+    require("fs").readFileSync(require("path").join(__dirname, "..", "data", "knowledge-base.json"), "utf8")
+  ).documents;
+
+  assert.deepEqual(checkQuotedRecords(documents), [], "current records are readable");
+
+  const broken = documents.map((document) =>
+    document.id === "ng_membership_fees"
+      ? { ...document, text: document.text.replace("Fellow - registration", "Fellow: registration") }
+      : document
+  );
+  const problems = checkQuotedRecords(broken);
+  assert.equal(problems.length, 1);
+  assert(problems[0].includes('"fellow"'), problems[0]);
+}
+
 console.log("Grounded answer tests passed.");
