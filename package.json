@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "npm run test:kb && npm run test:rag-pmiim && npm run test:rendering-refund && npm run test:rag-intents && npm run test:conversation-context && npm run test:fallback && npm run test:deployment && npm run test:features && npm run test:enquiry && npm run test:streaming",
+    "test": "npm run test:kb && npm run test:rag-pmiim && npm run test:rendering-refund && npm run test:rag-intents && npm run test:fees && npm run test:conversation-context && npm run test:fallback && npm run test:deployment && npm run test:features && npm run test:enquiry && npm run test:streaming",
     "test:chatbot": "node scripts/run-tests.js",
     "test:rag-pmiim": "node tests/rag-pmiim.test.js",
     "test:rendering-refund": "node tests/rendering-and-refund.test.js",
@@ -17,7 +17,8 @@
     "test:deployment": "node tests/deployment-readiness.test.js",
     "test:features": "node tests/features.test.js",
     "test:enquiry": "node tests/enquiry.test.js",
-    "test:streaming": "node tests/streaming.test.js"
+    "test:streaming": "node tests/streaming.test.js",
+    "test:fees": "node tests/grounded-fees.test.js"
   },
   "repository": {
     "type": "git",

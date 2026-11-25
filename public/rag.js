@@ -1687,12 +1687,15 @@ window.IIM_RAG = (function () {
 
     /* Entity + question-type routing beats generic documents that happen to
      * repeat words such as "requirements" or "professional". */
-    const pmiimRequirementsQuestion =
-      /\b(?:pmiim|professional member(?:ship)?)\b/.test(originalQuery) &&
-      /\b(?:requirement|requirements|eligible|eligibility|qualify)\b/.test(originalQuery);
+    /* Requirements for a named grade live in the grade eligibility
+     * record (one sentence per grade). Which grade is meant is
+     * decided later by the server's templates. */
+    const gradeRequirementsQuestion =
+      /\b(?:stiim|gmiim|amiim|pmiim|spmiim|fiim|cormiim|professional member(?:ship)?|fellow|fellowship|associate member(?:ship)?|graduate member(?:ship)?|corporate member(?:ship)?)\b/.test(originalQuery) &&
+      /\b(?:requirement|requirements|eligible|eligibility|qualify|qualifies|qualification|qualifications|criteria|become)\b/.test(originalQuery);
 
     if (
-      pmiimRequirementsQuestion &&
+      gradeRequirementsQuestion &&
       document.id === "ng_membership_grade_eligibility"
     ) {
       score += 180;

@@ -1032,6 +1032,129 @@ function getConfiguredGroundedResponse(
   };
 }
 
+/*
+ * Membership fees per grade, read from the approved fee record
+ * ("... were: Student - registration exempt, annual subscription
+ * USD 50; Graduate - ...; Corporate - ... USD 245. ...").
+ * Reading the record (not hard-coding amounts) keeps admin edits
+ * authoritative; the model never restates fee figures.
+ */
+const FEE_GRADES = [
+  { key: "senior professional", label: "Senior Professional Member (SPMIIM)", pattern: /\b(?:spmiim|senior professional)\b/ },
+  { key: "fellow", label: "Fellow Member (FIIM)", pattern: /\b(?:fiim|fellow|fellowship)\b/ },
+  { key: "associate", label: "Associate Member (AMIIM)", pattern: /\b(?:amiim|associate)\b/ },
+  { key: "graduate", label: "Graduate Member (GMIIM)", pattern: /\b(?:gmiim|graduate)\b/ },
+  { key: "corporate", label: "Corporate Member (CORMIIM)", pattern: /\b(?:cormiim|corporate)\b/ },
+];
+
+function parseMembershipFees(text) {
+  const start = text.indexOf(" were:");
+
+  if (start === -1) {
+    return null;
+  }
+
+  const list = text.slice(start + 6).split(/\.\s/)[0];
+  const fees = new Map();
+
+  for (const entry of list.split(";")) {
+    const match = entry.trim().match(/^([A-Za-z ]+?)\s+-\s+(.+)$/);
+
+    if (match) {
+      fees.set(match[1].trim().toLowerCase(), match[2].trim().replace(/\.$/, ""));
+    }
+  }
+
+  const asOf = (text.match(/\bon (\d{1,2} [A-Z][a-z]+ \d{4})\b/) || [])[1] || null;
+
+  return fees.size ? { fees, asOf } : null;
+}
+
+function getGradeFeeAnswer(query, chunks) {
+  if (!/\b(?:fee|fees|cost|costs|price|how much|subscription|charge|charges|pay)\b/.test(query)) {
+    return null;
+  }
+
+  const grades = FEE_GRADES.filter((grade) => grade.pattern.test(query));
+
+  /* Only a single named grade; comparisons go to the model. */
+  if (grades.length !== 1) {
+    return null;
+  }
+
+  const feeRecord = chunks.find((chunk) => chunk.id === "ng_membership_fees");
+  const parsed = feeRecord && parseMembershipFees(feeRecord.text);
+  const details = parsed && parsed.fees.get(grades[0].key);
+
+  if (!details) {
+    return null;
+  }
+
+  const amounts = details
+    .split(/,\s*/)
+    .map((part) => part.replace(/^one-time /, ""))
+    .join("; ");
+
+  return {
+    id: "grade-membership-fees",
+    answer:
+      `For Nigeria, IIM's ${grades[0].label} fees are: ${amounts}.` +
+      (parsed.asOf ? ` These are the amounts on IIM's official Grades page as of ${parsed.asOf}.` : "") +
+      " Membership payments are non-refundable, and fees can change, so confirm the current amount with membership@iim-africa.org before paying.",
+  };
+}
+
+/*
+ * Requirements for one membership grade, quoted from the
+ * approved eligibility record, which has one sentence per grade
+ * ("Fellow Member is IIM's senior grade based on ..."). The
+ * curated PMIIM and STIIM templates handle those two grades.
+ */
+const ELIGIBILITY_SENTENCE_START = {
+  "senior professional": /^Senior Professional Member\b/,
+  fellow: /^Fellow Member\b/,
+  associate: /^Associate Member\b/,
+  graduate: /^Graduate Member\b/,
+  corporate: /^Corporate membership\b/i,
+};
+
+function getGradeEligibilityAnswer(query, chunks) {
+  if (
+    !/\b(?:requirements?|eligible|eligibility|qualify|qualifies|qualifications?|criteria|become|how do i get|how can i get)\b/.test(query) ||
+    /\b(?:fee|fees|cost|price|how much|subscription)\b/.test(query)
+  ) {
+    return null;
+  }
+
+  const grades = FEE_GRADES.filter((grade) => grade.pattern.test(query));
+
+  if (grades.length !== 1) {
+    return null;
+  }
+
+  const record = chunks.find((chunk) => chunk.id === "ng_membership_grade_eligibility");
+  const startPattern = ELIGIBILITY_SENTENCE_START[grades[0].key];
+
+  if (!record || !startPattern) {
+    return null;
+  }
+
+  const sentence = record.text
+    .split(/(?<=\.)\s+(?=[A-Z])/)
+    .find((part) => startPattern.test(part));
+
+  if (!sentence) {
+    return null;
+  }
+
+  return {
+    id: "grade-membership-eligibility",
+    answer:
+      `${grades[0].label}: ${sentence.trim()}` +
+      " Applications are subject to IIM approval. To check your eligibility or apply, contact membership@iim-africa.org.",
+  };
+}
+
 function getGroundedTemplateAnswer(
   userText,
   chunks,
@@ -1099,6 +1222,22 @@ function getGroundedTemplateAnswer(
     return { id: "stiim-fees", answer: "For Nigeria, the STIIM Student Member grade is exempt from the registration fee and has an annual subscription of USD 50. Fees can change, so confirm the current amount with membership@iim-africa.org before paying." };
   }
 
+  if (sourceIds.has("ng_membership_fees")) {
+    const gradeFee = getGradeFeeAnswer(query, chunks);
+
+    if (gradeFee) {
+      return gradeFee;
+    }
+  }
+
+  if (sourceIds.has("ng_membership_grade_eligibility")) {
+    const gradeEligibility = getGradeEligibilityAnswer(query, chunks);
+
+    if (gradeEligibility) {
+      return gradeEligibility;
+    }
+  }
+
   if (conversationIntent.type === "stiim_benefits" && sourceIds.has("ng_membership_grade_eligibility") && sourceIds.has("membership_benefits")) {
     return { id: "stiim-benefits", answer: "STIIM is IIM's Student Member grade. The approved source lists these as general IIM membership benefits, not STIIM-specific benefits: participation in member meetings; meeting notices and programme information; eligible governance or election participation subject to membership rules; special consideration for seminars, conferences and workshops; access to IIM information resources; and professional development, networking and recognition opportunities." };
   }
@@ -1162,25 +1301,29 @@ function getGroundedTemplateAnswer(
     };
   }
 
+  /*
+   * The Professional (PMIIM) templates must not answer questions
+   * about the Senior Professional grade (SPMIIM): its fees and
+   * requirements differ. "spmiim" contains "pmiim" and "senior
+   * professional membership" contains "professional membership".
+   */
+  const asksAboutSeniorProfessional =
+    /\b(?:spmiim|senior\s+professional)\b/i.test(userText);
+
+  const asksForProfessionalGrade =
+    !asksAboutSeniorProfessional &&
+    /\b(?:pmiim|professional\s+member(?:ship)?)\b/i.test(userText);
+
   if (
     sourceIds.has("ng_membership_fees") &&
     /\bhow\s+much\b/i.test(userText) &&
-    /\b(?:pmiim|professional\s+member(?:ship)?)\b/i.test(userText)
+    asksForProfessionalGrade
   ) {
     return getConfiguredGroundedResponse(
       "professional-membership-fees",
       sourceIds
     );
   }
-
-  const asksForProfessionalGrade =
-    query.includes("pmiim") ||
-    query.includes(
-      "professional member"
-    ) ||
-    query.includes(
-      "professional membership"
-    );
 
   const asksForEligibility =
     [
