@@ -131,13 +131,40 @@ function resolveConversationIntent(message, history) {
     "iim", "institute", "information", "management", "organisation", "organization",
     "nigeria", "australia", "south", "africa",
   ]);
+  const PRONOUNS = new Set(["they", "them", "their", "it", "its", "you", "your", "this", "who"]);
   const words = query.replace(/[^a-z\s]/g, " ").split(/\s+/).filter(Boolean);
   const namesIim = words.includes("iim") || words.includes("institute");
-  const onlyGeneralWords = words.length > 0 && words.every((word) => GENERAL_WORDS.has(word));
-  const asksWhatItIs = words.length === 1 || words.includes("what") || words.includes("tell");
+  const usesPronoun = words.some((word) => PRONOUNS.has(word));
+  const onlyGeneralWords =
+    words.length > 0 &&
+    words.every((word) => GENERAL_WORDS.has(word) || PRONOUNS.has(word));
+  const asksWhatItIs =
+    words.length === 1 || words.includes("what") || words.includes("tell") || words.includes("who");
 
-  if (namesIim && onlyGeneralWords && asksWhatItIs) {
+  /* "what they do" after "what is IIM": the pronoun means IIM. After
+   * "What is CDPO?", "what does it do?" means CDPO, so only follow a
+   * general IIM question (or the start of a conversation). */
+  const lastUserMessage = [...safeHistory]
+    .reverse()
+    .find((item) => item && item.role === "user" && item.content);
+  const pronounMeansIim =
+    usesPronoun &&
+    (!lastUserMessage ||
+      resolveConversationIntent(lastUserMessage.content, []).type === "about_iim");
+
+  if (onlyGeneralWords && asksWhatItIs && (namesIim || pronounMeansIim)) {
     return { type: "about_iim", retrievalQuery: "about iim what is iim institute information management", requiredSourceIds: ["about_iim_overview"] };
+  }
+
+  /* "what does it do" after "What is CDPO?": the follow-up has nothing to
+   * search for on its own, so search with the previous question too. The
+   * model still sees the conversation to answer the follow-up itself. */
+  if (onlyGeneralWords && usesPronoun && lastUserMessage) {
+    return {
+      type: "pronoun_follow_up",
+      retrievalQuery: `${lastUserMessage.content} ${message}`,
+      requiredSourceIds: [],
+    };
   }
 
   return { type: "default", retrievalQuery: message, requiredSourceIds: [] };

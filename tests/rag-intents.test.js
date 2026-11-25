@@ -102,6 +102,37 @@ for (const [query, expectedTop, alsoExpected = []] of [
   }
 }
 
+/* Pronoun follow-ups: "they" after a general IIM question means IIM,
+ * but "it" after a CDPO question still means CDPO. */
+{
+  const after = (question) => [
+    { role: "user", content: question },
+    { role: "assistant", content: "..." },
+  ];
+
+  for (const [message, history, expected] of [
+    ["what they do", after("what is IIM"), "about_iim"],
+    ["who are they", after("tell me about IIM"), "about_iim"],
+    ["what they do", [], "about_iim"],
+    ["what does it do", after("What is CDPO?"), "pronoun_follow_up"],
+    ["what do they do", after("How much is membership?"), "pronoun_follow_up"],
+    ["What is the date and venue of the next IIM conference?", [], "default"],
+  ]) {
+    assert.strictEqual(
+      resolveConversationIntent(message, history).type,
+      expected,
+      `"${message}" after "${history.length ? history[0].content : "(start)"}"`
+    );
+  }
+
+  /* The follow-up finds the earlier topic's records. */
+  const followUp = resolveConversationIntent("what does it do", after("What is CDPO?"));
+  assert(
+    idsFor(followUp.retrievalQuery).includes("cdpo_overview"),
+    "CDPO follow-up should retrieve the CDPO record"
+  );
+}
+
 for (const query of [
   "What is the weather in Paris?",
   "Tell me a joke",
