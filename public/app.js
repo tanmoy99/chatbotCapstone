@@ -397,8 +397,7 @@
 
       const message =
         "Sorry, something went wrong while I was preparing the answer. " +
-        "Please try again. If the problem continues, check that Ollama is running " +
-        "and open the browser console for the error details.";
+        "Please try again. If it keeps happening, you can contact IIM at info@iim-africa.org.";
 
       botSay(
         message,
@@ -1196,16 +1195,33 @@
 
       const numberMatch =
         line.match(
-          /^\d+[.)]\s+(.+)$/
+          /^(\d+)[.)]\s+(.+)$/
         );
 
       if (numberMatch) {
-        openList("ol");
+        /*
+         * A numbered list that resumes after sub-bullets or a
+         * blank line keeps its numbering (3, 4, ... not 1, 2).
+         */
+        if (listType !== "ol") {
+          closeParagraph();
+          closeList();
+
+          const start = Number(numberMatch[1]);
+
+          html.push(
+            start > 1 && start < 1000
+              ? `<ol start="${start}">`
+              : "<ol>"
+          );
+
+          listType = "ol";
+        }
 
         html.push(
           "<li>" +
             formatInlineMarkdown(
-              numberMatch[1]
+              numberMatch[2]
             ) +
             "</li>"
         );
@@ -1799,6 +1815,134 @@ if (isWellbeingQuestion) {
     );
   }
 
+/*
+ * Streaming answers. Text appears in a temporary bubble while
+ * the model writes; the finished answer then replaces it as a
+ * normal message with sources, rating buttons and contacts.
+ */
+let streamingMessage = null;
+let streamingText = "";
+let streamingFrame = 0;
+
+function renderStreamingMessage() {
+  streamingFrame = 0;
+
+  if (!streamingMessage) {
+    return;
+  }
+
+  streamingMessage.bubble.innerHTML = markdownToHtml(
+    streamingText
+      .replace(/\s*\(SOURCE\s+\d+\)/gi, "")
+      .replace(/\bSOURCE\s+\d+\b[:,]?/gi, "")
+  );
+
+  scrollToBottom();
+}
+
+function appendStreamingText(text) {
+  if (!streamingMessage) {
+    showTyping(false);
+
+    const message = document.createElement("div");
+    message.className = "msg bot streaming";
+    /* Screen readers hear the finished answer once instead. */
+    message.setAttribute("aria-hidden", "true");
+
+    const avatar = document.createElement("div");
+    avatar.className = "avatar";
+
+    const body = document.createElement("div");
+    body.className = "msg-body";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+
+    body.appendChild(bubble);
+    message.appendChild(avatar);
+    message.appendChild(body);
+    els.messages.appendChild(message);
+
+    streamingMessage = { message, bubble };
+    streamingText = "";
+  }
+
+  streamingText += text;
+
+  if (!streamingFrame) {
+    streamingFrame = window.requestAnimationFrame(renderStreamingMessage);
+  }
+}
+
+function removeStreamingMessage() {
+  if (streamingFrame) {
+    window.cancelAnimationFrame(streamingFrame);
+    streamingFrame = 0;
+  }
+
+  if (streamingMessage) {
+    streamingMessage.message.remove();
+    streamingMessage = null;
+  }
+
+  streamingText = "";
+}
+
+/*
+ * Read server-sent events: "token" pieces, then one "done"
+ * event with the complete answer, or an "error" event.
+ */
+async function readChatStream(response) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffered = "";
+
+  for (;;) {
+    const { value, done } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    buffered += decoder.decode(value, { stream: true });
+
+    let boundary = buffered.indexOf("\n\n");
+
+    while (boundary !== -1) {
+      const block = buffered.slice(0, boundary);
+      buffered = buffered.slice(boundary + 2);
+      boundary = buffered.indexOf("\n\n");
+
+      let event = "message";
+      let dataText = "";
+
+      block.split("\n").forEach((line) => {
+        if (line.startsWith("event:")) {
+          event = line.slice(6).trim();
+        } else if (line.startsWith("data:")) {
+          dataText += line.slice(5).trim();
+        }
+      });
+
+      if (!dataText) {
+        continue;
+      }
+
+      const payload = JSON.parse(dataText);
+
+      if (event === "token") {
+        appendStreamingText(payload.text || "");
+      } else if (event === "done") {
+        return payload;
+      } else if (event === "error") {
+        throw new Error(payload.error || "The answer could not be completed.");
+      }
+    }
+  }
+
+  throw new Error("The answer stopped before it was complete.");
+}
+
 async function requestChat(
   userText
 ) {
@@ -1819,19 +1963,35 @@ async function requestChat(
 
             history:
               getConversationHistory(),
+
+            stream: true,
           }),
       }
     );
 
   let data;
 
-  try {
-    data =
-      await response.json();
-  } catch (error) {
-    throw new Error(
-      "The server returned an invalid response."
-    );
+  const contentType =
+    response.headers.get("content-type") || "";
+
+  if (
+    response.ok &&
+    contentType.includes("text/event-stream")
+  ) {
+    try {
+      data = await readChatStream(response);
+    } finally {
+      removeStreamingMessage();
+    }
+  } else {
+    try {
+      data =
+        await response.json();
+    } catch (error) {
+      throw new Error(
+        "The server returned an invalid response."
+      );
+    }
   }
 
   if (!response.ok) {

@@ -826,6 +826,24 @@ a {
   color: #fff;
 }
 
+/* Answer being written (streaming) */
+
+.msg.streaming .bubble > :last-child::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: -0.12em;
+  border-radius: 2px;
+  background: var(--cyan);
+  animation: stream-cursor 1s steps(1) infinite;
+}
+
+@keyframes stream-cursor {
+  50% { opacity: 0; }
+}
+
 /* "Contact a human" card */
 
 .handoff {

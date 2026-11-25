@@ -48,7 +48,18 @@ for (const value of [
     `Rendered HTML must preserve ${value}`
   );
 }
-assert(!numericHtml.includes("<ol>"), "Numeric prose must not become a list");
+assert(!numericHtml.includes("<ol"), "Numeric prose must not become a list");
+
+/* A numbered list interrupted by sub-bullets keeps counting. */
+const resumedListHtml = formatterContext.markdownToHtml(
+  "Steps:\n\n1. Check eligibility\n2. Gather documents:\n- CPD log\n- ID\n3. Submit the application\n4. Pay the fee"
+);
+assert(resumedListHtml.includes('<ol start="3">'), "Resumed list continues at 3");
+assert.strictEqual(
+  (resumedListHtml.match(/<ol/g) || []).length,
+  2,
+  "Two numbered runs around the bullets"
+);
 
 const legitimateListHtml = formatterContext.markdownToHtml(
   "Grades: 1. Student 2. Graduate 3. Professional"

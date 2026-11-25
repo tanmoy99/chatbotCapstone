@@ -45,6 +45,7 @@ async function testMainServer() {
   process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
   process.env.TRUST_PROXY = "1";
   process.env.CHAT_RATE_LIMIT_PER_MINUTE = "3";
+  process.env.HOST = "127.0.0.1";
 
   const { startServer } = require("../server");
   const server = startServer(0);
@@ -52,6 +53,9 @@ async function testMainServer() {
   const base = `http://127.0.0.1:${server.address().port}`;
 
   try {
+    /* HOST=127.0.0.1 keeps the app off public interfaces. */
+    assert.equal(server.address().address, "127.0.0.1");
+
     /* Live file seeded outside the repository. */
     assert(fs.existsSync(livePath), "live knowledge file should be seeded");
     assert.equal(fs.readFileSync(livePath, "utf8"), seedBefore);

@@ -58,6 +58,22 @@ const MAX_MESSAGE_LENGTH = Number(
     1500
 );
 
+/* Upper bound on answer length; keeps slow CPUs from rambling. */
+const OLLAMA_MAX_TOKENS = Number(
+  process.env.OLLAMA_MAX_TOKENS ||
+    600
+);
+
+/* Number of first-question model answers to cache (0 disables). */
+const ANSWER_CACHE_SIZE = Number(
+  process.env.ANSWER_CACHE_SIZE ||
+    300
+);
+
+/* Ping Ollama every few minutes so the model stays loaded. */
+const OLLAMA_KEEP_WARM =
+  String(process.env.OLLAMA_KEEP_WARM || "true") !== "false";
+
 const PUBLIC_DIRECTORY = path.join(
   __dirname,
   "public"
@@ -255,6 +271,9 @@ function applyKnowledgeData(data) {
 
 function reloadKnowledgeBase() {
   applyKnowledgeData(loadKnowledgeData());
+
+  /* Cached answers may quote the old knowledge. */
+  answerCache.clear();
 }
 
 let KB;
@@ -376,6 +395,34 @@ app.get(
       "Cache-Control",
       "public, max-age=3600"
     );
+    next();
+  }
+);
+
+/*
+ * Request logging for every route, including admin, enquiry
+ * and feedback. Requests the visitor abandoned (for example
+ * closing the page mid-answer) are marked as such.
+ */
+app.use(
+  (request, response, next) => {
+    const startedAt = Date.now();
+
+    response.on(
+      "close",
+      () => {
+        const duration =
+          Date.now() -
+          startedAt;
+
+        console.log(
+          `${request.method} ${request.originalUrl} ` +
+            `${response.statusCode} ${duration}ms` +
+            (response.writableFinished ? "" : " (visitor left)")
+        );
+      }
+    );
+
     next();
   }
 );
@@ -572,6 +619,62 @@ function getHandoff(message, payload, history = []) {
 }
 
 /*
+ * Streaming chat answers (server-sent events).
+ *
+ * When the browser sends { stream: true }, model output is sent
+ * as "token" events while it is generated, then the complete
+ * answer (sources, quick replies, rating ID) as one "done" event.
+ * Answers that need no model (templates, handoff, fallbacks)
+ * arrive as a single "done" event. Errors before anything was
+ * streamed keep their normal HTTP status and JSON body.
+ */
+function streamChatAnswers(request, response, next) {
+  if (!request.body || request.body.stream !== true) {
+    return next();
+  }
+
+  const sendJson = response.json.bind(response);
+  let started = false;
+
+  const writeEvent = (event, data) => {
+    if (!started) {
+      started = true;
+      response.status(200);
+      response.set({
+        "Content-Type": "text/event-stream; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "X-Accel-Buffering": "no",
+      });
+      response.flushHeaders();
+    }
+
+    response.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
+  response.locals.onToken = (text) => {
+    if (!response.writableEnded) {
+      writeEvent("token", { text });
+    }
+  };
+
+  response.json = (payload) => {
+    if (response.writableEnded) {
+      return response;
+    }
+
+    if (!started && response.statusCode !== 200) {
+      return sendJson(payload);
+    }
+
+    writeEvent(response.statusCode === 200 ? "done" : "error", payload);
+    response.end();
+    return response;
+  };
+
+  next();
+}
+
+/*
  * Give every chat answer an ID (for ratings) and, where
  * useful, a handoff contact. Applied to all answer paths.
  */
@@ -625,31 +728,6 @@ function decorateChatAnswers(request, response, next) {
 
   next();
 }
-
-/*
- * Simple request logging.
- */
-app.use(
-  (request, response, next) => {
-    const startedAt = Date.now();
-
-    response.on(
-      "finish",
-      () => {
-        const duration =
-          Date.now() -
-          startedAt;
-
-        console.log(
-          `${request.method} ${request.originalUrl} ` +
-            `${response.statusCode} ${duration}ms`
-        );
-      }
-    );
-
-    next();
-  }
-);
 
 /*
  * Fetch helper with a timeout.
@@ -1162,11 +1240,11 @@ function getGroundedTemplateAnswer(
     );
   }
 
+  /* Same rule as rag.js: "take" alone ("Can I take the exam
+   * remotely?") is about the exam, not who CDPO is for. */
   const asksForCdpoAudience =
-    query.includes("cdpo") &&
-    ["who", "audience", "suitable", "eligible", "eligibility", "take"].some(
-      (term) => query.includes(term)
-    );
+    /\bcdpo\b/.test(query) &&
+    /\b(?:who|audience|suitable|eligible|eligibility|qualify|right for me|meant for)\b/.test(query);
 
   if (
     sourceIds.has("cdpo_eligibility") &&
@@ -1251,12 +1329,226 @@ function getQuickReplies(chunks) {
 }
 
 /*
+ * Official meanings of IIM acronyms, taken from the approved
+ * knowledge. Small models otherwise invent expansions, such
+ * as "CDPO (Child Development and Protection Officer)".
+ */
+const ACRONYMS = {
+  IIM: "Institute of Information Management",
+  CDPO: "Certified Data Protection Officer",
+  CPD: "Continuing Professional Development",
+  NDPC: "Nigeria Data Protection Commission",
+  IMP: "Information Management Professional",
+  DPIA: "Data Protection Impact Assessment",
+  STIIM: "Student Member",
+  GMIIM: "Graduate Member",
+  AMIIM: "Associate Member",
+  PMIIM: "Professional Member",
+  SPMIIM: "Senior Professional Member",
+  FIIM: "Fellow Member",
+};
+
+const KEY_TERMS_PROMPT = [
+  "",
+  "KEY TERMS",
+  "",
+  "These acronyms have exactly these meanings. Never expand them any other way:",
+  ...Object.entries(ACRONYMS).map(
+    ([acronym, meaning]) => `- ${acronym}: ${meaning}`
+  ),
+  "",
+].join("\n");
+
+const ACRONYM_STOP_WORDS = new Set(["and", "of", "for", "the", "in", "on", "&"]);
+
+function initialsOf(phrase) {
+  return phrase
+    .split(/[\s-]+/)
+    .filter((word) => word && !ACRONYM_STOP_WORDS.has(word.toLowerCase()))
+    .map((word) => word[0].toUpperCase())
+    .join("");
+}
+
+/*
+ * Replace a wrong expansion only when it is clearly an attempt
+ * to spell out the acronym (its initials match), so phrases
+ * like "IIM (Nigeria)" are left alone.
+ */
+function fixAcronymExpansions(text) {
+  let fixed = text;
+
+  for (const [acronym, meaning] of Object.entries(ACRONYMS)) {
+    const isWrongExpansion = (phrase) =>
+      initialsOf(phrase) === acronym &&
+      phrase.trim().toLowerCase() !== meaning.toLowerCase();
+
+    /* "CDPO (Child Development and Protection Officer)" */
+    fixed = fixed.replace(
+      new RegExp(`\\b${acronym}\\s*\\(([^()\\n]{3,80})\\)`, "g"),
+      (match, phrase) =>
+        isWrongExpansion(phrase) ? `${acronym} (${meaning})` : match
+    );
+
+    /* "Child Development and Protection Officer (CDPO)" */
+    fixed = fixed.replace(
+      new RegExp(
+        `\\b((?:[A-Z][\\w'-]*|and|of|for|the|in|on|&)(?:\\s+(?:[A-Z][\\w'-]*|and|of|for|the|in|on|&)){1,8})\\s*\\(${acronym}\\)`,
+        "g"
+      ),
+      (match, phrase) => {
+        if (!isWrongExpansion(phrase)) {
+          return match;
+        }
+
+        /* Keep leading words such as "The" in "The ... (CDPO)". */
+        const lead = (phrase.match(/^(?:(?:the|and|of|for|in|on|&)\s+)+/i) || [""])[0];
+
+        return `${lead}${meaning} (${acronym})`;
+      }
+    );
+  }
+
+  return fixed;
+}
+
+/*
+ * Tidy model output. Keeps line breaks so Markdown lists and
+ * paragraphs survive; only runs of spaces are collapsed.
+ */
+function cleanModelAnswer(answer) {
+  return fixAcronymExpansions(String(answer || ""))
+    .replace(/\s*\(SOURCE\s+\d+\)/gi, "")
+    .replace(/\bSOURCE\s+\d+\b[:,]?/gi, "")
+    .replace(/\[([^\]]+)\]\(mailto:[^)]+\)/gi, "$1")
+    .replace(/\[([^\]]+)\]\(https?:\/\/[^)]+\)/gi, "$1")
+    .replace(/\r\n?/g, "\n")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
+/*
+ * Cache of model answers to first questions in a conversation.
+ * Follow-up questions depend on history and are never cached.
+ * Cleared whenever the knowledge base changes.
+ */
+const answerCache = new Map();
+const ANSWER_CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+
+function answerCacheKey(message, chunks) {
+  return [
+    OLLAMA_MODEL,
+    (KB && KB.version) || "",
+    chunks.map((chunk) => chunk.id).join(","),
+    message.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim(),
+  ].join("|");
+}
+
+function getCachedAnswer(key) {
+  const entry = answerCache.get(key);
+
+  if (!entry) {
+    return null;
+  }
+
+  if (Date.now() - entry.at > ANSWER_CACHE_TTL_MS) {
+    answerCache.delete(key);
+    return null;
+  }
+
+  /* Refresh position so the most used answers stay. */
+  answerCache.delete(key);
+  answerCache.set(key, entry);
+
+  return entry.answer;
+}
+
+function setCachedAnswer(key, answer) {
+  if (!(ANSWER_CACHE_SIZE > 0)) {
+    return;
+  }
+
+  answerCache.set(key, { answer, at: Date.now() });
+
+  while (answerCache.size > ANSWER_CACHE_SIZE) {
+    answerCache.delete(answerCache.keys().next().value);
+  }
+}
+
+/*
+ * Read an OpenAI-style server-sent event stream from Ollama,
+ * passing each piece of text to onToken. An idle timer aborts
+ * the request if the model stops producing output.
+ */
+async function readOllamaStream(response, onToken, resetIdleTimer) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffered = "";
+  let answer = "";
+
+  for (;;) {
+    const { value, done } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    resetIdleTimer();
+    buffered += decoder.decode(value, { stream: true });
+
+    const lines = buffered.split("\n");
+    buffered = lines.pop();
+
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+
+      if (!line.startsWith("data:")) {
+        continue;
+      }
+
+      const payload = line.slice(5).trim();
+
+      if (payload === "[DONE]") {
+        return answer;
+      }
+
+      let parsed;
+
+      try {
+        parsed = JSON.parse(payload);
+      } catch {
+        continue;
+      }
+
+      const piece =
+        parsed &&
+        parsed.choices &&
+        parsed.choices[0] &&
+        parsed.choices[0].delta &&
+        parsed.choices[0].delta.content;
+
+      if (piece) {
+        answer += piece;
+        onToken(piece);
+      }
+    }
+  }
+
+  return answer;
+}
+
+/*
  * Contact Ollama using its OpenAI-compatible API.
+ *
+ * options.onToken  stream the answer, receiving each piece
+ * options.signal   abort (e.g. the visitor closed the page)
  */
 async function callOllama(
   userMessage,
   history,
-  chunks
+  chunks,
+  options = {}
 ) {
   const context =
     buildContext(chunks);
@@ -1267,7 +1559,7 @@ async function callOllama(
     messages: [
       {
         role: "system",
-        content: SYSTEM_PROMPT,
+        content: SYSTEM_PROMPT + KEY_TERMS_PROMPT,
       },
 
       ...history,
@@ -1285,63 +1577,110 @@ async function callOllama(
     ],
 
     temperature: 0,
-    stream: false,
+    max_tokens: OLLAMA_MAX_TOKENS,
+    stream: Boolean(options.onToken),
   };
 
-  const response =
-    await fetchWithTimeout(
-      OLLAMA_BASE_URL +
-        "/v1/chat/completions",
+  /*
+   * The timer aborts when the model is silent for too long:
+   * waiting for the first token, or stalling mid-answer.
+   * A streamed answer may run longer than the timeout in
+   * total as long as it keeps producing text.
+   */
+  const idleController = new AbortController();
+  let idleTimer = null;
+  const resetIdleTimer = () => {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(
+      () => idleController.abort(new Error("Ollama request timed out")),
+      REQUEST_TIMEOUT_MS
+    );
+  };
+
+  const signal = options.signal
+    ? AbortSignal.any([idleController.signal, options.signal])
+    : idleController.signal;
+
+  resetIdleTimer();
+
+  try {
+    const response = await fetch(
+      OLLAMA_BASE_URL + "/v1/chat/completions",
       {
         method: "POST",
-
         headers: {
-          "Content-Type":
-            "application/json",
+          "Content-Type": "application/json",
         },
-
-        body:
-          JSON.stringify(body),
+        body: JSON.stringify(body),
+        signal,
       }
     );
 
-  if (!response.ok) {
-    const errorText =
-      await response.text();
+    if (!response.ok) {
+      const errorText =
+        await response.text();
 
-    throw new Error(
-      `Ollama request failed with status ${response.status}: ${errorText}`
-    );
+      throw new Error(
+        `Ollama request failed with status ${response.status}: ${errorText}`
+      );
+    }
+
+    let answer;
+
+    if (options.onToken) {
+      answer = await readOllamaStream(
+        response,
+        options.onToken,
+        resetIdleTimer
+      );
+    } else {
+      const data = await response.json();
+
+      answer =
+        data &&
+        data.choices &&
+        data.choices[0] &&
+        data.choices[0].message &&
+        data.choices[0].message.content;
+    }
+
+    if (
+      !answer ||
+      !String(answer).trim()
+    ) {
+      throw new Error(
+        "Ollama returned an empty response."
+      );
+    }
+
+    return cleanModelAnswer(answer);
+  } finally {
+    clearTimeout(idleTimer);
   }
+}
 
-  const data =
-    await response.json();
-
-  const answer =
-    data &&
-    data.choices &&
-    data.choices[0] &&
-    data.choices[0].message &&
-    data.choices[0].message
-      .content;
-
-  if (
-    !answer ||
-    !String(answer).trim()
-  ) {
-    throw new Error(
-      "Ollama returned an empty response."
-    );
-  }
-const cleanedAnswer = String(answer)
-  .replace(/\s*\(SOURCE\s+\d+\)/gi, "")
-  .replace(/\bSOURCE\s+\d+\b[:,]?/gi, "")
-  .replace(/\[([^\]]+)\]\(mailto:[^)]+\)/gi, "$1")
-  .replace(/\[([^\]]+)\]\(https?:\/\/[^)]+\)/gi, "$1")
-  .replace(/\s{2,}/g, " ")
-  .trim();
-
-return cleanedAnswer;
+/*
+ * Load the model into memory and keep it there, so visitors
+ * don't wait for it to load after a quiet period. An empty
+ * prompt to /api/generate loads the model without generating.
+ */
+function keepModelWarm() {
+  fetchWithTimeout(
+    OLLAMA_BASE_URL + "/api/generate",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        keep_alive: "10m",
+      }),
+    },
+    120000
+  )
+    .then((response) => response.text())
+    .catch(() => {
+      /* Ollama is down; the health check reports it. */
+    });
 }
 
 /*
@@ -1486,6 +1825,7 @@ app.get(
 app.post(
   "/api/chat",
   chatRateLimit,
+  streamChatAnswers,
   decorateChatAnswers,
   async (
     request,
@@ -1681,13 +2021,37 @@ app.post(
       });
     }
 
+    /* Stop generating if the visitor leaves; it frees the CPU. */
+    const visitorGone = new AbortController();
+    response.on("close", () => {
+      if (!response.writableEnded) {
+        visitorGone.abort(new Error("Visitor disconnected"));
+      }
+    });
+
+    const cacheKey = history.length
+      ? null
+      : answerCacheKey(message, retrieval.chunks);
+
     try {
-      const answer =
-        await callOllama(
+      let answer = cacheKey ? getCachedAnswer(cacheKey) : null;
+      const cached = Boolean(answer);
+
+      if (!answer) {
+        answer = await callOllama(
           message,
           history,
-          retrieval.chunks
+          retrieval.chunks,
+          {
+            onToken: response.locals.onToken,
+            signal: visitorGone.signal,
+          }
         );
+
+        if (cacheKey) {
+          setCachedAnswer(cacheKey, answer);
+        }
+      }
 
       return response.json({
         answer,
@@ -1709,6 +2073,7 @@ app.post(
             OLLAMA_MODEL,
 
           fallback: false,
+          cached,
 
           confidence:
             retrieval.confidence,
@@ -1734,9 +2099,13 @@ app.post(
         },
       });
     } catch (error) {
+      if (visitorGone.signal.aborted) {
+        return;
+      }
+
       console.error(
         "Ollama request failed:",
-        error
+        error.message
       );
 
       /*
@@ -1831,7 +2200,16 @@ app.use(
  * Start the server.
  */
 function startServer(port = PORT) {
-  const server = app.listen(port, async () => {
+  /*
+   * HOST=127.0.0.1 in production keeps the app reachable only
+   * through nginx, so nobody can bypass HTTPS or fake their IP
+   * address with X-Forwarded-For. Unset, it listens everywhere.
+   */
+  const listenArgs = process.env.HOST
+    ? [port, process.env.HOST]
+    : [port];
+
+  const server = app.listen(...listenArgs, async () => {
     const actualPort = server.address().port;
     console.log("IIM AI Chatbot Server");
     console.log(`Website: http://localhost:${actualPort}`);
@@ -1851,7 +2229,38 @@ function startServer(port = PORT) {
 }
 
 if (require.main === module) {
-  startServer();
+  const server = startServer();
+
+  if (OLLAMA_KEEP_WARM) {
+    keepModelWarm();
+    setInterval(keepModelWarm, 4 * 60 * 1000).unref();
+  }
+
+  /*
+   * Finish in-flight requests before exiting when pm2,
+   * systemd or Hostinger stops or restarts the app.
+   */
+  let shuttingDown = false;
+
+  const shutDown = (signal) => {
+    if (shuttingDown) {
+      return;
+    }
+
+    shuttingDown = true;
+    console.log(`${signal} received; closing server.`);
+
+    server.close(() => process.exit(0));
+    server.closeIdleConnections();
+
+    setTimeout(() => {
+      console.log("Forcing exit after 15 seconds.");
+      process.exit(0);
+    }, 15000).unref();
+  };
+
+  process.on("SIGTERM", () => shutDown("SIGTERM"));
+  process.on("SIGINT", () => shutDown("SIGINT"));
 }
 
-module.exports = { app, startServer, selectBestChunks, getGroundedTemplateAnswer };
+module.exports = { app, startServer, selectBestChunks, getGroundedTemplateAnswer, cleanModelAnswer };
