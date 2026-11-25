@@ -597,7 +597,8 @@
         renderRecords();
 
         showNotification(
-          "Knowledge saved and backup created. Restart the server to activate the change."
+          result.message ||
+            "Knowledge saved and backup created."
         );
       } catch (error) {
         elements.saveStatus.textContent =

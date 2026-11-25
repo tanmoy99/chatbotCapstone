@@ -4,20 +4,31 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 
-module.exports = function registerAdminApi(app) {
+module.exports = function registerAdminApi(
+  app,
+  options = {}
+) {
   const adminPassword = String(
     process.env.ADMIN_PASSWORD || ""
   );
 
-  const knowledgePath = path.join(
-    __dirname,
-    "data",
-    "knowledge-base.json"
-  );
+  const knowledgePath =
+    options.knowledgePath ||
+    path.join(
+      __dirname,
+      "data",
+      "knowledge-base.json"
+    );
 
+  const onKnowledgeChange =
+    typeof options.onKnowledgeChange ===
+    "function"
+      ? options.onKnowledgeChange
+      : null;
+
+  /* Backups live next to the active knowledge file. */
   const backupDirectory = path.join(
-    __dirname,
-    "data",
+    path.dirname(knowledgePath),
     "backups"
   );
 
@@ -392,6 +403,29 @@ module.exports = function registerAdminApi(app) {
       knowledgePath
     );
 
+    /*
+     * Activate the change immediately. If the running
+     * chatbot rejects the new data, put the previous
+     * file back so disk and memory stay in agreement.
+     */
+    if (onKnowledgeChange) {
+      try {
+        onKnowledgeChange();
+      } catch (error) {
+        fs.copyFileSync(
+          backupPath,
+          knowledgePath
+        );
+
+        const rejected = new Error(
+          `The change was not applied: ${error.message}`
+        );
+        rejected.code =
+          "KNOWLEDGE_RELOAD_FAILED";
+        throw rejected;
+      }
+    }
+
     return path.basename(
       backupPath
     );
@@ -506,6 +540,18 @@ module.exports = function registerAdminApi(app) {
           backup =
             saveKnowledge(data);
         } catch (error) {
+          if (
+            error.code ===
+            "KNOWLEDGE_RELOAD_FAILED"
+          ) {
+            return response
+              .status(400)
+              .json({
+                error:
+                  error.message,
+              });
+          }
+
           console.error(
             "Knowledge save failed:",
             error
@@ -529,9 +575,11 @@ module.exports = function registerAdminApi(app) {
               : document,
           backup,
           restartRequired:
-            true,
+            !onKnowledgeChange,
           message:
-            "Knowledge saved. Restart the server to activate the change.",
+            onKnowledgeChange
+              ? "Knowledge saved and now live in the chatbot."
+              : "Knowledge saved. Restart the server to activate the change.",
         });
       } catch (error) {
         response

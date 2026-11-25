@@ -28,6 +28,11 @@ const registerAdminApi = require("./admin-api");
 
 const app = express();
 
+app.set(
+  "trust proxy",
+  parseTrustProxy(process.env.TRUST_PROXY)
+);
+
 const PORT = Number(
   process.env.PORT || 3100
 );
@@ -56,10 +61,73 @@ const PUBLIC_DIRECTORY = path.join(
   "public"
 );
 
-const KNOWLEDGE_DATA_PATH = path.join(
+/*
+ * The repository copy is the seed knowledge base.
+ *
+ * In production, set KNOWLEDGE_DATA_PATH to a file outside
+ * the git checkout so admin edits survive code updates.
+ * On first start the seed is copied there.
+ */
+const SEED_KNOWLEDGE_PATH = path.join(
   __dirname,
   "data",
   "knowledge-base.json"
+);
+
+const KNOWLEDGE_DATA_PATH = process.env
+  .KNOWLEDGE_DATA_PATH
+  ? path.resolve(
+      process.env.KNOWLEDGE_DATA_PATH
+    )
+  : SEED_KNOWLEDGE_PATH;
+
+if (
+  KNOWLEDGE_DATA_PATH !==
+    SEED_KNOWLEDGE_PATH &&
+  !fs.existsSync(KNOWLEDGE_DATA_PATH)
+) {
+  fs.mkdirSync(
+    path.dirname(KNOWLEDGE_DATA_PATH),
+    { recursive: true }
+  );
+  fs.copyFileSync(
+    SEED_KNOWLEDGE_PATH,
+    KNOWLEDGE_DATA_PATH
+  );
+  console.log(
+    `Seeded knowledge base at ${KNOWLEDGE_DATA_PATH}`
+  );
+}
+
+/*
+ * Behind Hostinger's proxy or nginx, request.ip is the
+ * proxy's address unless Express is told to trust it.
+ * TRUST_PROXY accepts a hop count (1), true/false, or
+ * an Express trust-proxy string such as "loopback".
+ */
+function parseTrustProxy(value) {
+  if (value === undefined || value === "") {
+    return false;
+  }
+
+  if (/^\d+$/.test(value)) {
+    return Number(value);
+  }
+
+  if (value === "true") {
+    return true;
+  }
+
+  if (value === "false") {
+    return false;
+  }
+
+  return value;
+}
+
+const CHAT_RATE_LIMIT_PER_MINUTE = Number(
+  process.env.CHAT_RATE_LIMIT_PER_MINUTE ||
+    20
 );
 
 function loadKnowledgeData() {
@@ -85,15 +153,44 @@ function loadKnowledgeData() {
  * without rewriting the full files yet.
  */
 global.window = global;
-global.IIM_KB_DATA =
-  loadKnowledgeData();
 
-require(
-  path.join(
-    PUBLIC_DIRECTORY,
-    "knowledge.js"
-  )
+const KNOWLEDGE_MODULE_PATH = path.join(
+  PUBLIC_DIRECTORY,
+  "knowledge.js"
 );
+
+/*
+ * Rebuild IIM_KB from data. rag.js and engine.js read
+ * window.IIM_KB on every call, so they pick up the new
+ * knowledge without being reloaded. If the new data is
+ * invalid, the previous knowledge base stays active.
+ */
+function applyKnowledgeData(data) {
+  const previousData = global.IIM_KB_DATA;
+  const previousKB = global.IIM_KB;
+
+  global.IIM_KB_DATA = data;
+  delete require.cache[
+    require.resolve(KNOWLEDGE_MODULE_PATH)
+  ];
+
+  try {
+    require(KNOWLEDGE_MODULE_PATH);
+  } catch (error) {
+    global.IIM_KB_DATA = previousData;
+    global.IIM_KB = previousKB;
+    throw error;
+  }
+
+  KB = global.IIM_KB;
+}
+
+function reloadKnowledgeBase() {
+  applyKnowledgeData(loadKnowledgeData());
+}
+
+let KB;
+applyKnowledgeData(loadKnowledgeData());
 
 require(
   path.join(
@@ -109,7 +206,6 @@ require(
   )
 );
 
-const KB = global.IIM_KB;
 const RAG = global.IIM_RAG;
 const Engine = global.IIM_Engine;
 
@@ -196,7 +292,63 @@ app.use(
  * knowledge administration API.
  */
 
-registerAdminApi(app);
+registerAdminApi(app, {
+  knowledgePath: KNOWLEDGE_DATA_PATH,
+  onKnowledgeChange: reloadKnowledgeBase,
+});
+
+/*
+ * Per-client limit on chat messages. Each request can
+ * occupy the local model for many seconds, so one client
+ * must not be able to crowd everyone else out.
+ */
+const chatRequestLog = new Map();
+
+const chatLogCleanup = setInterval(() => {
+  const cutoff = Date.now() - 60 * 1000;
+
+  for (const [key, times] of chatRequestLog) {
+    if (!times.length || times[times.length - 1] < cutoff) {
+      chatRequestLog.delete(key);
+    }
+  }
+}, 60 * 1000);
+
+chatLogCleanup.unref();
+
+function chatRateLimit(request, response, next) {
+  if (!(CHAT_RATE_LIMIT_PER_MINUTE > 0)) {
+    return next();
+  }
+
+  const key =
+    request.ip ||
+    request.socket.remoteAddress ||
+    "unknown";
+  const now = Date.now();
+  const recent = (chatRequestLog.get(key) || [])
+    .filter((time) => now - time < 60 * 1000);
+
+  if (recent.length >= CHAT_RATE_LIMIT_PER_MINUTE) {
+    const retryAfterSeconds = Math.ceil(
+      (recent[0] + 60 * 1000 - now) / 1000
+    );
+
+    chatRequestLog.set(key, recent);
+
+    return response
+      .status(429)
+      .set("Retry-After", String(retryAfterSeconds))
+      .json({
+        error:
+          "You're sending messages too quickly. Please wait a moment and try again.",
+      });
+  }
+
+  recent.push(now);
+  chatRequestLog.set(key, recent);
+  next();
+}
 
 /*
  * Simple request logging.
@@ -1023,21 +1175,17 @@ app.get(
 
       server: "connected",
 
+      /*
+       * Public endpoint: only what the chat page's status
+       * panel needs. Internal URLs, installed models and
+       * error text stay in the server log.
+       */
       ollama: {
         connected:
           ollama.connected,
 
-        baseUrl:
-          OLLAMA_BASE_URL,
-
         configuredModel:
           OLLAMA_MODEL,
-
-        installedModels:
-          ollama.models,
-
-        error:
-          ollama.error || null,
       },
 
       knowledgeBase: {
@@ -1046,18 +1194,8 @@ app.get(
         version:
           KB.version || null,
 
-        source:
-          "data/knowledge-base.json",
-
         documents:
           corpusStats.totalDocuments,
-
-        verifiedDocuments:
-          corpusStats
-            .verifiedDocuments,
-
-        categories:
-          corpusStats.categories,
       },
 
       timestamp:
@@ -1071,6 +1209,7 @@ app.get(
  */
 app.post(
   "/api/chat",
+  chatRateLimit,
   async (
     request,
     response

@@ -1,6 +1,9 @@
 "use strict";
 
 const assert = require("assert");
+
+// This suite sends many messages quickly; rate limiting is covered by deployment-readiness.test.js.
+process.env.CHAT_RATE_LIMIT_PER_MINUTE = "0";
 const { startServer } = require("../server");
 
 async function chat(baseUrl, message, history = [], conversationId = "context-regression-session") {

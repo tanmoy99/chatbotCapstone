@@ -19,7 +19,13 @@ The file contains the organisation details, approved contacts, official source U
 7. Run `npm run test:chatbot` before publishing the change.
 8. Commit the data change and its test results together.
 
-The Node server must be restarted after manual or admin edits to activate the saved knowledge. The admin dashboard displays stored and active counts; `npm run test:kb` validates the current data, and `/api/health` reports the loaded active corpus.
+Admin dashboard saves take effect immediately: the server rebuilds the knowledge base in memory after each save. If the running chatbot rejects the new data, the previous file is restored and the dashboard shows the error. Manual edits to the JSON file still need a server restart. `npm run test:kb` validates the current data, and `/api/health` reports the number of loaded documents.
+
+## Production knowledge file
+
+In the repository, `data/knowledge-base.json` is the seed content. On a live server, set `KNOWLEDGE_DATA_PATH` to a file outside the git checkout, for example `/var/lib/iim-chatbot/knowledge-base.json`. On first start the server copies the seed there. After that, admin edits go to that file, and backups go to a `backups/` folder beside it, so `git pull` never overwrites or conflicts with staff changes.
+
+When seed content changes in git after launch, those changes don't reach the live file automatically. Apply them through the admin dashboard, or merge them into the live file deliberately.
 
 ## Knowledge document fields
 
@@ -56,7 +62,7 @@ The Node server must be restarted after manual or admin edits to activate the sa
 
 ## Knowledge management interface
 
-The password-protected dashboard at `/admin/` supports document loading, editing, creation and deactivation. Set `ADMIN_PASSWORD` in the ignored `.env` file. Saves validate the document and create a backup in ignored `data/backups/`; restart the server to activate changes. Draft/publish controls and a full audit trail remain future work.
+The password-protected dashboard at `/admin/` supports document loading, editing, creation and deactivation. Set `ADMIN_PASSWORD` in the ignored `.env` file. Saves validate the document, create a backup in the ignored `backups/` folder next to the knowledge file, and go live without a restart. Draft/publish controls and a full audit trail remain future work.
 
 ## Local startup
 
