@@ -82,6 +82,33 @@
 
     notification:
       document.getElementById("notification"),
+
+    workspace:
+      document.querySelector(".workspace"),
+
+    viewKnowledge:
+      document.getElementById("view-knowledge"),
+
+    viewFeedback:
+      document.getElementById("view-feedback"),
+
+    feedbackWorkspace:
+      document.getElementById("feedback-workspace"),
+
+    feedbackSummary:
+      document.getElementById("feedback-summary"),
+
+    feedbackFilter:
+      document.getElementById("feedback-filter"),
+
+    feedbackRefresh:
+      document.getElementById("feedback-refresh"),
+
+    feedbackDownload:
+      document.getElementById("feedback-download"),
+
+    feedbackList:
+      document.getElementById("feedback-list"),
   };
 
   const state = {
@@ -89,6 +116,7 @@
     documents: [],
     selectedId: null,
     isNew: false,
+    feedback: [],
   };
 
   function today() {
@@ -160,6 +188,15 @@
     state.password = "";
     state.documents = [];
     state.selectedId = null;
+    state.feedback = [];
+    elements.feedbackList.replaceChildren();
+
+    elements.workspace.classList.remove("hidden");
+    elements.feedbackWorkspace.classList.add("hidden");
+    elements.viewKnowledge.classList.add("active");
+    elements.viewFeedback.classList.remove("active");
+    elements.viewKnowledge.setAttribute("aria-pressed", "true");
+    elements.viewFeedback.setAttribute("aria-pressed", "false");
 
     elements.password.value = "";
 
@@ -452,6 +489,160 @@
     renderRecords();
     hideEditor();
   }
+
+  /* ---------- Feedback view ---------- */
+
+  function showView(name) {
+    const feedback = name === "feedback";
+
+    elements.workspace.classList.toggle("hidden", feedback);
+    elements.feedbackWorkspace.classList.toggle("hidden", !feedback);
+    elements.viewKnowledge.classList.toggle("active", !feedback);
+    elements.viewFeedback.classList.toggle("active", feedback);
+    elements.viewKnowledge.setAttribute("aria-pressed", String(!feedback));
+    elements.viewFeedback.setAttribute("aria-pressed", String(feedback));
+
+    if (feedback) {
+      loadFeedback().catch((error) =>
+        showNotification(error.message, true)
+      );
+    }
+  }
+
+  function formatWhen(isoText) {
+    const date = new Date(isoText);
+
+    return Number.isNaN(date.getTime())
+      ? ""
+      : date.toLocaleString([], {
+          dateStyle: "medium",
+          timeStyle: "short",
+        });
+  }
+
+  function textBlock(className, label, value) {
+    const wrapper = document.createElement("div");
+    wrapper.className = className;
+
+    const heading = document.createElement("span");
+    heading.className = "feedback-label";
+    heading.textContent = label;
+
+    const body = document.createElement("p");
+    body.textContent = value || "—";
+
+    wrapper.appendChild(heading);
+    wrapper.appendChild(body);
+
+    return wrapper;
+  }
+
+  function renderFeedback() {
+    const filter = elements.feedbackFilter.value;
+    const entries = state.feedback.filter(
+      (entry) => filter === "all" || entry.rating === filter
+    );
+
+    elements.feedbackList.replaceChildren();
+
+    if (!entries.length) {
+      const empty = document.createElement("p");
+      empty.className = "feedback-empty";
+      empty.textContent =
+        filter === "down"
+          ? "No answers have been rated not helpful."
+          : "No ratings yet.";
+      elements.feedbackList.appendChild(empty);
+      return;
+    }
+
+    entries.forEach((entry) => {
+      const item = document.createElement("article");
+      item.className = `feedback-item ${entry.rating === "up" ? "good" : "bad"}`;
+
+      const meta = document.createElement("div");
+      meta.className = "feedback-meta";
+
+      const badge = document.createElement("span");
+      badge.className = "feedback-badge";
+      badge.textContent = entry.rating === "up" ? "Helpful" : "Not helpful";
+
+      const details = document.createElement("span");
+      details.textContent = [
+        formatWhen(entry.at),
+        entry.fallbackReason
+          ? `fallback: ${entry.fallbackReason}`
+          : entry.provider,
+        entry.embedded ? "embedded widget" : "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+      meta.appendChild(badge);
+      meta.appendChild(details);
+      item.appendChild(meta);
+      item.appendChild(textBlock("feedback-question", "Question", entry.question));
+      item.appendChild(textBlock("feedback-answer", "Answer", entry.answer));
+
+      if (Array.isArray(entry.sources) && entry.sources.length) {
+        item.appendChild(
+          textBlock("feedback-sources", "Sources", entry.sources.join(", "))
+        );
+      }
+
+      elements.feedbackList.appendChild(item);
+    });
+  }
+
+  async function loadFeedback() {
+    elements.feedbackSummary.textContent = "Loading feedback…";
+
+    const data = await apiRequest("/api/admin/feedback");
+    const summary = data.summary || { total: 0, up: 0, down: 0 };
+
+    state.feedback = Array.isArray(data.entries) ? data.entries : [];
+
+    const helpfulShare = summary.total
+      ? Math.round((summary.up / summary.total) * 100)
+      : 0;
+
+    elements.feedbackSummary.textContent = summary.total
+      ? `${summary.total} rated answers · ${summary.up} helpful · ${summary.down} not helpful (${helpfulShare}% helpful)`
+      : "No answers have been rated yet.";
+
+    renderFeedback();
+  }
+
+  async function downloadFeedbackCsv() {
+    const response = await fetch("/api/admin/feedback.csv", {
+      headers: { "x-admin-password": state.password },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed with status ${response.status}.`);
+    }
+
+    const url = URL.createObjectURL(await response.blob());
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `iim-chatbot-feedback-${today()}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  elements.viewKnowledge.addEventListener("click", () => showView("knowledge"));
+  elements.viewFeedback.addEventListener("click", () => showView("feedback"));
+  elements.feedbackFilter.addEventListener("change", renderFeedback);
+
+  elements.feedbackRefresh.addEventListener("click", () =>
+    loadFeedback().catch((error) => showNotification(error.message, true))
+  );
+
+  elements.feedbackDownload.addEventListener("click", () =>
+    downloadFeedbackCsv().catch((error) => showNotification(error.message, true))
+  );
 
   elements.loginForm.addEventListener(
     "submit",

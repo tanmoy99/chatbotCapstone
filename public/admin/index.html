@@ -75,6 +75,26 @@
       </div>
 
       <div class="topbar-actions">
+        <div class="view-switch" role="group" aria-label="Admin section">
+          <button
+            id="view-knowledge"
+            class="secondary-button active"
+            type="button"
+            aria-pressed="true"
+          >
+            Knowledge
+          </button>
+
+          <button
+            id="view-feedback"
+            class="secondary-button"
+            type="button"
+            aria-pressed="false"
+          >
+            Feedback
+          </button>
+        </div>
+
         <a
           href="/"
           class="secondary-button"
@@ -330,6 +350,65 @@
           a new knowledge record.
         </div>
       </section>
+    </main>
+
+    <main
+      id="feedback-workspace"
+      class="feedback-workspace hidden"
+    >
+      <div class="feedback-heading">
+        <div>
+          <p class="eyebrow">
+            ANSWER RATINGS
+          </p>
+
+          <h2>Visitor feedback</h2>
+
+          <p
+            id="feedback-summary"
+            class="feedback-summary"
+          >
+            Loading feedback…
+          </p>
+        </div>
+
+        <div class="feedback-actions">
+          <label class="feedback-filter">
+            <span>Show</span>
+
+            <select id="feedback-filter">
+              <option value="down">Not helpful only</option>
+              <option value="all">All ratings</option>
+              <option value="up">Helpful only</option>
+            </select>
+          </label>
+
+          <button
+            id="feedback-refresh"
+            class="secondary-button"
+            type="button"
+          >
+            Refresh
+          </button>
+
+          <button
+            id="feedback-download"
+            type="button"
+          >
+            Download CSV
+          </button>
+        </div>
+      </div>
+
+      <p class="feedback-note">
+        Each entry is a rated answer, saved with the question that produced it.
+        Emails and long numbers in questions are removed before saving.
+      </p>
+
+      <div
+        id="feedback-list"
+        class="feedback-list"
+      ></div>
     </main>
 
     <div

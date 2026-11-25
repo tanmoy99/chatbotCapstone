@@ -11,7 +11,8 @@
   <title>IIM AI Assistant</title>
 
   <!-- Bump the version whenever styles.css changes to avoid a stale cache. -->
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
+  <script src="embed-mode.js?v=1"></script>
 </head>
 
 <body>
@@ -261,7 +262,7 @@
               placeholder="Ask anything about IIM…"
               maxlength="2000"
               autocomplete="off"
-              aria-describedby="composer-hint"
+              aria-describedby="composer-hint privacy-note"
             ></textarea>
 
             <button type="submit" class="send-btn" aria-label="Send message">
@@ -275,6 +276,12 @@
         <p id="composer-hint" class="composer-footer">
           <span>Enter to send · Shift + Enter for a new line</span>
           <span class="powered-text">Grounded by RAG · approved IIM knowledge</span>
+        </p>
+
+        <p id="privacy-note" class="privacy-note">
+          Please don't share personal, payment or card details here.
+          If you rate an answer, the question and answer are saved to help IIM
+          improve the assistant. Privacy questions: dpo@iim-africa.org
         </p>
       </div>
     </section>
@@ -327,6 +334,6 @@
   <script src="knowledge-data.js?v=1"></script>
   <script src="knowledge.js?v=3"></script>
   <script src="engine.js?v=4"></script>
-  <script src="app.js?v=8"></script>
+  <script src="app.js?v=9"></script>
 </body>
 </html>

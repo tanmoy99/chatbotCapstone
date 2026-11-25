@@ -591,4 +591,6 @@ module.exports = function registerAdminApi(
       }
     }
   );
+
+  return { requireAdmin };
 };

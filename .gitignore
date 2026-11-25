@@ -9,3 +9,4 @@ data/backups/
 *.pem
 *.key
 data/knowledge-base.json.tmp
+data/feedback.jsonl

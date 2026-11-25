@@ -25,6 +25,7 @@ const {
   resolveConversationIntent,
 } = require("./query-intents");
 const registerAdminApi = require("./admin-api");
+const registerFeedbackApi = require("./feedback-api");
 
 const app = express();
 
@@ -129,6 +130,53 @@ const CHAT_RATE_LIMIT_PER_MINUTE = Number(
   process.env.CHAT_RATE_LIMIT_PER_MINUTE ||
     20
 );
+
+/*
+ * Answer ratings are stored beside the live knowledge file,
+ * so in production they also stay outside the git checkout.
+ */
+const FEEDBACK_DATA_PATH = process.env
+  .FEEDBACK_DATA_PATH
+  ? path.resolve(
+      process.env.FEEDBACK_DATA_PATH
+    )
+  : path.join(
+      path.dirname(KNOWLEDGE_DATA_PATH),
+      "feedback.jsonl"
+    );
+
+/*
+ * Sites allowed to show the chatbot through embed.js,
+ * for example "https://iim-africa.org https://www.iim-africa.org".
+ */
+const EMBED_ALLOWED_ORIGINS = String(
+  process.env.EMBED_ALLOWED_ORIGINS || ""
+)
+  .split(/[\s,]+/)
+  .filter(Boolean)
+  .map((origin) => {
+    try {
+      const parsed = new URL(origin);
+
+      if (!["http:", "https:"].includes(parsed.protocol)) {
+        throw new Error("unsupported protocol");
+      }
+
+      return parsed.origin;
+    } catch {
+      throw new Error(
+        `EMBED_ALLOWED_ORIGINS contains an invalid origin: ${origin}`
+      );
+    }
+  });
+
+/*
+ * Human handoff contact. WhatsApp is shown only when a number
+ * is configured (digits with country code, e.g. 2348083773640).
+ */
+const HANDOFF_WHATSAPP = String(
+  process.env.HANDOFF_WHATSAPP || ""
+).replace(/\D/g, "");
 
 function loadKnowledgeData() {
   try {
@@ -267,6 +315,10 @@ app.use(
         connectSrc: ["'self'"],
         objectSrc: ["'none'"],
         baseUri: ["'self'"],
+        frameAncestors: [
+          "'self'",
+          ...EMBED_ALLOWED_ORIGINS,
+        ],
 
         /*
          * Prevent localhost from being automatically
@@ -276,7 +328,36 @@ app.use(
           null,
       },
     },
+
+    /*
+     * X-Frame-Options cannot list other sites, so when
+     * embedding is allowed, frame-ancestors above is the
+     * only framing rule.
+     */
+    xFrameOptions:
+      EMBED_ALLOWED_ORIGINS.length
+        ? false
+        : { action: "sameorigin" },
   })
+);
+
+/*
+ * embed.js is loaded by other websites, so it must be
+ * fetchable cross-origin. Everything else stays same-origin.
+ */
+app.get(
+  "/embed.js",
+  (request, response, next) => {
+    response.set(
+      "Cross-Origin-Resource-Policy",
+      "cross-origin"
+    );
+    response.set(
+      "Cache-Control",
+      "public, max-age=3600"
+    );
+    next();
+  }
 );
 
 /*
@@ -292,61 +373,157 @@ app.use(
  * knowledge administration API.
  */
 
-registerAdminApi(app, {
+const { requireAdmin } = registerAdminApi(app, {
   knowledgePath: KNOWLEDGE_DATA_PATH,
   onKnowledgeChange: reloadKnowledgeBase,
 });
 
 /*
- * Per-client limit on chat messages. Each request can
+ * Per-client request limits. Each chat request can
  * occupy the local model for many seconds, so one client
  * must not be able to crowd everyone else out.
  */
-const chatRequestLog = new Map();
+function createRateLimiter(limitPerMinute, errorMessage) {
+  const requestLog = new Map();
 
-const chatLogCleanup = setInterval(() => {
-  const cutoff = Date.now() - 60 * 1000;
+  const cleanup = setInterval(() => {
+    const cutoff = Date.now() - 60 * 1000;
 
-  for (const [key, times] of chatRequestLog) {
-    if (!times.length || times[times.length - 1] < cutoff) {
-      chatRequestLog.delete(key);
+    for (const [key, times] of requestLog) {
+      if (!times.length || times[times.length - 1] < cutoff) {
+        requestLog.delete(key);
+      }
     }
+  }, 60 * 1000);
+
+  cleanup.unref();
+
+  return function rateLimit(request, response, next) {
+    if (!(limitPerMinute > 0)) {
+      return next();
+    }
+
+    const key =
+      request.ip ||
+      request.socket.remoteAddress ||
+      "unknown";
+    const now = Date.now();
+    const recent = (requestLog.get(key) || [])
+      .filter((time) => now - time < 60 * 1000);
+
+    if (recent.length >= limitPerMinute) {
+      const retryAfterSeconds = Math.ceil(
+        (recent[0] + 60 * 1000 - now) / 1000
+      );
+
+      requestLog.set(key, recent);
+
+      return response
+        .status(429)
+        .set("Retry-After", String(retryAfterSeconds))
+        .json({ error: errorMessage });
+    }
+
+    recent.push(now);
+    requestLog.set(key, recent);
+    next();
+  };
+}
+
+const chatRateLimit = createRateLimiter(
+  CHAT_RATE_LIMIT_PER_MINUTE,
+  "You're sending messages too quickly. Please wait a moment and try again."
+);
+
+const { rememberAnswer } = registerFeedbackApi(app, {
+  feedbackPath: FEEDBACK_DATA_PATH,
+  requireAdmin,
+  rateLimit: createRateLimiter(
+    CHAT_RATE_LIMIT_PER_MINUTE > 0
+      ? CHAT_RATE_LIMIT_PER_MINUTE * 2
+      : 0,
+    "Too many ratings. Please wait a moment and try again."
+  ),
+});
+
+/*
+ * Human handoff: offer a direct contact when the visitor
+ * asks for a person or the assistant could not answer.
+ */
+const HUMAN_REQUEST_PATTERN =
+  /\b(?:human|real person|a person|someone|staff member|representative|live agent|agent)\b/i;
+
+const NO_ANSWER_PATTERN =
+  /\bcouldn['’]t (?:confirm|find)\b|\bnot included in the approved\b/i;
+
+const HANDOFF_REASONS = new Set([
+  "no_reliable_knowledge",
+  "missing_guarantee_policy",
+]);
+
+function getHandoff(message, payload) {
+  const meta = payload.meta || {};
+  const requested =
+    HUMAN_REQUEST_PATTERN.test(message) &&
+    /\b(?:talk|speak|chat|contact|connect|reach|call|human|person)\b/i.test(message);
+  const unanswered =
+    HANDOFF_REASONS.has(meta.fallbackReason) ||
+    NO_ANSWER_PATTERN.test(String(payload.answer || ""));
+
+  if (!requested && !unanswered) {
+    return null;
   }
-}, 60 * 1000);
 
-chatLogCleanup.unref();
+  const contacts = (KB && KB.contacts) || {};
 
-function chatRateLimit(request, response, next) {
-  if (!(CHAT_RATE_LIMIT_PER_MINUTE > 0)) {
-    return next();
-  }
+  return {
+    reason: requested ? "requested" : "unanswered",
+    email:
+      (contacts.general && contacts.general.email) ||
+      "info@iim-africa.org",
+    whatsapp: HANDOFF_WHATSAPP || null,
+  };
+}
 
-  const key =
-    request.ip ||
-    request.socket.remoteAddress ||
-    "unknown";
-  const now = Date.now();
-  const recent = (chatRequestLog.get(key) || [])
-    .filter((time) => now - time < 60 * 1000);
+/*
+ * Give every chat answer an ID (for ratings) and, where
+ * useful, a handoff contact. Applied to all answer paths.
+ */
+function decorateChatAnswers(request, response, next) {
+  const sendJson = response.json.bind(response);
+  const message =
+    typeof (request.body || {}).message === "string"
+      ? request.body.message.trim()
+      : "";
 
-  if (recent.length >= CHAT_RATE_LIMIT_PER_MINUTE) {
-    const retryAfterSeconds = Math.ceil(
-      (recent[0] + 60 * 1000 - now) / 1000
-    );
+  response.json = (payload) => {
+    if (
+      response.statusCode === 200 &&
+      payload &&
+      typeof payload.answer === "string"
+    ) {
+      const meta = { ...(payload.meta || {}) };
+      const handoff = getHandoff(message, payload);
 
-    chatRequestLog.set(key, recent);
+      if (handoff) {
+        meta.handoff = handoff;
+      }
 
-    return response
-      .status(429)
-      .set("Retry-After", String(retryAfterSeconds))
-      .json({
-        error:
-          "You're sending messages too quickly. Please wait a moment and try again.",
-      });
-  }
+      payload = {
+        ...payload,
+        meta,
+        responseId: rememberAnswer({
+          question: message,
+          answer: payload.answer,
+          sources: payload.sources,
+          meta,
+        }),
+      };
+    }
 
-  recent.push(now);
-  chatRequestLog.set(key, recent);
+    return sendJson(payload);
+  };
+
   next();
 }
 
@@ -1210,6 +1387,7 @@ app.get(
 app.post(
   "/api/chat",
   chatRateLimit,
+  decorateChatAnswers,
   async (
     request,
     response
@@ -1472,9 +1650,6 @@ app.post(
 
           fallbackReason:
             "ollama_unavailable",
-
-          error:
-            error.message,
 
           responseTimeMs:
             Date.now() -

@@ -575,32 +575,81 @@
 
     if (
       meta &&
-      meta.escalate
+      meta.handoff &&
+      meta.handoff.email
     ) {
-      const escalationCard =
-        document.createElement("div");
-
-      escalationCard.className =
-        "escalation";
-
-      escalationCard.textContent =
-        "⚠ Enquiry logged for IIM follow-up.";
-
       const bubble =
         node.querySelector(".bubble");
 
       if (bubble) {
         bubble.appendChild(
-          escalationCard
+          buildHandoffCard(
+            meta.handoff,
+            meta.question
+          )
         );
       }
-
-      logEscalation(
-        meta.intentId
-      );
     }
 
     return node;
+  }
+
+  /*
+   * "Contact a human" card. Links open the visitor's own
+   * email app or WhatsApp with their question filled in;
+   * nothing is sent until they choose to send it.
+   */
+  function buildHandoffCard(handoff, question) {
+    const card = document.createElement("div");
+    card.className = "handoff";
+
+    const title = document.createElement("strong");
+    title.className = "handoff-title";
+    title.textContent =
+      handoff.reason === "requested"
+        ? "Talk to the IIM team"
+        : "Want a person to answer this?";
+
+    const text = document.createElement("p");
+    text.className = "handoff-text";
+    text.textContent =
+      "Contact IIM directly. Your question will be filled in for you.";
+
+    const actions = document.createElement("div");
+    actions.className = "handoff-actions";
+
+    const questionText = String(question || "").trim().slice(0, 1000);
+    const messageBody = questionText
+      ? `Hello IIM,\n\nI asked your website assistant:\n"${questionText}"\n\nCould someone help me with this?\n`
+      : "Hello IIM,\n\nCould someone help me with an enquiry?\n";
+
+    const email = document.createElement("a");
+    email.className = "handoff-button";
+    email.href =
+      `mailto:${encodeURIComponent(handoff.email)}` +
+      `?subject=${encodeURIComponent("Enquiry from the IIM website assistant")}` +
+      `&body=${encodeURIComponent(messageBody)}`;
+    email.textContent = `Email ${handoff.email}`;
+    actions.appendChild(email);
+
+    const whatsappNumber = String(handoff.whatsapp || "").replace(/\D/g, "");
+
+    if (whatsappNumber) {
+      const whatsapp = document.createElement("a");
+      whatsapp.className = "handoff-button whatsapp";
+      whatsapp.href =
+        `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messageBody)}`;
+      whatsapp.target = "_blank";
+      whatsapp.rel = "noopener noreferrer";
+      whatsapp.textContent = "Chat on WhatsApp";
+      actions.appendChild(whatsapp);
+    }
+
+    card.appendChild(title);
+    card.appendChild(text);
+    card.appendChild(actions);
+
+    return card;
   }
 
   /*
@@ -1156,6 +1205,14 @@
           meta.intentId;
       }
 
+      if (
+        meta &&
+        meta.responseId
+      ) {
+        feedback.dataset.responseId =
+          meta.responseId;
+      }
+
       metaRow.appendChild(
         feedback
       );
@@ -1199,6 +1256,40 @@
     otherButton.disabled = true;
 
     updateFeedbackStats();
+
+    /*
+     * Answers from the server carry an ID; built-in browser
+     * replies do not and are only counted locally.
+     */
+    if (feedback.dataset.responseId) {
+      sendFeedback(
+        feedback.dataset.responseId,
+        good ? "up" : "down"
+      );
+    }
+  }
+
+  async function sendFeedback(responseId, rating) {
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          responseId,
+          rating,
+          embedded:
+            document.documentElement.classList.contains("embed"),
+        }),
+      });
+
+      if (!response.ok && response.status !== 409) {
+        console.warn("Feedback was not saved:", response.status);
+      }
+    } catch (error) {
+      console.warn("Feedback could not be sent:", error);
+    }
   }
 
   function updateFeedbackStats() {
@@ -1214,35 +1305,6 @@
       total
         ? `Rated: ${state.feedback.up} 👍 / ${state.feedback.down} 👎`
         : "No responses rated yet.";
-  }
-
-  function logEscalation(intentId) {
-    try {
-      const escalations =
-        JSON.parse(
-          localStorage.getItem(
-            "iim_escalations"
-          ) || "[]"
-        );
-
-      escalations.push({
-        intent: intentId,
-        at:
-          new Date().toISOString(),
-      });
-
-      localStorage.setItem(
-        "iim_escalations",
-        JSON.stringify(
-          escalations
-        )
-      );
-    } catch (error) {
-      console.warn(
-        "Escalation could not be saved:",
-        error
-      );
-    }
   }
 
   function normalizeConversationText(text) {
@@ -1460,6 +1522,9 @@ if (isWellbeingQuestion) {
       botSay(result.answer, result.quickReplies, {
         intentId: "backend-chat",
         sources: result.sources,
+        responseId: result.responseId,
+        handoff: result.handoff,
+        question: text,
       });
       rememberMessage("assistant", result.answer);
       return;
@@ -1480,8 +1545,20 @@ if (isWellbeingQuestion) {
         intentId:
           response.intentId,
 
-        escalate:
-          response.escalate,
+        handoff:
+          response.escalate
+            ? {
+                reason: "requested",
+                email:
+                  (KB.contacts &&
+                    KB.contacts.general &&
+                    KB.contacts.general.email) ||
+                  "info@iim-africa.org",
+                whatsapp: null,
+              }
+            : null,
+
+        question: text,
 
         sources:
           response.sources,
@@ -1565,6 +1642,15 @@ async function requestChat(
         ? data.quickReplies
         : [],
 
+    responseId:
+      typeof data.responseId === "string"
+        ? data.responseId
+        : null,
+
+    handoff:
+      data.meta && data.meta.handoff
+        ? data.meta.handoff
+        : null,
   };
 }
 

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "test": "npm run test:kb && npm run test:rag-pmiim && npm run test:rendering-refund && npm run test:rag-intents && npm run test:conversation-context && npm run test:fallback && npm run test:deployment",
+    "test": "npm run test:kb && npm run test:rag-pmiim && npm run test:rendering-refund && npm run test:rag-intents && npm run test:conversation-context && npm run test:fallback && npm run test:deployment && npm run test:features",
     "test:chatbot": "node scripts/run-tests.js",
     "test:rag-pmiim": "node tests/rag-pmiim.test.js",
     "test:rendering-refund": "node tests/rendering-and-refund.test.js",
@@ -14,7 +14,8 @@
     "test:conversation-context": "node tests/conversation-context.test.js",
     "test:kb": "node scripts/validate-kb.js",
     "test:fallback": "node tests/fallback.test.js",
-    "test:deployment": "node tests/deployment-readiness.test.js"
+    "test:deployment": "node tests/deployment-readiness.test.js",
+    "test:features": "node tests/features.test.js"
   },
   "repository": {
     "type": "git",
