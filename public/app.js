@@ -2121,7 +2121,7 @@ async function checkSystemStatus() {
   updateSystemStatus(
     "checking",
     "Checking AI...",
-    "Checking the backend, Ollama model and knowledge base"
+    "Checking whether the assistant's AI is available"
   );
 
   try {
@@ -2148,11 +2148,6 @@ async function checkSystemStatus() {
       data.ollama && data.ollama.connected
     );
 
-    const model =
-      data.ollama && data.ollama.configuredModel
-        ? data.ollama.configuredModel
-        : "Unknown model";
-
     const knowledgeLoaded = Boolean(
       data.knowledgeBase && data.knowledgeBase.loaded
     );
@@ -2168,15 +2163,13 @@ async function checkSystemStatus() {
       ollamaConnected &&
       knowledgeLoaded
     ) {
-     updateSystemStatus(
-  "connected",
-  "Ollama available",
-  "Backend connected • Ollama service available • " +
-    "Configured model: " +
-    model +
-    " • Knowledge documents: " +
-    documentCount
-);
+      updateSystemStatus(
+        "connected",
+        "AI online",
+        "AI answers are available, drawn from " +
+          documentCount +
+          " approved IIM knowledge records."
+      );
       return;
     }
 
@@ -2187,13 +2180,9 @@ async function checkSystemStatus() {
     ) {
       updateSystemStatus(
         "fallback",
-        "Offline fallback",
-        "Backend connected • Ollama unavailable • " +
-          "Configured model: " +
-          model +
-          " • Knowledge documents: " +
-          documentCount +
-          " • Rule-based fallback available"
+        "Basic mode",
+        "The AI is offline right now, so answers come straight from the " +
+          "approved IIM knowledge and may be shorter."
       );
 
       return;
@@ -2202,21 +2191,17 @@ async function checkSystemStatus() {
     updateSystemStatus(
       "error",
       "Limited mode",
-      "Backend: " +
-        (serverConnected ? "connected" : "unavailable") +
-        " • Ollama: " +
-        (ollamaConnected ? "connected" : "unavailable") +
-        " • Knowledge base: " +
-        (knowledgeLoaded ? "loaded" : "unavailable")
+      "Some parts of the assistant are unavailable. " +
+        "You can still contact IIM at info@iim-africa.org."
     );
   } catch (error) {
     console.error("System health check failed:", error);
 
     updateSystemStatus(
       "error",
-      "Connection error",
-      "The chatbot could not reach /api/health. " +
-        "Confirm that the Node.js server is running at " + window.location.origin + "."
+      "Offline",
+      "The assistant can't reach its server right now. Please try again " +
+        "shortly, or contact IIM at info@iim-africa.org."
     );
   }
 }
