@@ -1,14 +1,14 @@
 {
-  "runAt": "2026-11-25T02:58:35.414Z",
-  "passed": 60,
+  "runAt": "2026-11-25T03:41:40.600Z",
+  "passed": 71,
   "total": 75,
-  "accuracy": 80,
+  "accuracy": 94.66666666666667,
   "results": [
     {
       "id": "about-iim-overview",
       "question": "What is IIM?",
       "passed": true,
-      "answer": "IIM stands for the Institute of Information Management, an international professional membership-driven institute focused on data and information management and related disciplines.",
+      "answer": "IIM stands for Institute of Information Management, an international professional, membership-driven institute focused on data and information management and related disciplines.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -27,39 +27,28 @@
     {
       "id": "about-iim-mission",
       "question": "What is IIM's mission?",
-      "passed": false,
-      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "passed": true,
+      "answer": "IIM's mission is to help information-management professionals remain current with challenges involving information assets, technology and compliance while maintaining standards in certification, competence, research and member value.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "mission"
-          ],
-          [
-            "information assets",
-            "technology",
-            "compliance"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "about_iim_mission_vision"
-        ]
+        "passed": true,
+        "missingSources": []
       },
-      "fallbackPassed": false,
-      "actualFallback": true
+      "fallbackPassed": true,
+      "actualFallback": false
     },
     {
       "id": "about-iim-vision",
       "question": "What is IIM's vision for the future?",
       "passed": true,
-      "answer": "IIM's vision, as stated in its verified information, is to be recognised as a leading information-management institution in Africa and to influence professional and educational standards in data and information management.",
+      "answer": "IIM's Vision:\n\nIIM describes its vision as \"to be recognised as a leading information-management institution in Africa and to influence professional and educational standards in data and information management.\"",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -79,7 +68,7 @@
       "id": "iim-registration",
       "question": "Is IIM a registered and legitimate organisation?",
       "passed": true,
-      "answer": "Yes, according to IIM's official website, IIM is: * A Colorado nonprofit corporation (Entity ID 20181786160)\n* A registered professional body in Nigeria with CAC registration RC 1125723\n* Licensed by the Nigeria Data Protection Commission (NDPC) to conduct examinations and certify data-protection professionals under the Nigeria Data Protection Act 2023. You can contact IIM for further information or clarification on this matter at: * General inquiries: info@iim-africa.org\n* Membership-related queries: membership@iim-africa.org\n* Certification-related queries: certification@iim-africa.org\n* Training-related queries: training@iim-africa.org",
+      "answer": "Yes, according to IIM's official website, IIM is:\n\n* A Colorado nonprofit corporation (Entity ID 20181786160)\n* A registered professional body in Nigeria with CAC registration RC 1125723\n* Licensed by the Nigeria Data Protection Commission (NDPC) to conduct examinations and certify data-protection professionals under the Nigeria Data Protection Act 2023.\n\nThese statements are verified on IIM's official website, which is considered a reliable source of information.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -99,7 +88,7 @@
       "id": "iim-global-presence",
       "question": "In which countries does IIM operate?",
       "passed": true,
-      "answer": "IIM operates in the following countries: * Australia\n* Canada\n* Ghana\n* India\n* Nigeria\n* South Africa\n* Switzerland\n* UK (United Kingdom)",
+      "answer": "IIM operates in the following countries:\n\n* Australia\n* Canada\n* Ghana\n* India\n* Nigeria\n* South Africa\n* Switzerland\n* UK (United Kingdom)",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -159,7 +148,7 @@
       "id": "graduate-membership-eligibility",
       "question": "What are the requirements for Graduate Membership?",
       "passed": true,
-      "answer": "To be eligible for Graduate Membership, you must: 1. Be a recent graduate.\n2. Complete IIM membership pre-induction training before induction. Please note that these details can be found in Nigeria Membership Grade Eligibility. If you have any further questions or need assistance with the application process, you can contact IIM's Membership department at membership@iim-africa.org for more information.",
+      "answer": "Graduate Member (GMIIM): Graduate Member is for recent graduates and the site says candidates should complete IIM membership pre-induction training before induction. Applications are subject to IIM approval. To check your eligibility or apply, contact membership@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -179,7 +168,7 @@
       "id": "associate-membership-eligibility",
       "question": "What are the requirements for Associate Membership?",
       "passed": true,
-      "answer": "**Associate Member Requirements** According to IIM's verified information, the eligibility criteria for an Associate Member in Nigeria is as follows: * Qualification/experience or prescribed upgrade routes\n* This grade is considered an early-career grade. Please note that these requirements are based on the approved knowledge and may be subject to change. For the most up-to-date information, I recommend contacting IIM's Membership department at membership@iim-africa.org.",
+      "answer": "Associate Member (AMIIM): Associate Member is an early-career grade with qualification/experience or prescribed upgrade routes. Applications are subject to IIM approval. To check your eligibility or apply, contact membership@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -218,18 +207,11 @@
     {
       "id": "senior-professional-eligibility",
       "question": "What are the requirements for Senior Professional Membership?",
-      "passed": false,
-      "answer": "Professional Member (PMIIM) eligibility can be met through degree, HND or OND plus relevant experience; a recognised IIM professional or master certification; or another qualification approved by the Membership Committee. IIM must assess and approve each application.",
+      "passed": true,
+      "answer": "Senior Professional Member (SPMIIM): Senior Professional Member is for senior professionals with supervisory responsibility, relevant qualifications and substantial post-graduation experience. Applications are subject to IIM approval. To check your eligibility or apply, contact membership@iim-africa.org.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "senior"
-          ],
-          [
-            "supervisory"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -245,35 +227,19 @@
     {
       "id": "fellow-membership-eligibility",
       "question": "How do I become an IIM Fellow?",
-      "passed": false,
-      "answer": "To become an IIM Fellow, you need to progress through the following membership grades: 1. Student Member (STIIM)\n2. Graduate Member (GMIIM)\n3. Associate Member (AMIIM)\n4. Professional Member (PMIIM)\n5. Senior Professional Member (SPMIIM) Once you have achieved the Professional Member grade, you can then progress to become a Fellow Member (FIIM).",
+      "passed": true,
+      "answer": "Fellow Member (FIIM): Fellow Member is IIM's senior grade based on eminence, authority and/or seniority; the page commonly cites about 15 years of IM/IT specialist experience and committee/council approval. Applications are subject to IIM approval. To check your eligibility or apply, contact membership@iim-africa.org.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "15 years",
-            "fifteen years"
-          ],
-          [
-            "committee",
-            "council"
-          ],
-          [
-            "eminence",
-            "authority",
-            "seniority"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "ng_membership_grade_eligibility"
-        ]
+        "passed": true,
+        "missingSources": []
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -282,7 +248,7 @@
       "id": "corporate-membership-eligibility",
       "question": "How can my company obtain Corporate Membership?",
       "passed": true,
-      "answer": "To obtain Corporate Membership, your organization should: 1. Have at least five employees.\n2. Provide supporting corporate details. For more information or to submit an application, please contact IIM's Membership department at membership@iim-africa.org.",
+      "answer": "To obtain Corporate Membership, your organization must meet the following requirements:\n\n* Have at least five employees;\n* Provide supporting corporate details; and\n* Submit a membership application to IIM.\n\nYou can start by contacting IIM's Membership department for more information and guidance on the application process. You can reach them via email at membership@iim-africa.org or visit their official website for more details.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -361,30 +327,11 @@
     {
       "id": "corporate-membership-fees",
       "question": "What are the Corporate Membership fees?",
-      "passed": false,
-      "answer": "According to Title: Nigeria Membership Categories and Grades, there is no specific information provided about Corporate Membership fees in the approved IIM knowledge. However, it does state that Corporate Member uses CORMIIM. If you would like to know more about Corporate Membership or have any other questions, please feel free to ask, and I'll do my best to assist you.",
+      "passed": true,
+      "answer": "For Nigeria, IIM's Corporate Member (CORMIIM) fees are: registration USD 100; induction USD 237; annual subscription USD 245. These are the amounts on IIM's official Grades page as of 13 August 2026. Membership payments are non-refundable, and fees can change, so confirm the current amount with membership@iim-africa.org before paying.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "USD 100",
-            "100 USD",
-            "$100",
-            "100 US dollars"
-          ],
-          [
-            "USD 237",
-            "237 USD",
-            "$237",
-            "237 US dollars"
-          ],
-          [
-            "USD 245",
-            "245 USD",
-            "$245",
-            "245 US dollars"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -401,7 +348,7 @@
       "id": "membership-benefits",
       "question": "What benefits do IIM members receive?",
       "passed": true,
-      "answer": "IIM Membership Benefits As an IIM member, you can enjoy the following benefits: * Participation in regular, general and special meetings for members in good standing\n* Receiving meeting notices and programme information\n* Eligibility for relevant governance/election participation subject to membership rules\n* Special consideration for seminars, conferences and workshops\n* Access to IIM information resources\n* Professional development opportunities\n* Networking opportunities\n* Recognition opportunities For more information on these benefits or to contact the relevant department, please visit our official website or reach out to: * General inquiries: info@iim-africa.org\n* Membership-related queries: membership@iim-africa.org\n* Certification and training-related queries: certification@iim-africa.org, training@iim-africa.org",
+      "answer": "IIM membership benefits include:\n\n* Participation in regular, general and special meetings for members in good standing\n* Receiving meeting notices and programme information\n* Eligibility for relevant governance/election participation subject to membership rules\n* Special consideration for seminars, conferences and workshops\n* Access to IIM information resources\n* Professional development opportunities\n* Networking opportunities\n* Recognition opportunities",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -421,7 +368,7 @@
       "id": "membership-upgrade",
       "question": "How can I upgrade my IIM membership grade?",
       "passed": true,
-      "answer": "Upgrading Your IIM Membership Grade To upgrade your IIM membership grade, follow these steps: 1. **Check your eligibility**: Review the Nigeria Membership Grade Eligibility information to ensure you meet the requirements for your desired membership grade.\n2. **Complete any required training or activities**: If necessary, complete continuing professional development and professional activities towards a membership upgrade, such as courses/conferences, publications, teaching/tutoring, examination work, relevant projects/consultancy, or passing an IIM membership-upgrade examination.\n3. **Pay your current subscription**: Ensure you have paid your current subscription before submitting an upgrade application.\n4. **Submit an upgrade application**: Use the approved contact information to reach out to the Membership department at membership@iim-africa.org and submit your upgrade application.\n5. **Wait for review and approval**: Your application will be reviewed by the Membership Committee, and if approved, it will be ratified by the Governing Council. Please note that the fee for upgrading your membership grade is currently NGN 30,000 or USD 150 (as of August 13, 2026), but this information may be subject to change.",
+      "answer": "Upgrading Your IIM Membership Grade\n\nTo upgrade your IIM membership grade, follow these steps:\n\n1. **Check your eligibility**: Review Nigeria Membership Grade Eligibility to determine which membership grade you are eligible for based on your qualifications, experience, and other factors.\n2. **Complete the required activities**: Use continuing professional development and professional activities towards a membership upgrade, such as courses/conferences, publications, teaching/tutoring, examination work, relevant projects/consultancy, or passing an IIM membership-upgrade examination.\n3. **Pay the upgrade fee**: The current upgrade fee is NGN 30,000 or USD 150. Please note that this fee may be subject to change.\n4. **Submit your application**: Before submitting your application, ensure you have paid your current subscription.\n5. **Follow up with IIM**: If you need assistance or have questions about the upgrade process, contact IIM's Membership department at membership@iim-africa.org.\n\nPlease note that Fellow upgrades require Membership Committee recommendation and Governing Council ratification.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -441,7 +388,7 @@
       "id": "membership-payment-method",
       "question": "How can I pay my IIM membership fee?",
       "passed": true,
-      "answer": "To pay your IIM membership fee, you can follow these steps: 1. Visit IIM's official website and navigate to the Grades page.\n2. Check the Nigeria membership fees listed on this page for the most up-to-date information.\n3. Once you have confirmed the correct fees, proceed with payment. Please note that membership payments are non-refundable. You can contact IIM's Membership department at membership@iim-africa.org for any questions or concerns regarding your membership fee. Alternatively, you can also reach out to IIM's General department at info@iim-africa.org for general inquiries about membership fees and payment procedures.",
+      "answer": "To pay your IIM membership fee, you can contact the Membership department at membership@iim-africa.org for assistance with payment options and any other related queries. Please note that membership payments are non-refundable.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -481,7 +428,7 @@
       "id": "certification-process",
       "question": "How do I get an IIM certification?",
       "passed": true,
-      "answer": "To get an IIM certification, follow these steps: 1. **Attend pre-certification training**: You can attend online or classroom training before taking the examination, unless you have an exemption.\n2. **Review and submit your application**: Applications and supporting credentials are reviewed before eligibility for the examination is approved.\n3. **Meet IIM criteria**: Your education, professional experience, and portfolio evidence may be considered in exemption or assessment pathways if you meet IIM's criteria.\n4. **Take the certification examination**: Certification examinations are open to registered members and non-members. For more information on application processing fees, refund terms, and other details, please contact: * General inquiries: info@iim-africa.org\n* Membership-related queries: membership@iim-africa.org\n* Certification-related questions: certification@iim-africa.org\n* Training-related information: training@iim-africa.org",
+      "answer": "To get an IIM certification, follow these steps:\n\n1. **Pre-certification Training**: Attend a pre-certification training session, either online or classroom, unless you have an exemption.\n2. **Application and Review**: Submit your application and supporting credentials for review by IIM.\n3. **Exemption or Assessment Pathways**: If you meet the criteria, education and professional experience/portfolio evidence may be considered in exemption or assessment pathways.\n4. **Certification Examination**: Take the certification examination after your eligibility has been approved.\n\nNote: The current application-processing fee is USD 16 (dynamic amount). Exam-fee refunds may apply under stated cancellation conditions with an administration deduction.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -501,7 +448,7 @@
       "id": "certification-application-fee",
       "question": "Is there an application processing fee for certification?",
       "passed": true,
-      "answer": "Yes, according to there is a non-refundable USD 16 application-processing fee for certification, as displayed on IIM's general certification page when reviewed on 13 August 2026. However, exact current refund terms should be confirmed before quoting them. You can contact IIM's Certification department at certification@iim-africa.org to confirm the current refund terms and any other information related to the application processing fee.",
+      "answer": "Yes, there is a non-refundable USD 16 application-processing fee for certification, as displayed on IIM's general certification page when reviewed on 13 August 2026. However, exact current refund terms should be confirmed before quoting them, as these may apply only under stated cancellation conditions and with an administration deduction.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -520,25 +467,19 @@
     {
       "id": "cdpo-purpose",
       "question": "What is the IIM CDPO certification for?",
-      "passed": false,
-      "answer": "The IIM CDPO (Chief Data Protection Officer) certification is designed to verify an individual's eligibility and competence in data protection, compliance, or information security roles.",
+      "passed": true,
+      "answer": "The IIM Certified Data Protection Officer (CDPO) certification is designed to validate competence in data protection and privacy, including compliance, governance, data protection impact assessments (DPIAs), breach/risk management, and organisational compliance support.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "privacy"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "cdpo_overview"
-        ]
+        "passed": true,
+        "missingSources": []
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -567,7 +508,7 @@
       "id": "cdpo-exam-format",
       "question": "How many questions are in the CDPO exam, how long is it, and what is the pass mark?",
       "passed": true,
-      "answer": "Here's the answer to your question: The CDPO examination consists of 60 questions that need to be completed within a time frame of 150 minutes. To pass the exam, you need to achieve a score of at least 70%.",
+      "answer": "Here's the answer to your question:\n\nThe CDPO examination consists of 60 questions that need to be completed within a time frame of 150 minutes. To pass the exam, you need to achieve a passing requirement of at least 70%.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -586,31 +527,19 @@
     {
       "id": "cdpo-remote-exam",
       "question": "Can I take the CDPO examination remotely?",
-      "passed": false,
-      "answer": "CDPO is intended for people entering through one of the listed eligibility routes: at least two years of experience in data protection, compliance or information security; completion of IIM-accredited DPO training; or a relevant IIM-recognised professional certification. IIM should confirm an individual candidate's eligibility and any exemption.",
+      "passed": true,
+      "answer": "Yes, CDPO examinations are available through secure remote proctoring worldwide. This means that you can take the CDPO examination from anywhere in the world with a stable internet connection and a suitable device, as long as you have access to a secure remote proctoring environment.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "remote proctoring",
-            "remotely proctored",
-            "remote"
-          ],
-          [
-            "worldwide",
-            "secure"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "cdpo_process_exam"
-        ]
+        "passed": true,
+        "missingSources": []
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -644,7 +573,7 @@
       "id": "cdpo-renewal-timing",
       "question": "When should I apply to renew my CDPO certificate?",
       "passed": true,
-      "answer": "To renew your CDPO certificate, you can apply at least 30 days before its expiry date. The application window typically opens 60 days before expiry. Please note that these details are subject to change and may be updated by IIM. For the most recent information, we recommend checking with IIM's Certification department directly at certification@iim-africa.org.",
+      "answer": "To renew your CDPO certificate, you can apply at least 30 days before its expiry date. The application window typically opens 60 days before expiry.\n\nPlease note that applications may be reviewed within five working days and CPD evidence may be audited as part of the renewal process.\n\nYou can submit any appeals related to the renewal process in writing to certification@iim-africa.org within 14 days of notification.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -664,7 +593,7 @@
       "id": "cdpo-renewal-documents",
       "question": "What documents are required to renew a CDPO certificate?",
       "passed": true,
-      "answer": "To renew a CDPO certificate, you will need to provide the following documents: * CPD evidence/log\n* The re-certification application\n* Valid identification\n* Professional conduct/compliance declaration\n* Proof of the applicable fee (currently NGN 50,000 for an IIM Accredited Member and NGN 70,000 for a non-IIM member) Please note that these documents are subject to change, and you should check with the certification@iim-africa.org email address for any updates or additional requirements.",
+      "answer": "To renew a CDPO certificate, you will need to provide the following documents:\n\n* CPD evidence/log\n* The re-certification application\n* Valid identification\n* Professional conduct/compliance declaration\n* Proof of the applicable fee (currently NGN 50,000 for an IIM Accredited Member and NGN 70,000 for a non-IIM member)\n\nPlease note that these documents are subject to review within five working days, and CPD evidence may be audited.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -684,7 +613,7 @@
       "id": "cpd-points-required",
       "question": "How many CPD points do I need each year?",
       "passed": true,
-      "answer": "According to the Nigeria CPD page, members are expected to make an annual CPD declaration and list a minimum of 20 CPD points each year.",
+      "answer": "According to the Nigeria Data Protection Commission page, members are expected to make an annual CPD declaration and list a minimum of 20 CPD points each year.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -704,7 +633,7 @@
       "id": "cpd-activities",
       "question": "What activities count towards IIM CPD points?",
       "passed": true,
-      "answer": "To earn IIM Continuing Professional Development (CPD) points, you can participate in the following activities: * Approved webinars/workshops\n* Conferences/seminars\n* Relevant training\n* Publications/research\n* Professional speaking/facilitation\n* Participation in IIM committees, projects or working groups",
+      "answer": "To earn IIM Continuing Professional Development (CPD) points, you can participate in a variety of activities, including:\n\n* Approved webinars/workshops\n* Conferences/seminars\n* Relevant training\n* Publications/research\n* Professional speaking/facilitation\n* Participation in IIM committees, projects or working groups\n\nThese are the examples listed on the Nigeria CPD page as eligible for earning CPD points.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -723,19 +652,11 @@
     {
       "id": "cdpo-maintenance-fees",
       "question": "What are the CDPO certificate maintenance fees for members and non-members?",
-      "passed": false,
-      "answer": "According to the CDPO certificate maintenance fees are as follows: * For IIM Accredited Members: NGN 50,000\n* For Non-IIM Members: NGN 70,000",
+      "passed": true,
+      "answer": "The CDPO re-certification SOP states that:\n\n- For an IIM Accredited Member, the maintenance fee is NGN 50,000.\n- For a non-IIM member, the maintenance fee is NGN 70,000.\n\nPlease note that these fees are dynamic and may have changed since the information was verified on 13 August 2026.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "dynamic",
-            "current",
-            "confirm",
-            "may change",
-            "subject to change"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -792,7 +713,7 @@
       "id": "missed-cpd-requirement",
       "question": "What happens if I do not get the required CPD points?",
       "passed": false,
-      "answer": "If you do not meet the minimum of 20 CPD points, you will need to make a new annual CPD declaration and complete any outstanding points within a specified timeframe. Unfortunately, the exact details on what happens if you don't meet the required CPD points are not available in the approved knowledge. However, I can suggest contacting the IIM Membership department at membership@iim-africa.org for further guidance and support.",
+      "answer": "If you do not meet the minimum of 20 CPD points per year, it is unclear what specific consequences or actions would be taken according to the provided information. The Nigeria CPD page does not specify any penalties for failing to meet the required number of CPD points. However, it is recommended that you contact IIM's Membership department at membership@iim-africa.org for further guidance and clarification on this matter.",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [
@@ -819,7 +740,7 @@
       "id": "certificate-verification",
       "question": "How can an employer verify my IIM certificate or digital badge?",
       "passed": false,
-      "answer": "To verify your IIM certificate or digital badge, you should contact IIM's official verification channels. You can reach out to IIM through their General Contact Information at info@iim-africa.org. They will be able to guide you on the necessary steps to verify your certification status.",
+      "answer": "To verify your IIM certificate or digital badge, you should contact IIM's official verification channels. You can reach out to IIM's Certification department at certification@iim-africa.org for assistance with verifying your certification status.",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [
@@ -844,7 +765,7 @@
       "id": "expired-digital-badge",
       "question": "Can I keep using my digital badge after my certification expires?",
       "passed": true,
-      "answer": "No, you should not continue to use your certification-related digital badge after it expires. According to the verified information from IIM, certification-related badges should not be used after expiry.",
+      "answer": "No, you should not continue to use your digital badge after your certification has expired. According to verified information from IIM, certification-related badges should not continue to be used after expiry.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -883,35 +804,19 @@
     {
       "id": "ato-purpose",
       "question": "What is an IIM Accredited Training Organisation?",
-      "passed": false,
-      "answer": "IIM's training and certification pages list these subject areas:\n\n- Archiving and Preservation\n- Archives Management\n- Database Management\n- Document Management\n- Geographic Information Systems\n- Health Information Management\n- Information Security\n- Knowledge Management\n- Library Management\n- Records/Information Management\n- Related data/privacy specialisations\n\nThese are subject areas; certifications and membership grades are separate. Confirm currently available courses with training@iim-africa.org.",
+      "passed": true,
+      "answer": "An IIM-accredited training organisation is a provider that has been accredited by the Institute of Information Management (IIM) against specific criteria covering trainer competence, course content, training methods, facilities or online platforms, quality assurance, data-protection compliance, ethics, reporting and continuous improvement. These organisations may provide IIM-aligned training and Continuing Professional Development (CPD) support.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "accredited",
-            "training provider"
-          ],
-          [
-            "trainer competence",
-            "course content"
-          ],
-          [
-            "quality assurance",
-            "data-protection compliance",
-            "data protection compliance"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "ato_overview"
-        ]
+        "passed": true,
+        "missingSources": []
       },
       "fallbackPassed": true,
       "actualFallback": false
@@ -920,7 +825,7 @@
       "id": "current-training-provider",
       "question": "How do I find a currently accredited IIM training provider?",
       "passed": true,
-      "answer": "To find a currently accredited IIM training provider, you can: 1. Visit IIM's live accredited-provider page.\n2. Alternatively, contact IIM's Training Department for assistance. For more information or to get in touch with the Training Department, you can email them at: training@iim-africa.org",
+      "answer": "To find a currently accredited IIM training provider, you can:\n\n1. Visit IIM's live accredited-provider page.\n2. Contact IIM's Training Department at training@iim-africa.org for assistance.\n\nPlease note that the list of accredited providers is subject to change and may not be comprehensive or up-to-date in this chat.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -940,7 +845,7 @@
       "id": "training-dates-pricing",
       "question": "When is the next IIM training course and how much does it cost?",
       "passed": false,
-      "answer": "I don't have information on upcoming IIM training courses or their costs, as this information is not contained in the approved knowledge provided. However, I can direct you to the relevant contact for more information: * For Training-related inquiries: You may want to reach out to the Training department at training@iim-africa.org",
+      "answer": "I'm unable to provide information on upcoming training courses or their costs as this information is not available in the provided approved knowledge.\n\nHowever, you can contact IIM's Training department at training@iim-africa.org for more information on upcoming training courses and their associated costs.",
       "requiredCheck": {
         "passed": false,
         "failedGroups": [
@@ -971,7 +876,7 @@
       "id": "publications-list",
       "question": "What journals and publications does IIM produce?",
       "passed": true,
-      "answer": "IIM produces the following journals and publications: * The IIM Journal for Data and Information Management (IIM-JDIM)\n* IM World Magazine\n* RIM Africa Journal",
+      "answer": "IIM produces the following journals and publications:\n\n* The IIM Journal for Data and Information Management (IIM-JDIM)\n* IM World Magazine\n* RIM Africa Journal",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -991,7 +896,7 @@
       "id": "latest-publication",
       "question": "Where can I find the latest IIM journal issue?",
       "passed": true,
-      "answer": "To find the latest issue of the IIM Journal for Data and Information Management (IIM-JDIM), please visit the official IIM website and direct yourself to the \"Current Publications\" page, as the information may change over time. You can contact IIM's General Information department at info@iim-africa.org for assistance if needed.",
+      "answer": "To find the latest issue of the IIM Journal for Data and Information Management (IIM-JDIM), please visit the official IIM website and direct yourself to the Current Publications page, as the information may change over time.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1011,7 +916,7 @@
       "id": "consultancy-services",
       "question": "What consultancy services does IIM provide to organisations?",
       "passed": true,
-      "answer": "IIM provides the following consultancy services to organisations: • Policy and procedure development\n• Programme support and management\n• Records management and retention-schedule appraisal\n• Business-process modelling\n• Information strategy/governance\n• Consultancy for government and private organisations\n• Certification programmes\n• Awareness/change-management support",
+      "answer": "IIM provides the following consultancy services to organisations:\n\n• Policy and procedure development\n• Programme support and management\n• Records management and retention-schedule appraisal\n• Business-process modelling\n• Information strategy/governance\n• Consultancy for government and private organisations\n• Certification programmes\n• Awareness/change-management support",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1031,7 +936,7 @@
       "id": "privacy-data-collection",
       "question": "What personal information does IIM collect and does it sell my data?",
       "passed": true,
-      "answer": "IIM collects the following types of personal information: * Identity/contact details\n* Membership information\n* Payment details\n* Qualification/exam records\n* MCPD (if applicable)\n* Employment information\n* Query/complaint details\n* Event/training media details\n* Potentially biometric data (through membership applications, examination registration, events/training, customer service, and some third-party sources) IIM does not sell personal information. According to its privacy policy, it only shares personal information with relevant service providers, employers, regulators, and legal authorities in accordance with the stated purposes of membership administration, qualification/accreditation records, training/study materials, exams, CPD, support, service improvement, regulatory/disciplinary functions, and marketing. If you have any questions or concerns about IIM's data protection and privacy policy, you can direct them to dpo@iim-africa.org.",
+      "answer": "IIM collects identity/contact, membership, payment, qualification/exam, MCPD, employment, query/complaint, event/training media, and potentially biometric data through various sources such as membership applications, examination registration, events/training, customer service, and some third-party sources.\n\nAccording to IIM's privacy policy, it does not sell personal information. However, the policy allows lawful/necessary sharing with relevant service providers, employers, regulators, and legal authorities.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1051,7 +956,7 @@
       "id": "privacy-rights-contact",
       "question": "What privacy rights do I have and how can I contact IIM's data protection team?",
       "passed": true,
-      "answer": "**Your Privacy Rights with IIM** According to IIM's privacy policy, you have the following listed rights: * Access\n* Withdrawal of consent where applicable\n* Portability in some circumstances\n* Rectification\n* Erasure in specific situations If you have any questions or concerns about your data protection or would like to contact IIM's Data Protection Officer (DPO), you can reach out to them at: dpo@iim-africa.org",
+      "answer": "You have the following listed rights under IIM's privacy policy:\n\n* Access\n* Withdrawal of consent where applicable\n* Portability in some circumstances\n* Rectification\n* Erasure in specific situations\n\nTo contact IIM's Data Protection Officer (DPO), you can email them at dpo@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1071,7 +976,7 @@
       "id": "department-contacts",
       "question": "How do I contact IIM's membership and certification departments?",
       "passed": true,
-      "answer": "To contact IIM's membership department, you can send an email to: membership@iim-africa.org Alternatively, you can also reach out to them by phone at +234 808 377 3640. For certification-related inquiries, please contact: certification@iim-africa.org",
+      "answer": "To contact IIM's membership department, send an email to: membership@iim-africa.org.\n\nAlternatively, you can also reach out to them by phone at +234 808 377 3640.\n\nFor certification-related inquiries, please contact: certification@iim-africa.org.\n\nYou can also find more general information about IIM's contacts on our official website.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1131,7 +1036,7 @@
       "id": "ibadan-office",
       "question": "Does IIM have an office in Ibadan?",
       "passed": true,
-      "answer": "Yes, according to IIM has a location listed at Shop 14, Dokal Shopping Plaza, off Orita Police Station, Orita Challenge, Ibadan, Oyo State, Nigeria. However, please note that this information is currently pending verification and should be confirmed with IIM before considering it as a permanent primary office address.",
+      "answer": "Yes, IIM has a location listed on its Staff Contacts page at Shop 14, Dokal Shopping Plaza, off Orita Police Station, Orita Challenge, Ibadan, Oyo State, Nigeria. However, please note that this information is currently pending verification by IIM. For the most up-to-date and confirmed contact details, we recommend contacting IIM directly using their official email addresses: info@iim-africa.org or membership@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1150,26 +1055,11 @@
     {
       "id": "australia-office",
       "question": "What is the address and phone number for IIM Australia?",
-      "passed": false,
-      "answer": "I don't have information on an IIM Australia contact address or phone number in my approved knowledge. However, I can suggest that you visit the official IIM website to find the most up-to-date and accurate contact details for IIM Australia. Alternatively, you may want to reach out to the general contact email: info@iim-africa.org",
+      "passed": true,
+      "answer": "IIM Australia lists its contact as 23/122 Johnson Road Rd, Hillcrest QLD 4118, Australia; phone +61 451 109 163; email info@iim-africa.org.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "122 Johnson Road",
-            "23/122 Johnson Road"
-          ],
-          [
-            "Hillcrest"
-          ],
-          [
-            "QLD 4118",
-            "Queensland 4118"
-          ],
-          [
-            "+61 451 109 163"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -1185,19 +1075,11 @@
     {
       "id": "south-africa-office",
       "question": "How can I contact IIM South Africa?",
-      "passed": false,
-      "answer": "To contact IIM South Africa, you can visit their official website and look for their contact page, or use one of the following email addresses: * Phone: +27 61 539 2837\n* Email: * Training: training@iim-africa.org * General: info@iim-africa.org * Membership: membership@iim-africa.org * Certification: certification@iim-africa.org",
+      "passed": true,
+      "answer": "IIM South Africa's contact page lists 52 Monte Carlo Drive, Centurion, Pretoria 0157, South Africa; phone +27 61 539 2837; email training@iim-africa.org.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "52 Monte Carlo Drive"
-          ],
-          [
-            "Centurion",
-            "Pretoria"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
@@ -1213,36 +1095,22 @@
     {
       "id": "office-locations",
       "question": "Where are IIM's offices?",
-      "passed": false,
-      "answer": "I couldn't confirm an answer because this information is not included in the approved IIM knowledge. I can help with certifications, membership, training, events, advisory services, or official contact information. For an official answer, contact IIM at info@iim-africa.org.",
+      "passed": true,
+      "answer": "IIM lists these offices:\n\n**Nigeria**\n- Abuja: 3rd Floor, Upper Grace Plaza, Plot 217 Shettima Munguno Crescent, behind Julius Berger Yard, Utako, Abuja, Nigeria\n- Lagos: Association Avenue, Ilupeju, Lagos, Nigeria. Official pages differ on the street number, so confirm it with IIM before visiting.\n- Ibadan: Shop 14, Dokal Shopping Plaza, off Orita Police Station, Orita Challenge, Ibadan, Oyo State, Nigeria, phone +234 907 0556 463. Listed on IIM's Staff Contacts page; confirm before visiting.\n\n**Australia**\n- 23/122 Johnson Road Rd, Hillcrest QLD 4118, Australia, phone +61 451 109 163\n\n**South Africa**\n- 52 Monte Carlo Drive, Centurion, Pretoria 0157, South Africa, phone +27 61 539 2837\n\nFor general enquiries, email info@iim-africa.org.",
       "requiredCheck": {
-        "passed": false,
-        "failedGroups": [
-          [
-            "Abuja"
-          ],
-          [
-            "Lagos"
-          ],
-          [
-            "Ibadan"
-          ]
-        ]
+        "passed": true,
+        "failedGroups": []
       },
       "forbiddenCheck": {
         "passed": true,
         "foundTerms": []
       },
       "sourceCheck": {
-        "passed": false,
-        "missingSources": [
-          "ng_office_abuja",
-          "ng_office_lagos",
-          "ng_office_ibadan"
-        ]
+        "passed": true,
+        "missingSources": []
       },
-      "fallbackPassed": false,
-      "actualFallback": true
+      "fallbackPassed": true,
+      "actualFallback": false
     },
     {
       "id": "events-types",
@@ -1268,7 +1136,7 @@
       "id": "current-event",
       "question": "What is the date and venue of the next IIM conference?",
       "passed": true,
-      "answer": "I don't have information on the exact date and venue of the next IIM conference, as this information is time-sensitive and subject to change. For the most up-to-date information on upcoming events, including conferences, conventions, webinars, workshops, and other professional events, please visit the live IIM event page or contact the relevant IIM team directly. You can reach out to the IIM General Team at info@iim-africa.org for more information.",
+      "answer": "I don't have information on the exact date and venue of the next IIM conference, as this information is time-sensitive and subject to change. For the most up-to-date information on upcoming events, including conferences, conventions, webinars, workshops, and other professional events, please visit the live IIM event page or contact the relevant IIM team directly at:\n\ninfo@iim-africa.org (General inquiries)\nmembership@iim-africa.org (Membership-related queries)\ncertification@iim-africa.org (Certification-related queries)\ntraining@iim-africa.org (Training-related queries)",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
@@ -1288,7 +1156,7 @@
       "id": "current-fees-caution",
       "question": "Are the membership fees shown by the chatbot guaranteed to be current today?",
       "passed": true,
-      "answer": "No, the membership fees shown are not guaranteed to be current today. According to \"Fees, event calendars, training dates, provider accreditation validity and live certification status can change.\" This means that the information may have changed since it was last updated or verified. To get the most up-to-date information, we recommend directing you to the current IIM website or contacting our Membership department at membership@iim-africa.org.",
+      "answer": "No, the membership fees shown are not guaranteed to be current today.\n\nNigeria membership fees were displayed on IIM's official Grades page on 13 August 2026 and may have changed since then. The chatbot should direct users to the current IIM website or responsible department for the most up-to-date information.\n\nIf you need the latest information, please contact our Membership team at membership@iim-africa.org.",
       "requiredCheck": {
         "passed": true,
         "failedGroups": []
